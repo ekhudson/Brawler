@@ -217,6 +217,8 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
         {
             ProcessMouseInput(e.button, e.type);
         }
+
+
     }
 
     private void ProcessKeycode(KeyCode code, UserInputKeyEvent.TYPE inputType)
@@ -291,6 +293,19 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
             }
         }
     }
+
+	private void ProcessJoystickInput()
+	{
+		if (Input.GetAxis("Horizontal") != 0)
+		{
+
+		}
+
+		if (Input.GetAxis("Veritcal") != 0)
+		{
+
+		}
+	}
 
     /// <summary>
     /// Enables or disables a binding.
