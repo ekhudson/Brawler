@@ -8,6 +8,7 @@ public class PlayerComponent : Singleton<PlayerComponent>
     public float MoveSpeed = 1.0f;
     public float ClimbSpeed = 1.0f;
 	public float JumpForce = 2.0f;
+	public float MinimumJumpTime = 0.5f;
 	public AnimationCurve JumpCurve = new AnimationCurve();
 
     protected Vector3 mTarget = Vector3.zero;
@@ -77,12 +78,13 @@ public class PlayerComponent : Singleton<PlayerComponent>
     
             case PlayerComponent.PlayerStates.JUMPING:
 
-				if (mTimeInState > JumpCurve.keys[JumpCurve.length - 1].time)
+				if (mTimeInState > JumpCurve.keys[JumpCurve.length - 1].time && mTimeInState > MinimumJumpTime)
 				{
 					SetState(PlayerStates.FALLING);
 					return;
 				}
 
+				mController.SetGrounded(false);
 				mController.Move( mController.BaseTransform.up * (JumpForce * JumpCurve.Evaluate(mTimeInState)));				
     
             break;
@@ -171,7 +173,7 @@ public class PlayerComponent : Singleton<PlayerComponent>
 
 	public void InputHandler(object sender, UserInputKeyEvent evt)
 	{
-		if (GetState == PlayerComponent.PlayerStates.IDLE || GetState == PlayerComponent.PlayerStates.MOVING)
+		if (GetState == PlayerComponent.PlayerStates.IDLE || GetState == PlayerComponent.PlayerStates.MOVING || mPlayerState == PlayerStates.FALLING || mPlayerState == PlayerStates.JUMPING)
 		{
 			
 			if(evt.KeyBind == BrawlerUserInput.Instance.MoveLeft && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
@@ -189,7 +191,7 @@ public class PlayerComponent : Singleton<PlayerComponent>
 				
 			}
 
-			if(evt.KeyBind == BrawlerUserInput.Instance.Jump && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN))
+			if(evt.KeyBind == BrawlerUserInput.Instance.Jump)
 			{
 				switch(evt.Type)
 				{

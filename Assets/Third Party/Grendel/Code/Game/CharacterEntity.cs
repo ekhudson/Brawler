@@ -10,6 +10,7 @@ public class CharacterEntity : Entity
     private Vector3 mCurrentMove = Vector3.zero;
     private bool mIsGrounded = false;
 	private PlayerStates mState = PlayerStates.USING;
+	private int mLayer = 0;
 	
 	public enum PlayerStates
 	{
@@ -54,6 +55,7 @@ public class CharacterEntity : Entity
     protected override void Start ()
     {
         base.Start();
+		mLayer = mGameObject.layer;
     }
     
     // Update is called once per frame
@@ -82,7 +84,7 @@ public class CharacterEntity : Entity
         Ray ray = new Ray(mTransform.position, -mTransform.up);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, ~(1 << mGameObject.layer)))
+		if (Physics.Raycast(ray, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, ~(1 << mLayer)))
         {
             mIsGrounded = true;
         }
