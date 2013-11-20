@@ -186,7 +186,9 @@ namespace GrendelEditor.UI
 
             if (isLayout)
             {
-                GUILayout.BeginHorizontal();
+				GUI.SetNextControlName(id.ToString());
+
+				GUILayout.BeginHorizontal();
 
                 GUILayout.Label("Key: ");
 
@@ -200,6 +202,7 @@ namespace GrendelEditor.UI
                     GUI.color = Color.green;
                     buttonText = "Press key to bind";
                     GUIUtility.keyboardControl = id;
+					GUI.FocusControl(id.ToString());
                 }
 
                 controlState.WaitingForMainKeypress = GUILayout.Toggle(controlState.WaitingForMainKeypress, buttonText, GUI.skin.button, GUILayout.Width(buttonWidth));
@@ -238,6 +241,7 @@ namespace GrendelEditor.UI
                     GUI.color = Color.green;
                     buttonText = "Press key to bind";
                     GUIUtility.keyboardControl = id;
+					GUI.FocusControl(id.ToString());
                 }
 
                 controlState.WaitingForAltKeypress = GUILayout.Toggle(controlState.WaitingForAltKeypress, buttonText, GUI.skin.button, GUILayout.Width(buttonWidth));

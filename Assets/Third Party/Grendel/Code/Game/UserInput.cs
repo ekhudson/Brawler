@@ -1,82 +1,31 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using XInputDotNetPure; // Required in C#
 
 public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 {
-//    [System.Serializable]
-//    public class GrendelKeyBinding
-//    {
-//        public string BindingName = "New Binding";
-//        public KeyCode Key = KeyCode.A;
-//        public KeyCode AltKey = KeyCode.B;
-//        public bool Enabled = true;
-//        public GrendelKeyBinding.MouseButtons MouseButton = UserInput.GrendelKeyBinding.MouseButtons.None;
-//        public GrendelKeyBinding.MouseButtons AltMouseButton = UserInput.GrendelKeyBinding.MouseButtons.None;
-//        public List<UserInput<T>.GrendelKeyBinding> Conflicts = new List<UserInput<T>.GrendelKeyBinding>(); //TODO: Figure out the most efficient way to update keybind conflicts
-//
-//        private bool mIsDown = false;
-//
-//        public GrendelKeyBinding(string bindingName, KeyCode key, KeyCode altKey, GrendelKeyBinding.MouseButtons mouseButton, GrendelKeyBinding.MouseButtons altMouseButton)
-//        {
-//            BindingName = bindingName;
-//            Key = key;
-//            AltKey = altKey;
-//            MouseButton = mouseButton;
-//            AltMouseButton = altMouseButton;
-//        }
-//
-//        public GrendelKeyBinding(string bindingName, KeyCode key, KeyCode altKey)
-//        {
-//            BindingName = bindingName;
-//            Key = key;
-//            AltKey = altKey;
-//            MouseButton = GrendelKeyBinding.MouseButtons.None;
-//            AltMouseButton = GrendelKeyBinding.MouseButtons.None;
-//        }
-//
-//        public bool IsDown
-//        {
-//            get
-//            {
-//                return mIsDown;
-//            }
-//            set
-//            {
-//                mIsDown = value;
-//            }
-//        }
-//    }
-
-//    public enum GrendelKeyBinding.MouseButtons
-//    {
-//        None = 0,
-//        One = 1,
-//        Two,
-//        Three,
-//        Four,
-//        Five,
-//        Six,
-//    }
-
     public float MouseSensitivityVertical = 1f;
     public float MouseSensitivityHorizontal = 1f;
 
-    [HideInInspector]public GrendelKeyBinding MoveUp = new GrendelKeyBinding("Move Up", KeyCode.W, KeyCode.UpArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
-    [HideInInspector]public GrendelKeyBinding MoveDown = new GrendelKeyBinding("Move Down", KeyCode.S, KeyCode.DownArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
-    [HideInInspector]public GrendelKeyBinding MoveLeft = new GrendelKeyBinding("Move Left", KeyCode.A, KeyCode.LeftArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
-    [HideInInspector]public GrendelKeyBinding MoveRight = new GrendelKeyBinding("Move Right", KeyCode.D, KeyCode.RightArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
-    [HideInInspector]public GrendelKeyBinding Jump = new GrendelKeyBinding("Jump", KeyCode.Space, KeyCode.Return, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
-    [HideInInspector]public GrendelKeyBinding Run = new GrendelKeyBinding("Run", KeyCode.LeftShift, KeyCode.RightShift, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
-    [HideInInspector]public GrendelKeyBinding PrimaryFire = new GrendelKeyBinding("Primary Fire", KeyCode.None, KeyCode.None, GrendelKeyBinding.MouseButtons.One, GrendelKeyBinding.MouseButtons.None);
-    [HideInInspector]public GrendelKeyBinding SecondaryFire = new GrendelKeyBinding("Secondary Fire", KeyCode.None, KeyCode.None, GrendelKeyBinding.MouseButtons.Two, GrendelKeyBinding.MouseButtons.None);
+	[HideInInspector]public GrendelKeyBinding MoveUp = new GrendelKeyBinding("Move Up", KeyCode.W, KeyCode.UpArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.Joysticks.None);
+	[HideInInspector]public GrendelKeyBinding MoveDown = new GrendelKeyBinding("Move Down", KeyCode.S, KeyCode.DownArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.Joysticks.None);
+    [HideInInspector]public GrendelKeyBinding MoveLeft = new GrendelKeyBinding("Move Left", KeyCode.A, KeyCode.LeftArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.Joysticks.None);
+	[HideInInspector]public GrendelKeyBinding MoveRight = new GrendelKeyBinding("Move Right", KeyCode.D, KeyCode.RightArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.Joysticks.None);
+    [HideInInspector]public GrendelKeyBinding Jump = new GrendelKeyBinding("Jump", KeyCode.Space, KeyCode.Return, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.Joysticks.None);
+	[HideInInspector]public GrendelKeyBinding Run = new GrendelKeyBinding("Run", KeyCode.LeftShift, KeyCode.RightShift, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.Joysticks.None);
+	[HideInInspector]public GrendelKeyBinding PrimaryFire = new GrendelKeyBinding("Primary Fire", KeyCode.None, KeyCode.None, GrendelKeyBinding.MouseButtons.One, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.Joysticks.None);
+	[HideInInspector]public GrendelKeyBinding SecondaryFire = new GrendelKeyBinding("Secondary Fire", KeyCode.None, KeyCode.None, GrendelKeyBinding.MouseButtons.Two, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.Joysticks.None);
 
     [HideInInspector]public List<GrendelKeyBinding> KeyBindings = new List<GrendelKeyBinding>();
 
     private Dictionary<KeyCode, List<GrendelKeyBinding>> mGrendelKeyBindingsDictionary = new Dictionary<KeyCode, List<GrendelKeyBinding>>();
     private Dictionary<GrendelKeyBinding.MouseButtons, List<GrendelKeyBinding>> mMouseBindingsDictionary = new Dictionary<GrendelKeyBinding.MouseButtons, List<GrendelKeyBinding>>();
+	private Dictionary<GrendelKeyBinding.Joysticks, List<GrendelKeyBinding>> mJoystickBindingsDictionary = new Dictionary<GrendelKeyBinding.Joysticks, List<GrendelKeyBinding>>();
 
     private List<GrendelKeyBinding> mKeysDown = new List<GrendelKeyBinding>();
+
+	private List<int> mConnectControllerIndexes = new List<int>();
     
     // Use this for initialization
     private void Start ()
@@ -84,7 +33,22 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
         GatherKeyBindings(this.GetType());
         StoreGrendelKeyBindings();
         mKeysDown.Clear();
+		GetConnectedControllers();
     }
+
+	private void GetConnectedControllers()
+	{
+		for (int i = 0; i < 4; ++i)
+		{
+			PlayerIndex testPlayerIndex = (PlayerIndex)i;
+			GamePadState testState = GamePad.GetState(testPlayerIndex);
+			if (testState.IsConnected)
+			{
+				Debug.Log(string.Format("GamePad found {0}", testPlayerIndex));
+				mConnectControllerIndexes.Add(i);
+			}
+		}
+	}
 
     //Find all the GrendelKeyBindings on UserInput
     public void GatherKeyBindings(System.Type t)
@@ -160,32 +124,24 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
                     mMouseBindingsDictionary[binding.AltMouseButton].Add(binding);
                 }
             }
+
+			if (binding.Joystick != GrendelKeyBinding.Joysticks.None)
+			{
+				if (!mJoystickBindingsDictionary.ContainsKey(binding.Joystick))
+				{
+					mJoystickBindingsDictionary.Add(binding.Joystick, new List<GrendelKeyBinding>(){ binding });
+				}
+				else
+				{
+					mJoystickBindingsDictionary[binding.Joystick].Add(binding);
+				}
+			}
         }
     }
      
     // Update is called once per frame
     private void Update ()
-    {
-        if(Input.GetAxis("Mouse ScrollWheel") > 0)
-        {
-    
-        }
-    
-        if(Input.GetAxis("Mouse ScrollWheel") < 0)
-        {
-
-        }
-
-        if(Input.GetKeyDown(KeyCode.Equals))
-        {//
-          //  AudioManager.Instance.VolumeUp();
-        }
-
-        if(Input.GetKeyDown(KeyCode.Minus))
-        {
-           // AudioManager.Instance.VolumeDown();
-        }
-
+    { 
         if(Input.GetKeyDown(KeyCode.BackQuote))
         {
             if(GameOptions.Instance.DebugMode){ Console.Instance.ToggleConsole(); }
@@ -203,7 +159,7 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 
         if (e.isKey && e.keyCode != KeyCode.None)
         {
-            if(e.type == EventType.KeyDown)
+            if(e.type == EventType.KeyDown || e.button != null)
             {
                 ProcessKeycode(e.keyCode, UserInputKeyEvent.TYPE.KEYDOWN);
             }
@@ -218,7 +174,7 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
             ProcessMouseInput(e.button, e.type);
         }
 
-
+		GatherJoystickInput();
     }
 
     private void ProcessKeycode(KeyCode code, UserInputKeyEvent.TYPE inputType)
@@ -294,14 +250,28 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
         }
     }
 
-	private void ProcessJoystickInput()
+	private void GatherJoystickInput()
 	{
-		if (Input.GetAxis("Horizontal") != 0)
+		for(int i = 0; i < mConnectControllerIndexes.Count; i++)
 		{
+			int controllerIndex = mConnectControllerIndexes[i];		
+			PlayerIndex playerIndex = (PlayerIndex)controllerIndex;
+			GamePadState state = GamePad.GetState(playerIndex);
 
+			if (!state.IsConnected)
+			{
+				Console.Instance.OutputToConsole(string.Format("Controller {0} has been disconnected!", controllerIndex.ToString()), Console.Instance.Style_Error);
+				mConnectControllerIndexes.Remove(controllerIndex);
+				continue;
+			}
+
+			ProcessJoystickInput(state, playerIndex);
 		}
+	}
 
-		if (Input.GetAxis("Veritcal") != 0)
+	private void ProcessJoystickInput(GamePadState state, PlayerIndex playerIndex)
+	{
+		if (state.Buttons.A == ButtonState.Pressed)
 		{
 
 		}

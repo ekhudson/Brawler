@@ -79,15 +79,33 @@ public class UserInputEditor : GrendelEditor<BrawlerUserInput>
 
                         EditorGUILayout.PrefixLabel("Alt Mouse:");
                         binding.AltMouseButton = (GrendelKeyBinding.MouseButtons)EditorGUILayout.EnumPopup( binding.AltMouseButton);
+		
+						GUI.color = Color.white;
 
-                         GUI.color = Color.white;
-
-                    if(EditorGUI.EndChangeCheck())
-                    {
-                        changed = true;
-                    }
-    
+						
+                    
                     GUILayout.EndHorizontal();
+
+			if (binding.Joystick == GrendelKeyBinding.Joysticks.None)
+			{
+				GUI.color = Color.grey;
+			}
+			
+			EditorGUILayout.PrefixLabel("Joystick:");
+			binding.Joystick = (GrendelKeyBinding.Joysticks)EditorGUILayout.EnumPopup( binding.Joystick );
+			
+			
+			GUI.color = Color.white;
+
+			binding.Key = (KeyCode)EditorGUILayout.EnumPopup( "Key", binding.Key );
+			binding.AltKey = (KeyCode)EditorGUILayout.EnumPopup( "AltKey", binding.AltKey );
+
+
+			if(EditorGUI.EndChangeCheck())
+			{
+				changed = true;
+			}
+
 
             EditorGUI.indentLevel--;
 

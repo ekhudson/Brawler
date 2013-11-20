@@ -11,9 +11,20 @@ public class GrendelKeyBinding
     public bool Enabled = true;
     public MouseButtons MouseButton = MouseButtons.None;
     public MouseButtons AltMouseButton = MouseButtons.None;
-    public List<GrendelKeyBinding> Conflicts = new List<GrendelKeyBinding>(); //TODO: Figure out the most efficient way to update keybind conflicts
+	public Joysticks Joystick = Joysticks.None;
+	public List<GrendelKeyBinding> Conflicts = new List<GrendelKeyBinding>(); //TODO: Figure out the most efficient way to update keybind conflicts
 
     private bool mIsDown = false;
+
+	public GrendelKeyBinding(string bindingName, KeyCode key, KeyCode altKey, MouseButtons mouseButton, MouseButtons altMouseButton, GrendelKeyBinding.Joysticks joystick)
+	{
+		BindingName = bindingName;
+		Key = key;
+		AltKey = altKey;
+		MouseButton = mouseButton;
+		AltMouseButton = altMouseButton;
+		Joystick = joystick;
+	}
 
     public GrendelKeyBinding(string bindingName, KeyCode key, KeyCode altKey, MouseButtons mouseButton, MouseButtons altMouseButton)
     {
@@ -55,4 +66,20 @@ public class GrendelKeyBinding
         Five,
         Six,
     }
+
+	public enum Joysticks
+	{
+		None = 0,
+		Joystick1 = 1,
+		Joystick2 = 2,
+		Joystick3 = 3,
+		Joystick4 = 4,
+		Joystick5 = 5,
+		Joystick6 = 6,
+		Joystick7 = 7,
+		Joystick8 = 8,
+		Joystick9 = 9,
+		Joystick10 = 10,
+		Joystick11 = 11,
+	}
 }

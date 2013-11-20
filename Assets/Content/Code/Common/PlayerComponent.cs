@@ -232,6 +232,11 @@ public class PlayerComponent : Singleton<PlayerComponent>
 			{
 				
 			}
+
+			if (evt.KeyBind == BrawlerUserInput.Instance.MoveCharacter)
+			{
+				mTarget.x += (evt.JoystickInfo.AmountX);
+			}
 		}       
 	}
 
