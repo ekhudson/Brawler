@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+using XInputDotNetPure;
+
 [System.Serializable]
 public class GrendelKeyBinding
 {
@@ -11,20 +13,28 @@ public class GrendelKeyBinding
     public bool Enabled = true;
     public MouseButtons MouseButton = MouseButtons.None;
     public MouseButtons AltMouseButton = MouseButtons.None;
-	public Joysticks Joystick = Joysticks.None;
 	public List<GrendelKeyBinding> Conflicts = new List<GrendelKeyBinding>(); //TODO: Figure out the most efficient way to update keybind conflicts
 
-    private bool mIsDown = false;
-
-	public GrendelKeyBinding(string bindingName, KeyCode key, KeyCode altKey, MouseButtons mouseButton, MouseButtons altMouseButton, GrendelKeyBinding.Joysticks joystick)
+	[System.Serializable]
+	public class GamePadButtonBinding
 	{
-		BindingName = bindingName;
-		Key = key;
-		AltKey = altKey;
-		MouseButton = mouseButton;
-		AltMouseButton = altMouseButton;
-		Joystick = joystick;
+		[HideInInspector]public string Name = string.Empty;
+		public bool BindToThisButton = false;
+		private ButtonState mButton;
+
+		public GamePadButtonBinding(ButtonState button)
+		{
+			mButton = button;
+		}
 	}
+
+	public GamePadButtonBinding A = new GamePadButtonBinding(Buttons.A);
+	public GamePadButtonBinding B = new GamePadButtonBinding(Buttons.B);
+	public GamePadButtonBinding X = new GamePadButtonBinding(Buttons.X);
+	public GamePadButtonBinding Y = new GamePadButtonBinding(Buttons.Y);
+
+
+    private bool mIsDown = false;
 
     public GrendelKeyBinding(string bindingName, KeyCode key, KeyCode altKey, MouseButtons mouseButton, MouseButtons altMouseButton)
     {
@@ -67,19 +77,11 @@ public class GrendelKeyBinding
         Six,
     }
 
-	public enum Joysticks
+	public static GamePadButtons Buttons
 	{
-		None = 0,
-		Joystick1 = 1,
-		Joystick2 = 2,
-		Joystick3 = 3,
-		Joystick4 = 4,
-		Joystick5 = 5,
-		Joystick6 = 6,
-		Joystick7 = 7,
-		Joystick8 = 8,
-		Joystick9 = 9,
-		Joystick10 = 10,
-		Joystick11 = 11,
+		get
+		{
+			return new GamePadButtons();
+		}
 	}
 }

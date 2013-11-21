@@ -8,20 +8,19 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
     public float MouseSensitivityVertical = 1f;
     public float MouseSensitivityHorizontal = 1f;
 
-	[HideInInspector]public GrendelKeyBinding MoveUp = new GrendelKeyBinding("Move Up", KeyCode.W, KeyCode.UpArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.Joysticks.None);
-	[HideInInspector]public GrendelKeyBinding MoveDown = new GrendelKeyBinding("Move Down", KeyCode.S, KeyCode.DownArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.Joysticks.None);
-    [HideInInspector]public GrendelKeyBinding MoveLeft = new GrendelKeyBinding("Move Left", KeyCode.A, KeyCode.LeftArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.Joysticks.None);
-	[HideInInspector]public GrendelKeyBinding MoveRight = new GrendelKeyBinding("Move Right", KeyCode.D, KeyCode.RightArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.Joysticks.None);
-    [HideInInspector]public GrendelKeyBinding Jump = new GrendelKeyBinding("Jump", KeyCode.Space, KeyCode.Return, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.Joysticks.None);
-	[HideInInspector]public GrendelKeyBinding Run = new GrendelKeyBinding("Run", KeyCode.LeftShift, KeyCode.RightShift, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.Joysticks.None);
-	[HideInInspector]public GrendelKeyBinding PrimaryFire = new GrendelKeyBinding("Primary Fire", KeyCode.None, KeyCode.None, GrendelKeyBinding.MouseButtons.One, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.Joysticks.None);
-	[HideInInspector]public GrendelKeyBinding SecondaryFire = new GrendelKeyBinding("Secondary Fire", KeyCode.None, KeyCode.None, GrendelKeyBinding.MouseButtons.Two, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.Joysticks.None);
+	[HideInInspector]public GrendelKeyBinding MoveUp = new GrendelKeyBinding("Move Up", KeyCode.W, KeyCode.UpArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
+	[HideInInspector]public GrendelKeyBinding MoveDown = new GrendelKeyBinding("Move Down", KeyCode.S, KeyCode.DownArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
+    [HideInInspector]public GrendelKeyBinding MoveLeft = new GrendelKeyBinding("Move Left", KeyCode.A, KeyCode.LeftArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
+	[HideInInspector]public GrendelKeyBinding MoveRight = new GrendelKeyBinding("Move Right", KeyCode.D, KeyCode.RightArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
+    [HideInInspector]public GrendelKeyBinding Jump = new GrendelKeyBinding("Jump", KeyCode.Space, KeyCode.Return, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
+	[HideInInspector]public GrendelKeyBinding Run = new GrendelKeyBinding("Run", KeyCode.LeftShift, KeyCode.RightShift, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
+	[HideInInspector]public GrendelKeyBinding PrimaryFire = new GrendelKeyBinding("Primary Fire", KeyCode.None, KeyCode.None, GrendelKeyBinding.MouseButtons.One, GrendelKeyBinding.MouseButtons.None);
+	[HideInInspector]public GrendelKeyBinding SecondaryFire = new GrendelKeyBinding("Secondary Fire", KeyCode.None, KeyCode.None, GrendelKeyBinding.MouseButtons.Two, GrendelKeyBinding.MouseButtons.None);
 
     [HideInInspector]public List<GrendelKeyBinding> KeyBindings = new List<GrendelKeyBinding>();
 
     private Dictionary<KeyCode, List<GrendelKeyBinding>> mGrendelKeyBindingsDictionary = new Dictionary<KeyCode, List<GrendelKeyBinding>>();
     private Dictionary<GrendelKeyBinding.MouseButtons, List<GrendelKeyBinding>> mMouseBindingsDictionary = new Dictionary<GrendelKeyBinding.MouseButtons, List<GrendelKeyBinding>>();
-	private Dictionary<GrendelKeyBinding.Joysticks, List<GrendelKeyBinding>> mJoystickBindingsDictionary = new Dictionary<GrendelKeyBinding.Joysticks, List<GrendelKeyBinding>>();
 
     private List<GrendelKeyBinding> mKeysDown = new List<GrendelKeyBinding>();
 
@@ -124,18 +123,6 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
                     mMouseBindingsDictionary[binding.AltMouseButton].Add(binding);
                 }
             }
-
-			if (binding.Joystick != GrendelKeyBinding.Joysticks.None)
-			{
-				if (!mJoystickBindingsDictionary.ContainsKey(binding.Joystick))
-				{
-					mJoystickBindingsDictionary.Add(binding.Joystick, new List<GrendelKeyBinding>(){ binding });
-				}
-				else
-				{
-					mJoystickBindingsDictionary[binding.Joystick].Add(binding);
-				}
-			}
         }
     }
      
@@ -271,10 +258,7 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 
 	private void ProcessJoystickInput(GamePadState state, PlayerIndex playerIndex)
 	{
-		if (state.Buttons.A == ButtonState.Pressed)
-		{
 
-		}
 	}
 
     /// <summary>

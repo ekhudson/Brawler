@@ -6,6 +6,8 @@ using UnityEditor;
 
 using GrendelEditor.UI;
 
+using XInputDotNetPure;
+
 [CustomEditor(typeof(BrawlerUserInput), true)]
 public class UserInputEditor : GrendelEditor<BrawlerUserInput>
 {
@@ -20,7 +22,9 @@ public class UserInputEditor : GrendelEditor<BrawlerUserInput>
 
     public override void OnInspectorGUI()
 	{
-        Undo.SetSnapshotTarget(Target, "User Input Change");
+		base.OnInspectorGUI();
+
+		Undo.SetSnapshotTarget(Target, "User Input Change");
 
         DrawDefaultInspector();
 
@@ -84,15 +88,7 @@ public class UserInputEditor : GrendelEditor<BrawlerUserInput>
 
 						
                     
-                    GUILayout.EndHorizontal();
-
-			if (binding.Joystick == GrendelKeyBinding.Joysticks.None)
-			{
-				GUI.color = Color.grey;
-			}
-			
-			EditorGUILayout.PrefixLabel("Joystick:");
-			binding.Joystick = (GrendelKeyBinding.Joysticks)EditorGUILayout.EnumPopup( binding.Joystick );
+                    GUILayout.EndHorizontal();	
 			
 			
 			GUI.color = Color.white;

@@ -22,7 +22,6 @@ public class UserInputKeyEvent : EventBase
 	public class JoystickInfoClass
 	{
 		public readonly PlayerIndex PlayerID;
-		public readonly GrendelKeyBinding.Joysticks JoystickID = GrendelKeyBinding.Joysticks.None;
 		public readonly float AmountX = 0.0f;
 		public readonly float AmountY = 0.0f;
 
