@@ -26,13 +26,30 @@ public class GrendelKeyBinding
 		{
 			mButton = button;
 		}
+
+		public ButtonState Button
+		{
+			get
+			{
+				return mButton;
+			}
+		}
 	}
 
 	public GamePadButtonBinding A = new GamePadButtonBinding(Buttons.A);
 	public GamePadButtonBinding B = new GamePadButtonBinding(Buttons.B);
 	public GamePadButtonBinding X = new GamePadButtonBinding(Buttons.X);
 	public GamePadButtonBinding Y = new GamePadButtonBinding(Buttons.Y);
-
+	public GamePadButtonBinding Up = new GamePadButtonBinding(DPad.Up);
+	public GamePadButtonBinding Down = new GamePadButtonBinding(DPad.Down);
+	public GamePadButtonBinding Left = new GamePadButtonBinding(DPad.Left);
+	public GamePadButtonBinding Right = new GamePadButtonBinding(DPad.Right);
+	public GamePadButtonBinding LeftShoulder = new GamePadButtonBinding(Buttons.LeftShoulder);
+	public GamePadButtonBinding RightShoulder = new GamePadButtonBinding(Buttons.RightShoulder);
+	public GamePadButtonBinding LeftStick = new GamePadButtonBinding(Buttons.LeftStick);
+	public GamePadButtonBinding RightStick = new GamePadButtonBinding(Buttons.RightStick);
+	public GamePadButtonBinding Back = new GamePadButtonBinding(Buttons.Back);
+	public GamePadButtonBinding Start = new GamePadButtonBinding(Buttons.Start);
 
     private bool mIsDown = false;
 
@@ -82,6 +99,14 @@ public class GrendelKeyBinding
 		get
 		{
 			return new GamePadButtons();
+		}
+	}
+
+	public static GamePadDPad DPad
+	{
+		get
+		{
+			return new GamePadDPad();
 		}
 	}
 }

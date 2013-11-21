@@ -21,6 +21,7 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 
     private Dictionary<KeyCode, List<GrendelKeyBinding>> mGrendelKeyBindingsDictionary = new Dictionary<KeyCode, List<GrendelKeyBinding>>();
     private Dictionary<GrendelKeyBinding.MouseButtons, List<GrendelKeyBinding>> mMouseBindingsDictionary = new Dictionary<GrendelKeyBinding.MouseButtons, List<GrendelKeyBinding>>();
+	private Dictionary<ButtonState, List<GrendelKeyBinding>> mGamepPadButtonBindings = new Dictionary<ButtonState, List<GrendelKeyBinding>>();
 
     private List<GrendelKeyBinding> mKeysDown = new List<GrendelKeyBinding>();
 
@@ -161,6 +162,7 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
             ProcessMouseInput(e.button, e.type);
         }
 
+		GatherGamePadInput();
 		GatherJoystickInput();
     }
 
@@ -237,6 +239,73 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
         }
     }
 
+	private void GatherGamePadInput()
+	{
+		for(int i = 0; i < mConnectControllerIndexes.Count; i++)
+		{
+			int controllerIndex = mConnectControllerIndexes[i];		
+			PlayerIndex playerIndex = (PlayerIndex)controllerIndex;
+			GamePadState state = GamePad.GetState(playerIndex);
+			
+			if (!state.IsConnected)
+			{
+				Console.Instance.OutputToConsole(string.Format("Controller {0} has been disconnected!", controllerIndex.ToString()), Console.Instance.Style_Error);
+				mConnectControllerIndexes.Remove(controllerIndex);
+				continue;
+			}
+			
+			ProcessGamePadInput(state, playerIndex);
+		}
+	}
+
+	private void ProcessGamePadInput(GamePadState state, PlayerIndex playerIndex)
+	{
+		ProcessGamePadButton(state.Buttons.A, playerIndex);
+		ProcessGamePadButton(state.Buttons.B, playerIndex);
+		ProcessGamePadButton(state.Buttons.X, playerIndex);
+		ProcessGamePadButton(state.Buttons.Y, playerIndex);
+		ProcessGamePadButton(state.Buttons.LeftStick, playerIndex);
+		ProcessGamePadButton(state.Buttons.RightStick, playerIndex);
+		ProcessGamePadButton(state.Buttons.LeftShoulder, playerIndex);
+		ProcessGamePadButton(state.Buttons.RightShoulder, playerIndex);
+		ProcessGamePadButton(state.Buttons.Back, playerIndex);
+		ProcessGamePadButton(state.Buttons.Start, playerIndex);
+		ProcessGamePadButton(state.DPad.Up, playerIndex);
+		ProcessGamePadButton(state.DPad.Down, playerIndex);
+		ProcessGamePadButton(state.DPad.Left, playerIndex);
+		ProcessGamePadButton(state.DPad.Right, playerIndex);
+	}
+
+	private void ProcessGamePadButton(ButtonState button, PlayerIndex playerIndex)
+	{
+		foreach(GrendelKeyBinding binding in mGamepPadButtonBindings[button])
+		{
+			if (button == ButtonState.Released && !mKeysDown.Contains(binding))
+			{
+				continue;
+			}
+
+			if (binding.Enabled)
+			{
+				if (!mKeysDown.Contains(binding))
+				{
+					mKeysDown.Add(binding);
+					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN, binding, Vector3.zero, this));
+				}
+				else if (mKeysDown.Contains(binding) && button == ButtonState.Released)
+				{
+					mKeysDown.Remove(binding);
+					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_UP, binding, Vector3.zero, this));
+				}
+				else if (mKeysDown.Contains(binding) && button == ButtonState.Pressed)
+				{
+					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_HELD, binding, Vector3.zero, this));
+				}
+			}
+		}
+	}
+
+	//THIS IS A COPY OF GATHER GAME PAD INPUT, DO I NEED BOTH???
 	private void GatherJoystickInput()
 	{
 		for(int i = 0; i < mConnectControllerIndexes.Count; i++)

@@ -10,7 +10,9 @@ public class UserInputKeyEvent : EventBase
         KEYDOWN,
         KEYHELD,
         KEYUP,
-		GAMEPAD_BUTTON,
+		GAMEPAD_BUTTON_DOWN,
+		GAMEPAD_BUTTON_HELD,
+		GAMEPAD_BUTTON_UP,
 		GAMEPAD_JOYSTICK,
     }
     
