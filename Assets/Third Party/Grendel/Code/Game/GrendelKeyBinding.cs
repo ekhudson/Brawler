@@ -13,45 +13,33 @@ public class GrendelKeyBinding
     public bool Enabled = true;
     public MouseButtons MouseButton = MouseButtons.None;
     public MouseButtons AltMouseButton = MouseButtons.None;
+	public GamePadButtonValues ControllerButtons;
+	public GamePadJoystickValues ControllerJoysticks;
+
 	public List<GrendelKeyBinding> Conflicts = new List<GrendelKeyBinding>(); //TODO: Figure out the most efficient way to update keybind conflicts
 
-	[System.Serializable]
-	public class GamePadButtonBinding
+    private bool mIsDown = false;
+
+	public GrendelKeyBinding(string bindingName, KeyCode key, KeyCode altKey, MouseButtons mouseButton, MouseButtons altMouseButton, GamePadButtonValues controllerButtons, GamePadJoystickValues joysticks)
 	{
-		[HideInInspector]public string Name = string.Empty;
-		public bool BindToThisButton = false;
-		private ButtonState mButton;
-
-		public GamePadButtonBinding(ButtonState button)
-		{
-			mButton = button;
-		}
-
-		public ButtonState Button
-		{
-			get
-			{
-				return mButton;
-			}
-		}
+		BindingName = bindingName;
+		Key = key;
+		AltKey = altKey;
+		MouseButton = mouseButton;
+		AltMouseButton = altMouseButton;
+		ControllerButtons = controllerButtons;
+		ControllerJoysticks = joysticks;
 	}
 
-	public GamePadButtonBinding A = new GamePadButtonBinding(Buttons.A);
-	public GamePadButtonBinding B = new GamePadButtonBinding(Buttons.B);
-	public GamePadButtonBinding X = new GamePadButtonBinding(Buttons.X);
-	public GamePadButtonBinding Y = new GamePadButtonBinding(Buttons.Y);
-	public GamePadButtonBinding Up = new GamePadButtonBinding(DPad.Up);
-	public GamePadButtonBinding Down = new GamePadButtonBinding(DPad.Down);
-	public GamePadButtonBinding Left = new GamePadButtonBinding(DPad.Left);
-	public GamePadButtonBinding Right = new GamePadButtonBinding(DPad.Right);
-	public GamePadButtonBinding LeftShoulder = new GamePadButtonBinding(Buttons.LeftShoulder);
-	public GamePadButtonBinding RightShoulder = new GamePadButtonBinding(Buttons.RightShoulder);
-	public GamePadButtonBinding LeftStick = new GamePadButtonBinding(Buttons.LeftStick);
-	public GamePadButtonBinding RightStick = new GamePadButtonBinding(Buttons.RightStick);
-	public GamePadButtonBinding Back = new GamePadButtonBinding(Buttons.Back);
-	public GamePadButtonBinding Start = new GamePadButtonBinding(Buttons.Start);
-
-    private bool mIsDown = false;
+	public GrendelKeyBinding(string bindingName, KeyCode key, KeyCode altKey, MouseButtons mouseButton, MouseButtons altMouseButton, GamePadButtonValues controllerButtons)
+	{
+		BindingName = bindingName;
+		Key = key;
+		AltKey = altKey;
+		MouseButton = mouseButton;
+		AltMouseButton = altMouseButton;
+		ControllerButtons = controllerButtons;
+	}
 
     public GrendelKeyBinding(string bindingName, KeyCode key, KeyCode altKey, MouseButtons mouseButton, MouseButtons altMouseButton)
     {
@@ -94,19 +82,31 @@ public class GrendelKeyBinding
         Six,
     }
 
-	public static GamePadButtons Buttons
+	public enum GamePadButtonValues
 	{
-		get
-		{
-			return new GamePadButtons();
-		}
+		DPadUp = 1,
+		DPadDown = 2,
+		DPadLeft = 4,
+		DPadRight = 8,
+		Start = 16,
+		Back = 32,
+		LeftThumb = 64,
+		RightThumb = 128,
+		LeftShoulder = 256,
+		RightShoulder = 512,
+		A = 4096,
+		B = 8192,
+		X = 16384,
+		Y = 32768
 	}
 
-	public static GamePadDPad DPad
+	public enum GamePadJoystickValues
 	{
-		get
-		{
-			return new GamePadDPad();
-		}
+		LeftTrigger = 1,
+		RightTrigger = 2,
+		LeftStick = 4,
+		RightStick = 8,
 	}
+
+
 }

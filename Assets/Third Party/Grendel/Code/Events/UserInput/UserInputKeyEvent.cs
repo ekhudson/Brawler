@@ -23,13 +23,11 @@ public class UserInputKeyEvent : EventBase
     
 	public class JoystickInfoClass
 	{
-		public readonly PlayerIndex PlayerID;
 		public readonly float AmountX = 0.0f;
 		public readonly float AmountY = 0.0f;
 
-		public JoystickInfoClass(PlayerIndex playerID, float amountX, float amountY)
-		{
-			PlayerID = playerID;
+		public JoystickInfoClass(float amountX, float amountY)
+		{		
 			AmountX = amountX;
 			AmountY = amountY;
 		}

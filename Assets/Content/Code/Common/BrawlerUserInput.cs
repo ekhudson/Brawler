@@ -8,4 +8,5 @@ public class BrawlerUserInput : UserInput <BrawlerUserInput>
     public GrendelKeyBinding RotateObjectRight = new GrendelKeyBinding("RotateObjectRight", KeyCode.E, KeyCode.DownArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
     public GrendelKeyBinding InspectObject = new GrendelKeyBinding("InspectObject", KeyCode.F, KeyCode.DownArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
 	public GrendelKeyBinding MoveCharacter = new GrendelKeyBinding("Move Character", KeyCode.None, KeyCode.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
+	public GrendelKeyBinding Jump = new GrendelKeyBinding("Jump", KeyCode.Space, KeyCode.Return, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
 }

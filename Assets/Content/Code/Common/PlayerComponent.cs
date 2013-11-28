@@ -10,6 +10,8 @@ public class PlayerComponent : Singleton<PlayerComponent>
 	public float JumpForce = 2.0f;
 	public float MinimumJumpTime = 0.5f;
 	public AnimationCurve JumpCurve = new AnimationCurve();
+	public float AirControl = 0.9f;
+	public float ConstantFriction =  0.9f;
 
     protected Vector3 mTarget = Vector3.zero;
     protected CharacterEntity mController;
@@ -62,54 +64,64 @@ public class PlayerComponent : Singleton<PlayerComponent>
             return;
         }
 
+		switch(GetState)
+		{
+		case PlayerComponent.PlayerStates.IDLE:
+			
+			break;
+			
+		case PlayerComponent.PlayerStates.MOVING:
+			
+			break;
+			
+		case PlayerComponent.PlayerStates.JUMPING:
+			
+			if (mTimeInState > JumpCurve.keys[JumpCurve.length - 1].time && mTimeInState > MinimumJumpTime)
+			{
+				SetState(PlayerStates.FALLING);
+				return;
+			}
+			
+			mController.SetGrounded(false);
+			mController.Move( mController.BaseTransform.up * (JumpForce * JumpCurve.Evaluate(mTimeInState)));	
+			
+			mTarget *= AirControl;
+			
+			break;
+			
+		case PlayerComponent.PlayerStates.FALLING:
+			
+			if (mController.IsGrounded)
+			{
+				SetState(PlayerStates.IDLE);
+			}
+			
+			mTarget *= AirControl;
+
+			break;
+			
+		case PlayerComponent.PlayerStates.LANDING:
+			
+			break;
+			
+		case PlayerComponent.PlayerStates.USING:
+			
+			break;
+			
+		case PlayerComponent.PlayerStates.FROZEN:
+			
+			break;
+		}
+
+
         Vector3 norm = mTarget.normalized;
         mController.Move( ((new Vector3(norm.x, 0, norm.z) * (MoveSpeed)) + new Vector3(0, mTarget.y, 0)) * Time.deltaTime);
-        mTarget = Vector3.zero;
+        mTarget = Vector3.zero; 
 
-        switch(GetState)
-        {
-            case PlayerComponent.PlayerStates.IDLE:
-
-            break;
-    
-            case PlayerComponent.PlayerStates.MOVING:
-    
-            break;
-    
-            case PlayerComponent.PlayerStates.JUMPING:
-
-				if (mTimeInState > JumpCurve.keys[JumpCurve.length - 1].time && mTimeInState > MinimumJumpTime)
-				{
-					SetState(PlayerStates.FALLING);
-					return;
-				}
-
-				mController.SetGrounded(false);
-				mController.Move( mController.BaseTransform.up * (JumpForce * JumpCurve.Evaluate(mTimeInState)));				
-    
-            break;
-
-			case PlayerComponent.PlayerStates.FALLING:
-
-				if (mController.IsGrounded)
-				{
-					SetState(PlayerStates.IDLE);
-				}
-			
-			break;
-
-			case PlayerComponent.PlayerStates.LANDING:
-			
-			break;
-
-            case PlayerComponent.PlayerStates.USING:
-
-            break;
-
-            case PlayerComponent.PlayerStates.FROZEN:
-
-            break;
-        }
+		if (ConstantFriction > 0 && mController.BaseRigidbody.velocity != Vector3.zero)
+		{
+			mController.BaseRigidbody.velocity *= ConstantFriction;
+		}
 
 		mTimeInState += Time.deltaTime;
     }	
@@ -195,7 +207,7 @@ public class PlayerComponent : Singleton<PlayerComponent>
 			{
 				switch(evt.Type)
 				{
-					case UserInputKeyEvent.TYPE.KEYDOWN:
+					case UserInputKeyEvent.TYPE.KEYDOWN: 
 
 						SetState(PlayerStates.JUMPING);
 
@@ -209,6 +221,22 @@ public class PlayerComponent : Singleton<PlayerComponent>
 
 					case UserInputKeyEvent.TYPE.KEYHELD:
 
+					break;
+
+					case UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN: 
+						
+						SetState(PlayerStates.JUMPING);
+						
+						break;
+						
+					case UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_UP:
+						
+						SetState(PlayerStates.FALLING);
+						
+						break;
+						
+					case UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_HELD:
+					
 					break;
 				}
 			}

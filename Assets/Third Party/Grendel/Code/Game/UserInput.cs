@@ -12,7 +12,6 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 	[HideInInspector]public GrendelKeyBinding MoveDown = new GrendelKeyBinding("Move Down", KeyCode.S, KeyCode.DownArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
     [HideInInspector]public GrendelKeyBinding MoveLeft = new GrendelKeyBinding("Move Left", KeyCode.A, KeyCode.LeftArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
 	[HideInInspector]public GrendelKeyBinding MoveRight = new GrendelKeyBinding("Move Right", KeyCode.D, KeyCode.RightArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
-    [HideInInspector]public GrendelKeyBinding Jump = new GrendelKeyBinding("Jump", KeyCode.Space, KeyCode.Return, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
 	[HideInInspector]public GrendelKeyBinding Run = new GrendelKeyBinding("Run", KeyCode.LeftShift, KeyCode.RightShift, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
 	[HideInInspector]public GrendelKeyBinding PrimaryFire = new GrendelKeyBinding("Primary Fire", KeyCode.None, KeyCode.None, GrendelKeyBinding.MouseButtons.One, GrendelKeyBinding.MouseButtons.None);
 	[HideInInspector]public GrendelKeyBinding SecondaryFire = new GrendelKeyBinding("Secondary Fire", KeyCode.None, KeyCode.None, GrendelKeyBinding.MouseButtons.Two, GrendelKeyBinding.MouseButtons.None);
@@ -21,7 +20,8 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 
     private Dictionary<KeyCode, List<GrendelKeyBinding>> mGrendelKeyBindingsDictionary = new Dictionary<KeyCode, List<GrendelKeyBinding>>();
     private Dictionary<GrendelKeyBinding.MouseButtons, List<GrendelKeyBinding>> mMouseBindingsDictionary = new Dictionary<GrendelKeyBinding.MouseButtons, List<GrendelKeyBinding>>();
-	private Dictionary<ButtonState, List<GrendelKeyBinding>> mGamepPadButtonBindings = new Dictionary<ButtonState, List<GrendelKeyBinding>>();
+	private Dictionary<GrendelKeyBinding.GamePadButtonValues, List<GrendelKeyBinding>> mGamepPadButtonBindings = new Dictionary<GrendelKeyBinding.GamePadButtonValues, List<GrendelKeyBinding>>();
+	private Dictionary<GrendelKeyBinding.GamePadJoystickValues, List<GrendelKeyBinding>> mGamepadJoystickBindings = new Dictionary<GrendelKeyBinding.GamePadJoystickValues, List<GrendelKeyBinding>>();
 
     private List<GrendelKeyBinding> mKeysDown = new List<GrendelKeyBinding>();
 
@@ -124,6 +124,30 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
                     mMouseBindingsDictionary[binding.AltMouseButton].Add(binding);
                 }
             }
+
+			if (binding.ControllerButtons != null)
+			{
+				if (!mGamepPadButtonBindings.ContainsKey(binding.ControllerButtons))
+				{
+					mGamepPadButtonBindings.Add(binding.ControllerButtons, new List<GrendelKeyBinding>(){ binding });
+				}
+				else
+				{
+					mGamepPadButtonBindings[binding.ControllerButtons].Add(binding);
+				}
+			}
+
+			if (binding.ControllerJoysticks != null)
+			{
+				if (!mGamepadJoystickBindings.ContainsKey(binding.ControllerJoysticks))
+				{
+					mGamepadJoystickBindings.Add(binding.ControllerJoysticks, new List<GrendelKeyBinding>(){ binding });
+				}
+				else
+				{
+					mGamepadJoystickBindings[binding.ControllerJoysticks].Add(binding);
+				}
+			}
         }
     }
      
@@ -260,27 +284,31 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 
 	private void ProcessGamePadInput(GamePadState state, PlayerIndex playerIndex)
 	{
-		ProcessGamePadButton(state.Buttons.A, playerIndex);
-		ProcessGamePadButton(state.Buttons.B, playerIndex);
-		ProcessGamePadButton(state.Buttons.X, playerIndex);
-		ProcessGamePadButton(state.Buttons.Y, playerIndex);
-		ProcessGamePadButton(state.Buttons.LeftStick, playerIndex);
-		ProcessGamePadButton(state.Buttons.RightStick, playerIndex);
-		ProcessGamePadButton(state.Buttons.LeftShoulder, playerIndex);
-		ProcessGamePadButton(state.Buttons.RightShoulder, playerIndex);
-		ProcessGamePadButton(state.Buttons.Back, playerIndex);
-		ProcessGamePadButton(state.Buttons.Start, playerIndex);
-		ProcessGamePadButton(state.DPad.Up, playerIndex);
-		ProcessGamePadButton(state.DPad.Down, playerIndex);
-		ProcessGamePadButton(state.DPad.Left, playerIndex);
-		ProcessGamePadButton(state.DPad.Right, playerIndex);
+		ProcessGamePadButton(GrendelKeyBinding.GamePadButtonValues.A, state.Buttons.A, playerIndex);
+		ProcessGamePadButton(GrendelKeyBinding.GamePadButtonValues.B, state.Buttons.B, playerIndex);
+		ProcessGamePadButton(GrendelKeyBinding.GamePadButtonValues.X, state.Buttons.X, playerIndex);
+		ProcessGamePadButton(GrendelKeyBinding.GamePadButtonValues.Y, state.Buttons.Y, playerIndex);
+		ProcessGamePadButton(GrendelKeyBinding.GamePadButtonValues.LeftThumb, state.Buttons.LeftStick, playerIndex);
+		ProcessGamePadButton(GrendelKeyBinding.GamePadButtonValues.RightThumb, state.Buttons.RightStick, playerIndex);
+		ProcessGamePadButton(GrendelKeyBinding.GamePadButtonValues.LeftShoulder, state.Buttons.LeftShoulder, playerIndex);
+		ProcessGamePadButton(GrendelKeyBinding.GamePadButtonValues.RightShoulder, state.Buttons.RightShoulder, playerIndex);
+		ProcessGamePadButton(GrendelKeyBinding.GamePadButtonValues.Back, state.Buttons.Back, playerIndex);
+		ProcessGamePadButton(GrendelKeyBinding.GamePadButtonValues.DPadUp, state.DPad.Up, playerIndex);
+		ProcessGamePadButton(GrendelKeyBinding.GamePadButtonValues.DPadDown, state.DPad.Down, playerIndex);
+		ProcessGamePadButton(GrendelKeyBinding.GamePadButtonValues.DPadLeft, state.DPad.Left, playerIndex);
+		ProcessGamePadButton(GrendelKeyBinding.GamePadButtonValues.DPadRight, state.DPad.Right, playerIndex);
 	}
 
-	private void ProcessGamePadButton(ButtonState button, PlayerIndex playerIndex)
+	private void ProcessGamePadButton(GrendelKeyBinding.GamePadButtonValues button, ButtonState buttonState, PlayerIndex playerIndex)
 	{
+		if (!mGamepPadButtonBindings.ContainsKey(button))
+		{
+			return;
+		}
+
 		foreach(GrendelKeyBinding binding in mGamepPadButtonBindings[button])
 		{
-			if (button == ButtonState.Released && !mKeysDown.Contains(binding))
+			if (buttonState == ButtonState.Released && !mKeysDown.Contains(binding))
 			{
 				continue;
 			}
@@ -292,12 +320,12 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 					mKeysDown.Add(binding);
 					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN, binding, Vector3.zero, this));
 				}
-				else if (mKeysDown.Contains(binding) && button == ButtonState.Released)
+				else if (mKeysDown.Contains(binding) && buttonState == ButtonState.Released)
 				{
 					mKeysDown.Remove(binding);
 					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_UP, binding, Vector3.zero, this));
 				}
-				else if (mKeysDown.Contains(binding) && button == ButtonState.Pressed)
+				else if (mKeysDown.Contains(binding) && buttonState == ButtonState.Pressed)
 				{
 					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_HELD, binding, Vector3.zero, this));
 				}
@@ -321,14 +349,50 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 				continue;
 			}
 
-			ProcessJoystickInput(state, playerIndex);
+			GatherJoystickInput(state, playerIndex);
 		}
 	}
 
-	private void ProcessJoystickInput(GamePadState state, PlayerIndex playerIndex)
+	private void GatherJoystickInput(GamePadState state, PlayerIndex playerIndex)
 	{
+		if(state.Triggers.Left > 0)
+		{
+			ProcessJoystickInput(GrendelKeyBinding.GamePadJoystickValues.LeftTrigger, state.Triggers.Left, 0, playerIndex);
+		}
 
+		if(state.Triggers.Right > 0)
+		{
+			ProcessJoystickInput(GrendelKeyBinding.GamePadJoystickValues.RightTrigger, state.Triggers.Right, 0, playerIndex);
+		}
+
+		if (state.ThumbSticks.Left.X > 0 || state.ThumbSticks.Left.Y > 0)
+		{
+			ProcessJoystickInput(GrendelKeyBinding.GamePadJoystickValues.LeftStick, state.ThumbSticks.Left.X, state.ThumbSticks.Left.Y, playerIndex);
+		}
+
+		if (state.ThumbSticks.Right.X > 0 || state.ThumbSticks.Right.Y > 0)
+		{
+			ProcessJoystickInput(GrendelKeyBinding.GamePadJoystickValues.RightStick, state.ThumbSticks.Right.X, state.ThumbSticks.Right.Y, playerIndex);
+		}
 	}
+
+	private void ProcessJoystickInput(GrendelKeyBinding.GamePadJoystickValues joystick, float valueX, float valueY, PlayerIndex playerIndex)
+	{
+		if (!mGamepadJoystickBindings.ContainsKey(joystick))
+		{
+			return;
+		}
+
+		foreach(GrendelKeyBinding binding in mGamepadJoystickBindings[joystick])
+		{
+			if (binding.Enabled)
+			{
+				EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_JOYSTICK, binding, new UserInputKeyEvent.JoystickInfoClass(valueX, valueY), Vector3.zero, this));
+			}
+		}
+	}
+
+
 
     /// <summary>
     /// Enables or disables a binding.

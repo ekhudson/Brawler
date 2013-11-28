@@ -70,8 +70,11 @@ public class CharacterEntity : Entity
         //mRigidbody.MovePosition(mTransform.position + mCurrentMove);
         //mRigidbody.AddRelativeForce(mCurrentMove);
         mRigidbody.AddForce(mCurrentMove,ForceMode.VelocityChange);
+		//mRigidbody.velocity = mCurrentMove;
 
-        mCurrentMove *= mRigidbody.drag;
+
+        //mCurrentMove *= mRigidbody.drag;
+		mCurrentMove = Vector3.zero;
     }
 
     public void Move(Vector3 amount)

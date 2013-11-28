@@ -1,23 +1,24 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class MainCamera : MonoBehaviour
+public class MainCamera : BaseObject
 {
 
     public float DefaultFieldOfView = 60f;
-    public float ZoomFieldOfView = 30f;
-    public float ZoomSpeed= 5f;
-	
+    public float DistanceFromTarget = 30f;
+	public float TrackingSpeed = 1f;
+	public List<PlayerComponent> PlayerList = new List<PlayerComponent>();
+
+
+	void Start()
+	{
+		PlayerList = new List<PlayerComponent>((PlayerComponent[])Object.FindObjectsOfType(typeof(PlayerComponent)));
+	}
+
     //TODO: Move zoom keyhandling to the input system
-	void Update ()
+	void FixedUpdate ()
     {
-        if (Input.GetKey(KeyCode.Z))
-        {
-            Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, ZoomFieldOfView, ZoomSpeed * Time.deltaTime);
-        }
-        else if (Camera.main.fieldOfView != DefaultFieldOfView)
-        {
-            Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, DefaultFieldOfView, ZoomSpeed * Time.deltaTime);
-        }
+		mTransform.position = Vector3.Slerp(mTransform.position, PlayerList[0].transform.position + new Vector3(0f, 0f, DistanceFromTarget), TrackingSpeed * Time.deltaTime); 	     	   
 	}
 }
