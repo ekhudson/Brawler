@@ -366,15 +366,15 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 			ProcessJoystickInput(GrendelKeyBinding.GamePadJoystickValues.RightTrigger, state.Triggers.Right, 0, playerIndex);
 		}
 
-		if (state.ThumbSticks.Left.X > 0 || state.ThumbSticks.Left.Y > 0)
-		{
+		//if (state.ThumbSticks.Left.X > 0 || state.ThumbSticks.Left.Y > 0)
+		//{
 			ProcessJoystickInput(GrendelKeyBinding.GamePadJoystickValues.LeftStick, state.ThumbSticks.Left.X, state.ThumbSticks.Left.Y, playerIndex);
-		}
+		//}
 
-		if (state.ThumbSticks.Right.X > 0 || state.ThumbSticks.Right.Y > 0)
-		{
+		//if (state.ThumbSticks.Right.X > 0 || state.ThumbSticks.Right.Y > 0)
+		//{
 			ProcessJoystickInput(GrendelKeyBinding.GamePadJoystickValues.RightStick, state.ThumbSticks.Right.X, state.ThumbSticks.Right.Y, playerIndex);
-		}
+		//}
 	}
 
 	private void ProcessJoystickInput(GrendelKeyBinding.GamePadJoystickValues joystick, float valueX, float valueY, PlayerIndex playerIndex)
