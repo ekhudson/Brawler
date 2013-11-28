@@ -532,10 +532,16 @@ public class GameManager : Singleton<GameManager>
     {
         if (mFirstTimeLoaded)
         {
-            while(Console.Instance == null)
+            //TODO: These should timeout to avoid infinite loops!!
+			while(Console.Instance == null)
             {
                 yield return new WaitForSeconds(Time.deltaTime);
             }
+
+			while(EventManager.Instance == null)
+			{
+				yield return new WaitForSeconds(Time.deltaTime);
+			}
 
             Console.Instance.OutputToConsole(string.Format("{0}: Starting up {1} {2}",  this.ToString(), ApplicationTitle, ApplicationVersion), Console.Instance.Style_Admin);
 

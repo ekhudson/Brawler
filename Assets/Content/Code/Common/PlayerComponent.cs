@@ -118,7 +118,7 @@ public class PlayerComponent : Singleton<PlayerComponent>
         mController.Move( ((new Vector3(norm.x, 0, norm.z) * (MoveSpeed)) + new Vector3(0, mTarget.y, 0)) * Time.deltaTime);
         mTarget = Vector3.zero; 
 
-		if (ConstantFriction > 0 && mController.BaseRigidbody.velocity != Vector3.zero)
+		if (ConstantFriction > 0)
 		{
 			mController.BaseRigidbody.velocity *= ConstantFriction;
 		}

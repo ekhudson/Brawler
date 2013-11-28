@@ -8,12 +8,12 @@ public class MainCamera : BaseObject
     public float DefaultFieldOfView = 60f;
     public float DistanceFromTarget = 30f;
 	public float TrackingSpeed = 1f;
-	public List<PlayerComponent> PlayerList = new List<PlayerComponent>();
+	public List<BrawlerPlayerComponent> PlayerList = new List<BrawlerPlayerComponent>();
 
 
 	void Start()
 	{
-		PlayerList = new List<PlayerComponent>((PlayerComponent[])Object.FindObjectsOfType(typeof(PlayerComponent)));
+		PlayerList = new List<BrawlerPlayerComponent>((BrawlerPlayerComponent[])Object.FindObjectsOfType(typeof(BrawlerPlayerComponent)));
 	}
 
     //TODO: Move zoom keyhandling to the input system

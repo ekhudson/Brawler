@@ -31,6 +31,11 @@ public class EventManager : Singleton<EventManager>
 	
 	private IDictionary<Type, EventPosterBase> _handlers = new Dictionary<Type, EventPosterBase>();
 	
+	protected override void Awake()
+	{
+		base.Awake();
+	}
+
 	public void AddHandler<T>(EventHandler<T> handler) where T : EventBase
 	{
 		EventPoster<T> poster;
