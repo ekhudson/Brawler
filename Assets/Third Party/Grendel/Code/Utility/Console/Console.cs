@@ -83,6 +83,19 @@ public class Console : Singleton<Console>
             }
 
     }
+
+	private void Start()
+	{
+		EventManager.Instance.AddHandler<UserInputKeyEvent>(UserInputHandler);
+	}
+
+	private void UserInputHandler(object sender, UserInputKeyEvent evt)
+	{
+		if (evt.KeyBind == BrawlerUserInput.Instance.ToggleConsole && evt.Type == UserInputKeyEvent.TYPE.KEYDOWN)
+		{
+			ToggleConsole();
+		}
+	}
     
     void OnGUI()
     {                

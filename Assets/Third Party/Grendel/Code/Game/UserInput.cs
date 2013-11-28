@@ -16,6 +16,7 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 	[HideInInspector]public GrendelKeyBinding PrimaryFire = new GrendelKeyBinding("Primary Fire", KeyCode.None, KeyCode.None, GrendelKeyBinding.MouseButtons.One, GrendelKeyBinding.MouseButtons.None);
 	[HideInInspector]public GrendelKeyBinding SecondaryFire = new GrendelKeyBinding("Secondary Fire", KeyCode.None, KeyCode.None, GrendelKeyBinding.MouseButtons.Two, GrendelKeyBinding.MouseButtons.None);
 
+
     [HideInInspector]public List<GrendelKeyBinding> KeyBindings = new List<GrendelKeyBinding>();
 
     private Dictionary<KeyCode, List<GrendelKeyBinding>> mGrendelKeyBindingsDictionary = new Dictionary<KeyCode, List<GrendelKeyBinding>>();
@@ -171,7 +172,7 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 
         if (e.isKey && e.keyCode != KeyCode.None)
         {
-            if(e.type == EventType.KeyDown || e.button != null)
+            if(e.type == EventType.KeyDown) //|| e.button != null)
             {
                 ProcessKeycode(e.keyCode, UserInputKeyEvent.TYPE.KEYDOWN);
             }

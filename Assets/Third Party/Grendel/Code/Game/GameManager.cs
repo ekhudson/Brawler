@@ -535,7 +535,7 @@ public class GameManager : Singleton<GameManager>
             //TODO: These should timeout to avoid infinite loops!!
 			while(Console.Instance == null)
             {
-                yield return new WaitForSeconds(Time.deltaTime);
+				yield return new WaitForSeconds(Time.deltaTime);
             }
 
 			while(EventManager.Instance == null)
