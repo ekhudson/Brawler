@@ -19,6 +19,19 @@ public class MainCamera : BaseObject
     //TODO: Move zoom keyhandling to the input system
 	void FixedUpdate ()
     {
-		mTransform.position = Vector3.Slerp(mTransform.position, PlayerList[0].transform.position + OffsetFromTarget, TrackingSpeed * Time.deltaTime); 	     	   
+		Vector3 newPosition = Vector3.zero;
+
+		foreach(BrawlerPlayerComponent player in BrawlerPlayerManager.Instance.PlayerList)
+		{
+			if (player.IsActivePlayer)
+			{
+				newPosition += player.transform.position;
+			}
+		}
+
+		newPosition /= BrawlerPlayerManager.Instance.CurrentActivePlayers;
+
+
+		mTransform.position = Vector3.Slerp(mTransform.position, newPosition + OffsetFromTarget, TrackingSpeed * Time.deltaTime); 	     	   
 	}
 }

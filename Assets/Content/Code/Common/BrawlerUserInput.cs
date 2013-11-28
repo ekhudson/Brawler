@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections;
 
+using XInputDotNetPure;
+
 public class BrawlerUserInput : UserInput <BrawlerUserInput>
 {
     public GrendelKeyBinding UseKey01 = new GrendelKeyBinding("Use01", KeyCode.W, KeyCode.W, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
@@ -10,4 +12,18 @@ public class BrawlerUserInput : UserInput <BrawlerUserInput>
 	public GrendelKeyBinding MoveCharacter = new GrendelKeyBinding("Move Character", KeyCode.None, KeyCode.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
 	public GrendelKeyBinding Jump = new GrendelKeyBinding("Jump", KeyCode.Space, KeyCode.Return, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
 	public GrendelKeyBinding ToggleConsole = new GrendelKeyBinding("Toggle Console", KeyCode.BackQuote, KeyCode.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
+
+	public bool IsGamePadActive(int gamepadID)
+	{
+		PlayerIndex testPlayerIndex = (PlayerIndex)gamepadID;
+		GamePadState testState = GamePad.GetState(testPlayerIndex);
+		if (testState.IsConnected)
+		{
+			return true;
+		}	
+		else
+		{
+			return false;
+		}
+	}
 }

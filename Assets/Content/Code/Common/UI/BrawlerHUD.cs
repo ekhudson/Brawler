@@ -15,7 +15,7 @@ public class BrawlerHUD : Singleton<BrawlerHUD>
             Screen.showCursor = false;
         }
 
-		mScreenRect = Camera.main.rect;
+		mScreenRect = new Rect(0,0, Screen.width, Screen.height);
 	}
 
     private void OnGUI()
@@ -28,7 +28,7 @@ public class BrawlerHUD : Singleton<BrawlerHUD>
     }  
 
 
-	private void DrawPlayerStatus()
+	private void DrawPlayerStatuses()
 	{
 		GUILayout.BeginHorizontal();
 
@@ -42,7 +42,14 @@ public class BrawlerHUD : Singleton<BrawlerHUD>
 
 	private void DrawPlayerStatus(BrawlerPlayerComponent player)
 	{
-		//GUILayout.Box(player
+		GUILayout.FlexibleSpace();
+		GUI.color = player.PlayerColor;
+		GUILayout.BeginHorizontal(GUI.skin.button, GUILayout.Width(256f));
+		GUILayout.Label(player.PlayerID.ToString());
+		GUILayout.Label(string.Format("Gamepad Active: {0}",BrawlerUserInput.Instance.IsGamePadActive(player.AssociatedGamepad).ToString()));
+		GUILayout.EndHorizontal();
+		GUI.color = Color.white;
+		GUILayout.FlexibleSpace();
 	}
 
 }

@@ -319,16 +319,16 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 				if (!mKeysDown.Contains(binding))
 				{
 					mKeysDown.Add(binding);
-					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN, binding, Vector3.zero, this));
+					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN, binding, (int)playerIndex, Vector3.zero, this));
 				}
 				else if (mKeysDown.Contains(binding) && buttonState == ButtonState.Released)
 				{
 					mKeysDown.Remove(binding);
-					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_UP, binding, Vector3.zero, this));
+					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_UP, binding, (int)playerIndex, Vector3.zero, this));
 				}
 				else if (mKeysDown.Contains(binding) && buttonState == ButtonState.Pressed)
 				{
-					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_HELD, binding, Vector3.zero, this));
+					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_HELD, binding, (int)playerIndex, Vector3.zero, this));
 				}
 			}
 		}
@@ -388,7 +388,7 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 		{
 			if (binding.Enabled)
 			{
-				EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_JOYSTICK, binding, new UserInputKeyEvent.JoystickInfoClass(valueX, valueY), Vector3.zero, this));
+				EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_JOYSTICK, binding, new UserInputKeyEvent.JoystickInfoClass(valueX, valueY), (int)playerIndex, Vector3.zero, this));
 			}
 		}
 	}

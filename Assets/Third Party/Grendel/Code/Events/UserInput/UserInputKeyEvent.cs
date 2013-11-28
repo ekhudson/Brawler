@@ -20,6 +20,7 @@ public class UserInputKeyEvent : EventBase
     public readonly GrendelKeyBinding KeyBind;
 	public readonly JoystickInfoClass JoystickInfo;
 	public readonly GamePadInfoClass GamePadInfo;
+	public readonly int PlayerIndexInt = -1;
     
 	public class JoystickInfoClass
 	{
@@ -60,6 +61,21 @@ public class UserInputKeyEvent : EventBase
         KeyBind = bind;
 		JoystickInfo = joystickInfo;
     }
+
+	public UserInputKeyEvent(UserInputKeyEvent.TYPE inputType, GrendelKeyBinding bind, JoystickInfoClass joystickInfo, int playerIndex, Vector3 location, object sender) : base(location, sender)
+	{
+		Type = inputType;
+		KeyBind = bind;
+		JoystickInfo = joystickInfo;
+		PlayerIndexInt = playerIndex;
+	}
+
+	public UserInputKeyEvent(UserInputKeyEvent.TYPE inputType, GrendelKeyBinding bind, int playerIndex, Vector3 location, object sender) : base(location, sender)
+	{
+		Type = inputType;
+		KeyBind = bind;
+		PlayerIndexInt = playerIndex;
+	}
     
     public UserInputKeyEvent() : base (Vector3.zero, null)
     {        

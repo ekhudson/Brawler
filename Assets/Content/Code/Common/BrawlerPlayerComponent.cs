@@ -6,6 +6,8 @@ public class BrawlerPlayerComponent : MonoBehaviour
 {
 	private int mPlayerID = -1; //should get set from 0 - 4. If this is ever -1 it means this is not a valid player
 	private int mAssociatedGamepad = -1; //again, if this is ever -1 it means no gamepad is assigned;
+	private Color mPlayerColor = Color.white;
+	private bool mIsActivePlayer = false;
 
 	//TODO: Wrap this in a PlayerAttributes class
 	#region PlayerAttributes
@@ -39,7 +41,43 @@ public class BrawlerPlayerComponent : MonoBehaviour
 	
 	protected PlayerStates mPlayerState = PlayerStates.IDLE;
 	protected float mTimeInState = 0.0f;
-	
+
+	public int PlayerID
+	{
+		get
+		{
+			return mPlayerID;
+		}
+	}
+
+	public int AssociatedGamepad
+	{
+		get
+		{
+			return mAssociatedGamepad;
+		}
+	}
+
+	public Color PlayerColor
+	{
+		get
+		{
+			return mPlayerColor;
+		}
+	}
+
+	public bool IsActivePlayer
+	{
+		get
+		{
+			return mIsActivePlayer;
+		}
+		set
+		{
+			mIsActivePlayer = value;
+		}
+	}
+
 	public PlayerStates GetState
 	{
 		get
@@ -191,6 +229,11 @@ public class BrawlerPlayerComponent : MonoBehaviour
 	
 	public void InputHandler(object sender, UserInputKeyEvent evt)
 	{
+		if(evt.PlayerIndexInt != mPlayerID - 1)
+		{
+			return;
+		}
+
 		if (GetState == PlayerStates.IDLE || GetState == PlayerStates.MOVING || mPlayerState == PlayerStates.FALLING || mPlayerState == PlayerStates.JUMPING)
 		{
 			
@@ -272,6 +315,22 @@ public class BrawlerPlayerComponent : MonoBehaviour
 				mTarget.x += (evt.JoystickInfo.AmountX);
 			}
 		}       
+	}
+
+	public void SetID(int id)
+	{
+		mPlayerID = id;
+	}
+
+	public void SetGamepadID(int gamepadID)
+	{
+		mAssociatedGamepad = gamepadID;
+	}
+
+	public void SetPlayerColor(Color color)
+	{
+		mPlayerColor = color;
+		GetComponentInChildren<SpriteRenderer>().color = mPlayerColor;
 	}
 	
 }
