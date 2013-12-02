@@ -7,7 +7,7 @@ public class BrawlerPlayerComponent : MonoBehaviour
 	private int mPlayerID = -1; //should get set from 0 - 4. If this is ever -1 it means this is not a valid player
 	private int mAssociatedGamepad = -1; //again, if this is ever -1 it means no gamepad is assigned;
 	private Color mPlayerColor = Color.white;
-	private bool mIsActivePlayer = false;
+	private bool mIsActivePlayer = true;
 
 	//TODO: Wrap this in a PlayerAttributes class
 	#region PlayerAttributes
@@ -229,7 +229,7 @@ public class BrawlerPlayerComponent : MonoBehaviour
 	
 	public void InputHandler(object sender, UserInputKeyEvent evt)
 	{
-		if(evt.PlayerIndexInt != mPlayerID - 1)
+		if(evt.PlayerIndexInt != mPlayerID - 1 && evt.PlayerIndexInt != -1)
 		{
 			return;
 		}
@@ -330,8 +330,15 @@ public class BrawlerPlayerComponent : MonoBehaviour
 	public void SetPlayerColor(Color color)
 	{
 		mPlayerColor = color;
-		GetComponentInChildren<SpriteRenderer>().color = mPlayerColor;
+
+		SpriteRenderer sprite = gameObject.GetComponentInChildren<SpriteRenderer>();
+
+		if (sprite != null)
+		{ 
+			GetComponentInChildren<SpriteRenderer>().color = mPlayerColor;
+		}
 	}
 	
 }
+
 

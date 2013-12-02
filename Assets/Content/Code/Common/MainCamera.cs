@@ -21,6 +21,11 @@ public class MainCamera : BaseObject
     {
 		Vector3 newPosition = Vector3.zero;
 
+		if (BrawlerPlayerManager.Instance.CurrentActivePlayers == 0)
+		{
+			return;
+		}
+
 		foreach(BrawlerPlayerComponent player in BrawlerPlayerManager.Instance.PlayerList)
 		{
 			if (player.IsActivePlayer)

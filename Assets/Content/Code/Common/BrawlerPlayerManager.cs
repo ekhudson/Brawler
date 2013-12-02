@@ -6,7 +6,7 @@ public class BrawlerPlayerManager : Singleton<BrawlerPlayerManager>
 {
 	public List<BrawlerPlayerComponent> PlayerList = new List<BrawlerPlayerComponent>();
 
-	private int mCurrentActivePlayers = 0;
+	private int mCurrentActivePlayers = 1;
 
 	public int CurrentActivePlayers
 	{
@@ -44,8 +44,9 @@ public class BrawlerPlayerManager : Singleton<BrawlerPlayerManager>
 				mCurrentActivePlayers++;
 				player.IsActivePlayer = true;
 			}
-			else
+			else if (id != 1) //don't disable the first player
 			{
+				player.IsActivePlayer = false;
 				player.gameObject.SetActive(false);
 			}
 
