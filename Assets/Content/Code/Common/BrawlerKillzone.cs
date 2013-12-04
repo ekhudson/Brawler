@@ -11,6 +11,14 @@ public class BrawlerKillzone : TriggerVolume
 	{		
 		if ((1 << collider.gameObject.layer) == PlayerLayer)
 		{
+			GameObject go = (GameObject)GameObject.Instantiate(KillParticlePrefab, collider.transform.position, Quaternion.identity);
+			ParticleSystem deathParticle = go.GetComponent<ParticleSystem>();
+
+			if (deathParticle != null)
+			{
+				deathParticle.startColor = collider.GetComponent<BrawlerPlayerComponent>().PlayerColor;
+			}
+
 			collider.transform.position = SpawnPoint.position;
 		}
 		
