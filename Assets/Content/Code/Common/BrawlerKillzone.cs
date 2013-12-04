@@ -9,7 +9,7 @@ public class BrawlerKillzone : TriggerVolume
 
 	public override void OnTriggerEnter(Collider collider)
 	{		
-		if (collider.gameObject.layer == PlayerLayer.value)
+		if ((1 << collider.gameObject.layer) == PlayerLayer)
 		{
 			collider.transform.position = SpawnPoint.position;
 		}
