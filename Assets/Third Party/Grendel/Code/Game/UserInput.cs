@@ -172,7 +172,7 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 
         if (e.isKey && e.keyCode != KeyCode.None)
         {
-            if(e.type == EventType.KeyDown) //|| e.button != null)
+            if(e.type == EventType.KeyDown)
             {
                 ProcessKeycode(e.keyCode, UserInputKeyEvent.TYPE.KEYDOWN);
             }
@@ -202,7 +202,12 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
         {
             if (binding.Enabled)
             {
-                EventManager.Instance.Post(new UserInputKeyEvent(inputType, binding, Vector3.zero, this));
+                if (inputType == UserInputKeyEvent.TYPE.KEYDOWN && mKeysDown.Contains(binding))
+				{
+					inputType = UserInputKeyEvent.TYPE.KEYHELD;
+				}
+
+				EventManager.Instance.Post(new UserInputKeyEvent(inputType, binding, Vector3.zero, this));
 
                 if (inputType == UserInputKeyEvent.TYPE.KEYDOWN)
                 {

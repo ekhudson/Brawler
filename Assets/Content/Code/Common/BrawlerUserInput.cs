@@ -12,6 +12,7 @@ public class BrawlerUserInput : UserInput <BrawlerUserInput>
 	public GrendelKeyBinding MoveCharacter = new GrendelKeyBinding("Move Character", KeyCode.None, KeyCode.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
 	public GrendelKeyBinding Jump = new GrendelKeyBinding("Jump", KeyCode.Space, KeyCode.Return, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
 	public GrendelKeyBinding ToggleConsole = new GrendelKeyBinding("Toggle Console", KeyCode.BackQuote, KeyCode.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
+	public GrendelKeyBinding Attack = new GrendelKeyBinding("Attack", KeyCode.Space, KeyCode.R, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.GamePadButtonValues.RightThumb);
 
 	public bool IsGamePadActive(int gamepadID)
 	{

@@ -11,7 +11,9 @@ public class BrawlerPlayerComponent : MonoBehaviour
 
 	//TODO: Wrap this in a PlayerAttributes class
 	#region PlayerAttributes
-	public float PlayerStrength = 10000f;
+	public float PlayerStrength = 100f;
+	public float AttackTime = 0.4f;
+	public float MinimumTimeBetweenAttacks = 0.5f;
 	public float MoveSpeed = 1.0f;
 	public float ClimbSpeed = 1.0f;
 	public float JumpForce = 2.0f;
@@ -19,7 +21,14 @@ public class BrawlerPlayerComponent : MonoBehaviour
 	public AnimationCurve JumpCurve = new AnimationCurve();
 	public float AirControl = 0.9f;
 	public float ConstantFriction =  0.9f;
-	public Collider PunchBox;
+	public TriggerVolume PunchBox;
+	#endregion
+
+	#region Sprites
+	public Sprite DefaultSprite;
+	public Sprite JumpSprite;
+	public Sprite AttackSprite;
+	public Sprite JumpAttackSprite;
 	#endregion
 
 	protected Vector3 mTarget = Vector3.zero;
@@ -29,6 +38,7 @@ public class BrawlerPlayerComponent : MonoBehaviour
 	
 	private Vector3 mInitialRotation;
 	private SpriteRenderer mSpriteRenderer;
+	private float mLastAttackEndTime;
 	
 	public enum PlayerStates
 	{
@@ -38,7 +48,8 @@ public class BrawlerPlayerComponent : MonoBehaviour
 		FALLING,
 		LANDING,
 		FROZEN,
-		USING,
+		ATTACKING_GROUND,
+		ATTACKING_AIR,
 	}
 	
 	protected PlayerStates mPlayerState = PlayerStates.IDLE;
@@ -151,7 +162,23 @@ public class BrawlerPlayerComponent : MonoBehaviour
 			
 			break;
 			
-		case PlayerStates.USING:
+		case PlayerStates.ATTACKING_GROUND:
+
+			if (mTimeInState > AttackTime)
+			{
+				SetState(PlayerStates.IDLE);
+				mLastAttackEndTime = Time.realtimeSinceStartup;
+			}
+			
+			break;
+		
+		case PlayerStates.ATTACKING_AIR:
+			
+			if (mTimeInState > AttackTime)
+			{
+				SetState(PlayerStates.FALLING);
+				mLastAttackEndTime = Time.realtimeSinceStartup;
+			}
 			
 			break;
 			
@@ -167,7 +194,8 @@ public class BrawlerPlayerComponent : MonoBehaviour
 		
 		if (ConstantFriction > 0)
 		{
-			mController.BaseRigidbody.velocity *= ConstantFriction;
+			Vector3 currentVelocity = mController.BaseRigidbody.velocity;
+			mController.BaseRigidbody.velocity = new Vector3(currentVelocity.x * ConstantFriction, currentVelocity.y, currentVelocity.z * ConstantFriction);
 		}
 		
 		mTimeInState += Time.deltaTime;
@@ -190,12 +218,14 @@ public class BrawlerPlayerComponent : MonoBehaviour
 		case PlayerStates.IDLE:
 			
 			rigidbody.useGravity = true;
+			mSpriteRenderer.sprite = DefaultSprite;
 			
 			break;
 			
 		case PlayerStates.MOVING:
 			
 			rigidbody.useGravity = true;
+			mSpriteRenderer.sprite = DefaultSprite;
 			
 			break;
 			
@@ -207,19 +237,33 @@ public class BrawlerPlayerComponent : MonoBehaviour
 			}
 			
 			mController.SetGrounded(false);
+			mSpriteRenderer.sprite = JumpSprite;
 			
 			break;
 			
 		case PlayerStates.FALLING:
 			
 			rigidbody.useGravity = true;
+			mSpriteRenderer.sprite = JumpSprite;
 			
 			break;
 			
 		case PlayerStates.LANDING:
 			
 			break;
+
+		case PlayerStates.ATTACKING_GROUND:
+
+			mSpriteRenderer.sprite = AttackSprite;
 			
+			break;
+
+		case PlayerStates.ATTACKING_AIR:
+			
+			mSpriteRenderer.sprite = JumpAttackSprite;
+			
+			break;
+
 		case PlayerStates.FROZEN:
 			
 			break;
@@ -237,17 +281,30 @@ public class BrawlerPlayerComponent : MonoBehaviour
 			return;
 		}
 
-		if (GetState == PlayerStates.IDLE || GetState == PlayerStates.MOVING || mPlayerState == PlayerStates.FALLING || mPlayerState == PlayerStates.JUMPING)
+		if (GetState == PlayerStates.IDLE || GetState == PlayerStates.MOVING || 
+		    mPlayerState == PlayerStates.FALLING || mPlayerState == PlayerStates.JUMPING ||
+		    mPlayerState == PlayerStates.ATTACKING_AIR)
 		{
 			
 			if(evt.KeyBind == BrawlerUserInput.Instance.MoveLeft && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 			{
 				mTarget += -Camera.main.transform.right;
+
+				if (mSpriteRenderer.transform.rotation.eulerAngles.y == 0)
+				{
+					mSpriteRenderer.transform.rotation = Quaternion.Euler(new Vector3(0,180,0));
+				}
+
 			}
 			
 			if(evt.KeyBind == BrawlerUserInput.Instance.MoveRight && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 			{
 				mTarget += Camera.main.transform.right;
+
+				if (mSpriteRenderer.transform.rotation.eulerAngles.y != 0)
+				{
+					mSpriteRenderer.transform.rotation = Quaternion.Euler(new Vector3(0,0,0));
+				}
 			}
 			
 			if(evt.KeyBind == BrawlerUserInput.Instance.MoveUp && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
@@ -272,6 +329,11 @@ public class BrawlerPlayerComponent : MonoBehaviour
 					break;
 					
 				case UserInputKeyEvent.TYPE.KEYHELD:
+
+					if (mPlayerState == PlayerStates.IDLE || mPlayerState == PlayerStates.MOVING)
+					{
+						SetState(PlayerStates.JUMPING);
+					}
 					
 					break;
 					
@@ -311,6 +373,40 @@ public class BrawlerPlayerComponent : MonoBehaviour
 			if(evt.KeyBind == BrawlerUserInput.Instance.UseKey02 && evt.Type == UserInputKeyEvent.TYPE.KEYDOWN)
 			{
 				
+			}
+
+			if (evt.KeyBind == BrawlerUserInput.Instance.Attack && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN))
+			{
+				if ( (Time.realtimeSinceStartup - mLastAttackEndTime) < MinimumTimeBetweenAttacks )
+				{
+					return;
+				}
+
+				if (mPlayerState == PlayerStates.IDLE || mPlayerState == PlayerStates.MOVING)
+				{
+					SetState(PlayerStates.ATTACKING_GROUND);
+				}
+				else if (mPlayerState == PlayerStates.JUMPING || mPlayerState == PlayerStates.FALLING)
+				{
+					SetState(PlayerStates.ATTACKING_AIR);
+				}
+				else if (mPlayerState == PlayerStates.ATTACKING_AIR || mPlayerState == PlayerStates.ATTACKING_GROUND)
+				{
+					return;
+				}
+
+				foreach(Collider obj in PunchBox.ObjectList)
+				{
+					if (obj.gameObject.GetInstanceID() == gameObject.GetInstanceID())
+					{
+						continue;
+					}
+
+					if (obj.GetComponent<Rigidbody>() != null)
+					{
+						obj.GetComponent<Rigidbody>().AddExplosionForce(PlayerStrength, transform.position, 100);
+					}
+				}
 			}
 			
 			if (evt.KeyBind == BrawlerUserInput.Instance.MoveCharacter)
