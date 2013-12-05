@@ -19,6 +19,7 @@ public class BrawlerPlayerComponent : MonoBehaviour
 	public AnimationCurve JumpCurve = new AnimationCurve();
 	public float AirControl = 0.9f;
 	public float ConstantFriction =  0.9f;
+	public Collider PunchBox;
 	#endregion
 
 	protected Vector3 mTarget = Vector3.zero;
@@ -27,6 +28,7 @@ public class BrawlerPlayerComponent : MonoBehaviour
 	private Collider mClimbingVolume;  
 	
 	private Vector3 mInitialRotation;
+	private SpriteRenderer mSpriteRenderer;
 	
 	public enum PlayerStates
 	{
@@ -98,6 +100,7 @@ public class BrawlerPlayerComponent : MonoBehaviour
 	{
 		EventManager.Instance.AddHandler<UserInputKeyEvent>(InputHandler);
 		mController = GetComponent<CharacterEntity>();
+		mSpriteRenderer = GetComponentInChildren<SpriteRenderer>();
 		rigidbody.WakeUp();        
 	}  
 	
@@ -313,6 +316,57 @@ public class BrawlerPlayerComponent : MonoBehaviour
 			if (evt.KeyBind == BrawlerUserInput.Instance.MoveCharacter)
 			{
 				mTarget.x += (evt.JoystickInfo.AmountX);
+
+				if (evt.JoystickInfo.AmountX < 0 && mSpriteRenderer.transform.rotation.eulerAngles.y == 0)
+				{
+					mSpriteRenderer.transform.rotation = Quaternion.Euler(new Vector3(0,180,0));
+				}
+				else if (evt.JoystickInfo.AmountX > 0 && mSpriteRenderer.transform.rotation.eulerAngles.y != 0)
+				{
+					mSpriteRenderer.transform.rotation = Quaternion.Euler(new Vector3(0,0,0));
+				}
+
+				if (evt.JoystickInfo.AmountY > 0)
+				{
+					switch(mPlayerState)
+					{
+					case PlayerStates.IDLE:
+						
+						SetState(PlayerStates.JUMPING);
+						
+						break;
+						
+					case PlayerStates.MOVING:
+						
+						SetState(PlayerStates.JUMPING);
+						
+						break;
+						
+					case PlayerStates.JUMPING:
+						
+						break;
+						
+					case PlayerStates.FALLING:						
+
+						
+						break;
+						
+					case PlayerStates.LANDING:
+						
+						break;
+						
+					case PlayerStates.FROZEN:
+						
+						break;
+					}
+				}
+				else if (evt.JoystickInfo.AmountY <= 0 && mPlayerState == PlayerStates.JUMPING)
+				{
+					SetState(PlayerStates.FALLING);
+				}
+
+
+
 			}
 		}       
 	}
