@@ -413,7 +413,7 @@ public class BrawlerPlayerComponent : MonoBehaviour
 						obj.GetComponent<Rigidbody>().AddForceAtPosition(mSpriteRenderer.transform.right * PlayerStrength, obj.transform.position);
 
 						Transform go = (Transform)Instantiate(HitParticle, obj.transform.position + new Vector3(0f,0f,-2f), Quaternion.identity);
-						go.transform.rotation = mSpriteRenderer.transform.rotation;
+
 						ParticleSystem hitParticle = go.GetComponent<ParticleSystem>();
 						
 						if (hitParticle != null)
@@ -421,6 +421,8 @@ public class BrawlerPlayerComponent : MonoBehaviour
 							hitParticle.startColor = PlayerColor;
 							Destroy (go.gameObject, hitParticle.duration);
 						}
+
+						go.transform.rotation = mSpriteRenderer.transform.rotation;
 
 					}
 				}
