@@ -8,6 +8,8 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
     public float MouseSensitivityVertical = 1f;
     public float MouseSensitivityHorizontal = 1f;
 
+	public float JoystickDeadzone = 0.2f;
+
 	[HideInInspector]public GrendelKeyBinding MoveUp = new GrendelKeyBinding("Move Up", KeyCode.W, KeyCode.UpArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
 	[HideInInspector]public GrendelKeyBinding MoveDown = new GrendelKeyBinding("Move Down", KeyCode.S, KeyCode.DownArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
     [HideInInspector]public GrendelKeyBinding MoveLeft = new GrendelKeyBinding("Move Left", KeyCode.A, KeyCode.LeftArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
@@ -387,6 +389,16 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 		if (!mGamepadJoystickBindings.ContainsKey(joystick))
 		{
 			return;
+		}
+
+		if (Mathf.Abs(valueX) < JoystickDeadzone)
+		{
+			valueX = 0;
+		}
+
+		if (Mathf.Abs(valueY) < JoystickDeadzone)
+		{
+			valueY = 0;
 		}
 
 		foreach(GrendelKeyBinding binding in mGamepadJoystickBindings[joystick])

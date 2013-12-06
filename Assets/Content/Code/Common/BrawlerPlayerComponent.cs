@@ -22,6 +22,7 @@ public class BrawlerPlayerComponent : MonoBehaviour
 	public float AirControl = 0.9f;
 	public float ConstantFriction =  0.9f;
 	public TriggerVolume PunchBox;
+	public Transform HitParticle;
 	#endregion
 
 	#region Sprites
@@ -350,6 +351,11 @@ public class BrawlerPlayerComponent : MonoBehaviour
 					break;
 					
 				case UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_HELD:
+
+					if (mPlayerState == PlayerStates.IDLE || mPlayerState == PlayerStates.MOVING)
+					{
+						SetState(PlayerStates.JUMPING);
+					}
 					
 					break;
 				}
@@ -404,7 +410,18 @@ public class BrawlerPlayerComponent : MonoBehaviour
 
 					if (obj.GetComponent<Rigidbody>() != null)
 					{
-						obj.GetComponent<Rigidbody>().AddExplosionForce(PlayerStrength, transform.position, 100);
+						obj.GetComponent<Rigidbody>().AddForceAtPosition(mSpriteRenderer.transform.right * PlayerStrength, obj.transform.position);
+
+						Transform go = (Transform)Instantiate(HitParticle, obj.transform.position + new Vector3(0f,0f,-2f), Quaternion.identity);
+						go.transform.rotation = mSpriteRenderer.transform.rotation;
+						ParticleSystem hitParticle = go.GetComponent<ParticleSystem>();
+						
+						if (hitParticle != null)
+						{
+							hitParticle.startColor = PlayerColor;
+							Destroy (go.gameObject, hitParticle.duration);
+						}
+
 					}
 				}
 			}
