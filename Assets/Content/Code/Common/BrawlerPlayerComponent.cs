@@ -277,8 +277,23 @@ public class BrawlerPlayerComponent : MonoBehaviour
 	
 	public void InputHandler(object sender, UserInputKeyEvent evt)
 	{
+		if (!gameObject.activeSelf)
+		{
+			return;
+		}
+
+		if (evt.KeyBind != BrawlerUserInput.Instance.MoveCharacter)
+		{
+			Debug.Log (string.Format("player {2} getting {0} for player {1}", evt.KeyBind.BindingName, evt.PlayerIndexInt.ToString(), mPlayerID.ToString()));
+		}
+		
 		if(evt.PlayerIndexInt != mPlayerID - 1 && evt.PlayerIndexInt != -1)
 		{
+			if (evt.KeyBind != BrawlerUserInput.Instance.MoveCharacter)
+			{
+				Debug.Log ("Ignoring");
+			}
+
 			return;
 		}
 

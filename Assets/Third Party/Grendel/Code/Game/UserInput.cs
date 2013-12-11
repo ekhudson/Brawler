@@ -277,7 +277,8 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 		{
 			int controllerIndex = mConnectControllerIndexes[i];		
 			PlayerIndex playerIndex = (PlayerIndex)controllerIndex;
-			GamePadState state = GamePad.GetState(playerIndex);
+			GamePadState state = new GamePadState();
+			state = GamePad.GetState(playerIndex);
 			
 			if (!state.IsConnected)
 			{
