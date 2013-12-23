@@ -4,6 +4,7 @@ using System.Collections;
 public class BrawlerKillzone : TriggerVolume 
 {
 	public Transform SpawnPoint;
+	public Vector3 SpawnSpreadAmount = Vector3.zero;
 	public Transform KillParticlePrefab;
 	public LayerMask PlayerLayer;
 
@@ -20,7 +21,14 @@ public class BrawlerKillzone : TriggerVolume
 				Destroy (go.gameObject, deathParticle.duration);
 			}
 
-			collider.transform.position = SpawnPoint.position;
+			collider.transform.position = new Vector3(SpawnPoint.position.x, SpawnPoint.position.y, collider.transform.position.z) 
+				+ new Vector3(Random.Range(-SpawnSpreadAmount.x, SpawnSpreadAmount.x),Random.Range(-SpawnSpreadAmount.y, SpawnSpreadAmount.y), Random.Range(-SpawnSpreadAmount.z, SpawnSpreadAmount.z));
+
+
+			if (collider.rigidbody != null)
+			{
+				collider.rigidbody.velocity = Vector3.zero;
+			}
 		}
 		
 		base.OnTriggerEnter(collider);

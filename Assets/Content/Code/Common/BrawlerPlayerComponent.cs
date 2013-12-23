@@ -19,6 +19,8 @@ public class BrawlerPlayerComponent : MonoBehaviour
 	public float JumpForce = 2.0f;
 	public float MinimumJumpTime = 0.5f;
 	public AnimationCurve JumpCurve = new AnimationCurve();
+	public float LandingTime = 0.2f;
+	public float HurtTime = 0.3f;
 	public float AirControl = 0.9f;
 	public float ConstantFriction =  0.9f;
 	public TriggerVolume PunchBox;
@@ -30,6 +32,9 @@ public class BrawlerPlayerComponent : MonoBehaviour
 	public Sprite JumpSprite;
 	public Sprite AttackSprite;
 	public Sprite JumpAttackSprite;
+	public Sprite LandSprite;
+	public Sprite MoveSprite;
+	public Sprite HurtSprite;
 	#endregion
 
 	protected Vector3 mTarget = Vector3.zero;
@@ -51,6 +56,8 @@ public class BrawlerPlayerComponent : MonoBehaviour
 		FROZEN,
 		ATTACKING_GROUND,
 		ATTACKING_AIR,
+		JUMPING_JOYSTICK,
+		HURT,
 	}
 	
 	protected PlayerStates mPlayerState = PlayerStates.IDLE;
@@ -126,13 +133,34 @@ public class BrawlerPlayerComponent : MonoBehaviour
 		switch(GetState)
 		{
 		case PlayerStates.IDLE:
+
+			if (Mathf.Abs(mTarget.x) > 0f)
+			{
+				SetState(PlayerStates.MOVING);
+			}
+
+			if (!mController.IsGrounded)
+			{
+				SetState(PlayerStates.FALLING);
+			}
 			
 			break;
 			
 		case PlayerStates.MOVING:
+
+			if (Mathf.Abs(mTarget.x) <= 0f)
+			{
+				SetState(PlayerStates.IDLE);
+			}
+
+			if (!mController.IsGrounded)
+			{
+				SetState(PlayerStates.FALLING);
+			}
 			
 			break;
-			
+
+		case PlayerStates.JUMPING_JOYSTICK:
 		case PlayerStates.JUMPING:
 			
 			if (mTimeInState > JumpCurve.keys[JumpCurve.length - 1].time && mTimeInState > MinimumJumpTime)
@@ -152,7 +180,7 @@ public class BrawlerPlayerComponent : MonoBehaviour
 			
 			if (mController.IsGrounded)
 			{
-				SetState(PlayerStates.IDLE);
+				SetState(PlayerStates.LANDING);
 			}
 			
 			mTarget *= AirControl;
@@ -160,6 +188,11 @@ public class BrawlerPlayerComponent : MonoBehaviour
 			break;
 			
 		case PlayerStates.LANDING:
+
+			if (mTimeInState > LandingTime)
+			{
+				SetState(PlayerStates.IDLE);
+			}
 			
 			break;
 			
@@ -183,7 +216,12 @@ public class BrawlerPlayerComponent : MonoBehaviour
 			
 			break;
 			
-		case PlayerStates.FROZEN:
+		case PlayerStates.HURT:
+
+			if (mTimeInState > HurtTime)
+			{
+				SetState(PlayerStates.IDLE);
+			}
 			
 			break;
 		}
@@ -226,10 +264,22 @@ public class BrawlerPlayerComponent : MonoBehaviour
 		case PlayerStates.MOVING:
 			
 			rigidbody.useGravity = true;
-			mSpriteRenderer.sprite = DefaultSprite;
+			mSpriteRenderer.sprite = MoveSprite;
 			
 			break;
+
+		case PlayerStates.JUMPING_JOYSTICK:
+
+			if (mPlayerState == PlayerStates.FALLING)
+			{
+				return;
+			}
 			
+			mController.SetGrounded(false);
+			mSpriteRenderer.sprite = JumpSprite;
+
+			break;
+
 		case PlayerStates.JUMPING:
 			
 			if (mPlayerState == PlayerStates.FALLING)
@@ -250,6 +300,8 @@ public class BrawlerPlayerComponent : MonoBehaviour
 			break;
 			
 		case PlayerStates.LANDING:
+
+			mSpriteRenderer.sprite = LandSprite;
 			
 			break;
 
@@ -265,7 +317,9 @@ public class BrawlerPlayerComponent : MonoBehaviour
 			
 			break;
 
-		case PlayerStates.FROZEN:
+		case PlayerStates.HURT:
+
+			mSpriteRenderer.sprite = HurtSprite;
 			
 			break;
 		}
@@ -284,22 +338,24 @@ public class BrawlerPlayerComponent : MonoBehaviour
 
 		if (evt.KeyBind != BrawlerUserInput.Instance.MoveCharacter)
 		{
-			Debug.Log (string.Format("player {2} getting {0} for player {1}", evt.KeyBind.BindingName, evt.PlayerIndexInt.ToString(), mPlayerID.ToString()));
+			//Debug.Log (string.Format("player {2} getting {0} for player {1}", evt.KeyBind.BindingName, (evt.PlayerIndexInt + 1).ToString(), mPlayerID.ToString()));
 		}
 		
 		if(evt.PlayerIndexInt != mPlayerID - 1 && evt.PlayerIndexInt != -1)
 		{
 			if (evt.KeyBind != BrawlerUserInput.Instance.MoveCharacter)
 			{
-				Debug.Log ("Ignoring");
+				//Debug.Log ("Ignoring");
 			}
 
 			return;
 		}
 
+		//Debug.Log("Doing");
+
 		if (GetState == PlayerStates.IDLE || GetState == PlayerStates.MOVING || 
 		    mPlayerState == PlayerStates.FALLING || mPlayerState == PlayerStates.JUMPING ||
-		    mPlayerState == PlayerStates.ATTACKING_AIR)
+		    mPlayerState == PlayerStates.ATTACKING_AIR || mPlayerState == PlayerStates.JUMPING_JOYSTICK)
 		{
 			
 			if(evt.KeyBind == BrawlerUserInput.Instance.MoveLeft && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
@@ -355,13 +411,46 @@ public class BrawlerPlayerComponent : MonoBehaviour
 					
 				case UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN: 
 					
-					SetState(PlayerStates.JUMPING);
+					switch(mPlayerState)
+					{
+					case PlayerStates.IDLE:
+						
+						SetState(PlayerStates.JUMPING);
+						
+						break;
+						
+					case PlayerStates.MOVING:
+						
+						SetState(PlayerStates.JUMPING);
+						
+						break;
+						
+					case PlayerStates.JUMPING:
+						
+						break;
+						
+					case PlayerStates.FALLING:						
+						
+						
+						break;
+						
+					case PlayerStates.LANDING:
+						
+						break;
+						
+					case PlayerStates.HURT:
+						
+						break;
+					}
 					
 					break;
 					
 				case UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_UP:
 					
-					SetState(PlayerStates.FALLING);
+					if (mPlayerState == PlayerStates.JUMPING)
+					{
+						SetState(PlayerStates.FALLING);
+					}
 					
 					break;
 					
@@ -407,7 +496,7 @@ public class BrawlerPlayerComponent : MonoBehaviour
 				{
 					SetState(PlayerStates.ATTACKING_GROUND);
 				}
-				else if (mPlayerState == PlayerStates.JUMPING || mPlayerState == PlayerStates.FALLING)
+				else if (mPlayerState == PlayerStates.JUMPING || mPlayerState == PlayerStates.JUMPING_JOYSTICK || mPlayerState == PlayerStates.FALLING)
 				{
 					SetState(PlayerStates.ATTACKING_AIR);
 				}
@@ -439,6 +528,11 @@ public class BrawlerPlayerComponent : MonoBehaviour
 
 						go.transform.rotation = mSpriteRenderer.transform.rotation;
 
+						if (obj.GetComponentInChildren<BrawlerPlayerComponent>() != null)
+						{
+							obj.GetComponentInChildren<BrawlerPlayerComponent>().Hurt();
+						}
+
 					}
 				}
 			}
@@ -462,13 +556,13 @@ public class BrawlerPlayerComponent : MonoBehaviour
 					{
 					case PlayerStates.IDLE:
 						
-						SetState(PlayerStates.JUMPING);
+						SetState(PlayerStates.JUMPING_JOYSTICK);
 						
 						break;
 						
 					case PlayerStates.MOVING:
 						
-						SetState(PlayerStates.JUMPING);
+						SetState(PlayerStates.JUMPING_JOYSTICK);
 						
 						break;
 						
@@ -485,17 +579,15 @@ public class BrawlerPlayerComponent : MonoBehaviour
 						
 						break;
 						
-					case PlayerStates.FROZEN:
+					case PlayerStates.HURT:
 						
 						break;
 					}
 				}
-				else if (evt.JoystickInfo.AmountY <= 0 && mPlayerState == PlayerStates.JUMPING)
+				else if (evt.JoystickInfo.AmountY <= 0 && mPlayerState == PlayerStates.JUMPING_JOYSTICK)
 				{
 					SetState(PlayerStates.FALLING);
 				}
-
-
 
 			}
 		}       
@@ -521,6 +613,11 @@ public class BrawlerPlayerComponent : MonoBehaviour
 		{ 
 			GetComponentInChildren<SpriteRenderer>().color = mPlayerColor;
 		}
+	}
+
+	public void Hurt()
+	{
+		SetState(PlayerStates.HURT);
 	}
 	
 }

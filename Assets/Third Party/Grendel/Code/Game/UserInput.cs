@@ -8,7 +8,8 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
     public float MouseSensitivityVertical = 1f;
     public float MouseSensitivityHorizontal = 1f;
 
-	public float JoystickDeadzone = 0.2f;
+	public float JoystickDeadzoneX = 0.2f;
+	public float JoystickDeadzoneY = 0.2f;
 
 	[HideInInspector]public GrendelKeyBinding MoveUp = new GrendelKeyBinding("Move Up", KeyCode.W, KeyCode.UpArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
 	[HideInInspector]public GrendelKeyBinding MoveDown = new GrendelKeyBinding("Move Down", KeyCode.S, KeyCode.DownArrow, GrendelKeyBinding.MouseButtons.None, GrendelKeyBinding.MouseButtons.None);
@@ -28,6 +29,9 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 
     private List<GrendelKeyBinding> mKeysDown = new List<GrendelKeyBinding>();
 
+	private Dictionary<int, List<GrendelKeyBinding>> mKeyDownDict = new Dictionary<int, List<GrendelKeyBinding>>();
+	
+
 	private List<int> mConnectControllerIndexes = new List<int>();
     
     // Use this for initialization
@@ -37,6 +41,11 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
         StoreGrendelKeyBindings();
         mKeysDown.Clear();
 		GetConnectedControllers();
+
+		for(int i = 0; i < 4; i++)
+		{
+			mKeyDownDict.Add(i, new List<GrendelKeyBinding>());
+		}
     }
 
 	private void GetConnectedControllers()
@@ -278,6 +287,9 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 			int controllerIndex = mConnectControllerIndexes[i];		
 			PlayerIndex playerIndex = (PlayerIndex)controllerIndex;
 			GamePadState state = new GamePadState();
+
+			//Debug.Log ("Getting state for player " + playerIndex.ToString());
+
 			state = GamePad.GetState(playerIndex);
 			
 			if (!state.IsConnected)
@@ -293,6 +305,7 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 
 	private void ProcessGamePadInput(GamePadState state, PlayerIndex playerIndex)
 	{
+		//Debug.Log ("Processing for player " + playerIndex.ToString());
 		ProcessGamePadButton(GrendelKeyBinding.GamePadButtonValues.A, state.Buttons.A, playerIndex);
 		ProcessGamePadButton(GrendelKeyBinding.GamePadButtonValues.B, state.Buttons.B, playerIndex);
 		ProcessGamePadButton(GrendelKeyBinding.GamePadButtonValues.X, state.Buttons.X, playerIndex);
@@ -315,28 +328,30 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 			return;
 		}
 
+		int playerIndexInt = (int)playerIndex;
+
 		foreach(GrendelKeyBinding binding in mGamepPadButtonBindings[button])
 		{
-			if (buttonState == ButtonState.Released && !mKeysDown.Contains(binding))
+			if (buttonState == ButtonState.Released && !mKeyDownDict[playerIndexInt].Contains(binding))
 			{
 				continue;
 			}
 
 			if (binding.Enabled)
 			{
-				if (!mKeysDown.Contains(binding))
+				if (!mKeyDownDict[playerIndexInt].Contains(binding) && buttonState == ButtonState.Pressed)
 				{
-					mKeysDown.Add(binding);
-					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN, binding, (int)playerIndex, Vector3.zero, this));
+					mKeyDownDict[playerIndexInt].Add(binding);
+					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN, binding, playerIndexInt, Vector3.zero, this));
 				}
-				else if (mKeysDown.Contains(binding) && buttonState == ButtonState.Released)
+				else if (mKeyDownDict[playerIndexInt].Contains(binding) && buttonState == ButtonState.Released)
 				{
-					mKeysDown.Remove(binding);
-					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_UP, binding, (int)playerIndex, Vector3.zero, this));
+					mKeyDownDict[playerIndexInt].Remove(binding);
+					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_UP, binding, playerIndexInt, Vector3.zero, this));
 				}
-				else if (mKeysDown.Contains(binding) && buttonState == ButtonState.Pressed)
+				else if (mKeyDownDict[playerIndexInt].Contains(binding) && buttonState == ButtonState.Pressed)
 				{
-					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_HELD, binding, (int)playerIndex, Vector3.zero, this));
+					EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_HELD, binding, playerIndexInt, Vector3.zero, this));
 				}
 			}
 		}
@@ -392,12 +407,12 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 			return;
 		}
 
-		if (Mathf.Abs(valueX) < JoystickDeadzone)
+		if (Mathf.Abs(valueX) < JoystickDeadzoneX)
 		{
 			valueX = 0;
 		}
 
-		if (Mathf.Abs(valueY) < JoystickDeadzone)
+		if (Mathf.Abs(valueY) < JoystickDeadzoneY)
 		{
 			valueY = 0;
 		}
