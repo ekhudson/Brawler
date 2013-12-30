@@ -505,6 +505,8 @@ public class BrawlerPlayerComponent : MonoBehaviour
 					return;
 				}
 
+				EventManager.Instance.Post(new HitEvent(this, PunchBox.collider.bounds, PunchBox.collider.bounds.center));
+
 				foreach(Collider obj in PunchBox.ObjectList)
 				{
 					if (obj.gameObject.GetInstanceID() == gameObject.GetInstanceID())

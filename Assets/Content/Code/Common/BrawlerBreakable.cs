@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BrawlerBreakable : BaseObject 
+public class BrawlerBreakable : BrawlerHittable 
 {
 	public float Health = 100;
 	public Transform DamageParticle;
@@ -11,26 +11,33 @@ public class BrawlerBreakable : BaseObject
 
 	private const float kTestDamage = 50f;
 
-	private void Start()
+	protected override void Start()
 	{
+		base.Start();
 		mCurrentHealth = Health;
 	}
 
-	private void OnCollisionEnter(Collision collision)
+	protected override void OnHit(Vector3 hitLocation)
 	{
-		BrawlerPlayerComponent player = collision.gameObject>GetComponentInChildren<BrawlerPlayerComponent>();
-
-		if (player != null)
-		{
-			if (player.GetState == BrawlerPlayerComponent.PlayerStates.HURT)
-			{
-				TakeDamage(kTestDamage, collid);
-			}
-		}
-
-
+		TakeDamage(10, hitLocation);
 	}
 
+
+//	private void OnCollisionEnter(Collision collision)
+//	{
+//		BrawlerPlayerComponent player = collision.gameObject.GetComponentInChildren<BrawlerPlayerComponent>();
+//
+//		if (player != null)
+//		{
+//			if (player.GetState == BrawlerPlayerComponent.PlayerStates.HURT)
+//			{
+//				TakeDamage(kTestDamage, collision.contacts[0].point);
+//			}
+//		}
+//
+//
+//	}
+//
 	private void TakeDamage(float dmgAmt, Vector3 dmgLocation)
 	{
 		mCurrentHealth -= dmgAmt;
@@ -39,10 +46,16 @@ public class BrawlerBreakable : BaseObject
 		{
 			DestroyBreakable();
 		}
+		else
+		{
+			Transform go = (Transform)Instantiate(DamageParticle, dmgLocation, Quaternion.identity);
+			Destroy(go, 10f); //HACK: Make a better particle spawning system
+		}
 	}
 
 	private void DestroyBreakable()
 	{
-
+		Transform go = (Transform)Instantiate(BreakParticle, mTransform.position, Quaternion.identity);
+		Destroy (gameObject);
 	}
 }
