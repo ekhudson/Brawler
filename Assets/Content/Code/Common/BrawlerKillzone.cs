@@ -3,7 +3,7 @@ using System.Collections;
 
 public class BrawlerKillzone : TriggerVolume 
 {
-	public Transform SpawnPoint;
+	public Transform[] SpawnPoints;
 	public Vector3 SpawnSpreadAmount = Vector3.zero;
 	public Transform KillParticlePrefab;
 	public LayerMask PlayerLayer;
@@ -12,8 +12,15 @@ public class BrawlerKillzone : TriggerVolume
 	{		
 		if ((1 << collider.gameObject.layer) == PlayerLayer)
 		{
+			if(collider.GetComponent<BrawlerPlayerComponent>() == null)
+			{
+				return;
+			}
+
 			Transform go = (Transform)Instantiate(KillParticlePrefab, collider.transform.position, Quaternion.identity);
 			ParticleSystem deathParticle = go.GetComponent<ParticleSystem>();
+
+			Debug.Log("Killed");
 
 			if (deathParticle != null)
 			{
@@ -21,7 +28,9 @@ public class BrawlerKillzone : TriggerVolume
 				Destroy (go.gameObject, deathParticle.duration);
 			}
 
-			collider.transform.position = new Vector3(SpawnPoint.position.x, SpawnPoint.position.y, collider.transform.position.z) 
+			Transform spawnPoint = SpawnPoints[Random.Range(0, SpawnPoints.Length)];
+
+			collider.transform.position = new Vector3(spawnPoint.position.x, spawnPoint.position.y, collider.transform.position.z) 
 				+ new Vector3(Random.Range(-SpawnSpreadAmount.x, SpawnSpreadAmount.x),Random.Range(-SpawnSpreadAmount.y, SpawnSpreadAmount.y), Random.Range(-SpawnSpreadAmount.z, SpawnSpreadAmount.z));
 
 

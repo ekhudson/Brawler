@@ -11,10 +11,17 @@ public class BrawlerBreakable : BrawlerHittable
 
 	private const float kTestDamage = 50f;
 
+	private Color mDamageColor = Color.red;
+	private Color mOriginalColor = Color.white;
+	private Material mOriginalMat;
+
 	protected override void Start()
 	{
 		base.Start();
 		mCurrentHealth = Health;
+		mDamageColor.a = 0f;
+		mOriginalColor = mRenderer.sharedMaterial.color;
+		mOriginalMat = mRenderer.material;
 	}
 
 	protected override void OnHit(Vector3 hitLocation)
@@ -22,25 +29,11 @@ public class BrawlerBreakable : BrawlerHittable
 		TakeDamage(10, hitLocation);
 	}
 
-
-//	private void OnCollisionEnter(Collision collision)
-//	{
-//		BrawlerPlayerComponent player = collision.gameObject.GetComponentInChildren<BrawlerPlayerComponent>();
-//
-//		if (player != null)
-//		{
-//			if (player.GetState == BrawlerPlayerComponent.PlayerStates.HURT)
-//			{
-//				TakeDamage(kTestDamage, collision.contacts[0].point);
-//			}
-//		}
-//
-//
-//	}
-//
 	private void TakeDamage(float dmgAmt, Vector3 dmgLocation)
 	{
 		mCurrentHealth -= dmgAmt;
+
+		mRenderer.material.color = Color.Lerp(mOriginalColor, mDamageColor, 1 - ( (Health - (Health - mCurrentHealth)) / Health));
 
 		if (mCurrentHealth <= 0)
 		{
@@ -49,13 +42,20 @@ public class BrawlerBreakable : BrawlerHittable
 		else
 		{
 			Transform go = (Transform)Instantiate(DamageParticle, dmgLocation, Quaternion.identity);
-			Destroy(go, 10f); //HACK: Make a better particle spawning system
+			go.renderer.material = new Material(mOriginalMat);
+			Destroy(go.gameObject, 10f); //HACK: Make a better particle spawning system
+		}
+
+		if(FlashWhenHit)
+		{
+			StartCoroutine(Flash());
 		}
 	}
 
 	private void DestroyBreakable()
 	{
 		Transform go = (Transform)Instantiate(BreakParticle, mTransform.position, Quaternion.identity);
+		go.renderer.material = new Material(mOriginalMat);
 		Destroy (gameObject);
 	}
 }

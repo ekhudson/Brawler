@@ -47,6 +47,16 @@ public class BrawlerHUD : Singleton<BrawlerHUD>
 		GUILayout.BeginHorizontal(GUI.skin.button, GUILayout.Width(256f));
 		GUILayout.Label(player.PlayerID.ToString());
 		GUILayout.Label(string.Format("Gamepad Active: {0}",BrawlerUserInput.Instance.IsGamePadActive(player.AssociatedGamepad).ToString()));
+
+		if (!player.IsActivePlayer)
+		{
+			if (GUILayout.Button("Make AI"))
+			{
+				BrawlerAIBase ai = player.gameObject.AddComponent<BrawlerAIBase>();
+				ai.WakeAI();
+			}
+		}
+
 		GUILayout.EndHorizontal();
 		GUI.color = Color.white;
 		GUILayout.FlexibleSpace();

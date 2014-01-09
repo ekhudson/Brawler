@@ -4,6 +4,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEditor;
 
+[CanEditMultipleObjects]
 public class GrendelEditor<T> : Editor where T : class
 {
     public T Target

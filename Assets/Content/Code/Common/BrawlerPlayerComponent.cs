@@ -8,11 +8,13 @@ public class BrawlerPlayerComponent : MonoBehaviour
 	private int mAssociatedGamepad = -1; //again, if this is ever -1 it means no gamepad is assigned;
 	private Color mPlayerColor = Color.white;
 	private bool mIsActivePlayer = true;
+	private bool mAIPlayer = false;
 
 	//TODO: Wrap this in a PlayerAttributes class
 	#region PlayerAttributes
 	public float PlayerStrength = 100f;
 	public float AttackTime = 0.4f;
+	public float AttackChargeTime = 1f;
 	public float MinimumTimeBetweenAttacks = 0.5f;
 	public float MoveSpeed = 1.0f;
 	public float ClimbSpeed = 1.0f;
@@ -45,6 +47,8 @@ public class BrawlerPlayerComponent : MonoBehaviour
 	private Vector3 mInitialRotation;
 	private SpriteRenderer mSpriteRenderer;
 	private float mLastAttackEndTime;
+
+	private Vector3 mCurrentAttackDirection;
 	
 	public enum PlayerStates
 	{
@@ -58,6 +62,8 @@ public class BrawlerPlayerComponent : MonoBehaviour
 		ATTACKING_AIR,
 		JUMPING_JOYSTICK,
 		HURT,
+		ATTACKING_GROUND_CHARGING,
+		ATTACKING_AIR_CHARGING,
 	}
 	
 	protected PlayerStates mPlayerState = PlayerStates.IDLE;
@@ -113,7 +119,19 @@ public class BrawlerPlayerComponent : MonoBehaviour
 		{
 			return mController;
 		}
-	}    
+	} 
+
+	public bool IsAI
+	{
+		get
+		{
+			return mAIPlayer;
+		}
+		set
+		{
+			mAIPlayer = value;
+		}
+	}
 	
 	protected void Start()
 	{
@@ -224,8 +242,30 @@ public class BrawlerPlayerComponent : MonoBehaviour
 			}
 			
 			break;
-		}
-		
+
+		case PlayerStates.ATTACKING_GROUND_CHARGING:
+
+			mSpriteRenderer.color = Color.Lerp(mSpriteRenderer.color, Color.white, mTimeInState);
+
+			if (mTimeInState > AttackChargeTime)
+			{
+				SetState(PlayerStates.ATTACKING_GROUND);
+			}
+
+			break;
+
+		case PlayerStates.ATTACKING_AIR_CHARGING:
+
+			mSpriteRenderer.color = Color.Lerp(mSpriteRenderer.color, Color.white, mTimeInState);
+
+			if (mTimeInState > AttackChargeTime)
+			{
+				SetState(PlayerStates.ATTACKING_AIR);
+			}
+
+			break;
+
+		}		
 		
 		Vector3 norm = mTarget.normalized;
 		mController.Move( ((new Vector3(norm.x, 0, norm.z) * (MoveSpeed)) + new Vector3(0, mTarget.y, 0)) * Time.deltaTime);
@@ -307,13 +347,17 @@ public class BrawlerPlayerComponent : MonoBehaviour
 
 		case PlayerStates.ATTACKING_GROUND:
 
+			mSpriteRenderer.color = mPlayerColor;
 			mSpriteRenderer.sprite = AttackSprite;
+			Attack(PlayerStrength, 1 + mTimeInState, mCurrentAttackDirection);
 			
 			break;
 
 		case PlayerStates.ATTACKING_AIR:
 			
+			mSpriteRenderer.color = mPlayerColor;
 			mSpriteRenderer.sprite = JumpAttackSprite;
+			Attack (PlayerStrength, 1 + mTimeInState, mCurrentAttackDirection);
 			
 			break;
 
@@ -321,6 +365,14 @@ public class BrawlerPlayerComponent : MonoBehaviour
 
 			mSpriteRenderer.sprite = HurtSprite;
 			
+			break;
+
+		case PlayerStates.ATTACKING_AIR_CHARGING:
+
+			break;
+
+		case PlayerStates.ATTACKING_GROUND_CHARGING:
+
 			break;
 		}
 		
@@ -494,49 +546,63 @@ public class BrawlerPlayerComponent : MonoBehaviour
 
 				if (mPlayerState == PlayerStates.IDLE || mPlayerState == PlayerStates.MOVING)
 				{
-					SetState(PlayerStates.ATTACKING_GROUND);
+					SetState(PlayerStates.ATTACKING_AIR_CHARGING);
 				}
 				else if (mPlayerState == PlayerStates.JUMPING || mPlayerState == PlayerStates.JUMPING_JOYSTICK || mPlayerState == PlayerStates.FALLING)
 				{
-					SetState(PlayerStates.ATTACKING_AIR);
+					SetState(PlayerStates.ATTACKING_AIR_CHARGING);
 				}
-				else if (mPlayerState == PlayerStates.ATTACKING_AIR || mPlayerState == PlayerStates.ATTACKING_GROUND)
+				else if (mPlayerState == PlayerStates.ATTACKING_AIR_CHARGING || mPlayerState == PlayerStates.ATTACKING_GROUND_CHARGING)
 				{
-					return;
-				}
-
-				EventManager.Instance.Post(new HitEvent(this, PunchBox.collider.bounds, PunchBox.collider.bounds.center));
-
-				foreach(Collider obj in PunchBox.ObjectList)
-				{
-					if (obj.gameObject.GetInstanceID() == gameObject.GetInstanceID())
+					if (mTimeInState > AttackChargeTime)
 					{
-						continue;
-					}
-
-					if (obj.GetComponent<Rigidbody>() != null)
-					{
-						obj.GetComponent<Rigidbody>().AddForceAtPosition(mSpriteRenderer.transform.right * PlayerStrength, obj.transform.position);
-
-						Transform go = (Transform)Instantiate(HitParticle, obj.transform.position + new Vector3(0f,0f,-2f), Quaternion.identity);
-
-						ParticleSystem hitParticle = go.GetComponent<ParticleSystem>();
-						
-						if (hitParticle != null)
+						if (mPlayerState == PlayerStates.ATTACKING_AIR_CHARGING)
 						{
-							hitParticle.startColor = PlayerColor;
-							Destroy (go.gameObject, hitParticle.duration);
+							SetState(PlayerStates.ATTACKING_AIR);
 						}
-
-						go.transform.rotation = mSpriteRenderer.transform.rotation;
-
-						if (obj.GetComponentInChildren<BrawlerPlayerComponent>() != null)
+						else if (mPlayerState == PlayerStates.ATTACKING_GROUND_CHARGING)
 						{
-							obj.GetComponentInChildren<BrawlerPlayerComponent>().Hurt();
+							SetState(PlayerStates.ATTACKING_GROUND);
 						}
-
 					}
 				}
+				//else if (mPlayerState == PlayerStates.ATTACKING_AIR || mPlayerState == PlayerStates.ATTACKING_GROUND)
+				//{
+				//	return;
+				//}
+
+//				EventManager.Instance.Post(new HitEvent(this, PunchBox.collider.bounds, PunchBox.collider.bounds.center));
+//
+//				foreach(Collider obj in PunchBox.ObjectList)
+//				{
+//					if (obj.gameObject.GetInstanceID() == gameObject.GetInstanceID())
+//					{
+//						continue;
+//					}
+//
+//					if (obj.GetComponent<Rigidbody>() != null)
+//					{
+//						obj.GetComponent<Rigidbody>().AddForceAtPosition(mSpriteRenderer.transform.right * PlayerStrength, obj.transform.position);
+//
+//						Transform go = (Transform)Instantiate(HitParticle, obj.transform.position + new Vector3(0f,0f,-2f), Quaternion.identity);
+//
+//						ParticleSystem hitParticle = go.GetComponent<ParticleSystem>();
+//						
+//						if (hitParticle != null)
+//						{
+//							hitParticle.startColor = PlayerColor;
+//							Destroy (go.gameObject, hitParticle.duration);
+//						}
+//
+//						go.transform.rotation = mSpriteRenderer.transform.rotation;
+//
+//						if (obj.GetComponentInChildren<BrawlerPlayerComponent>() != null)
+//						{
+//							obj.GetComponentInChildren<BrawlerPlayerComponent>().Hurt();
+//						}
+//
+//					}
+//				}
 			}
 			
 			if (evt.KeyBind == BrawlerUserInput.Instance.MoveCharacter)
@@ -584,6 +650,18 @@ public class BrawlerPlayerComponent : MonoBehaviour
 					case PlayerStates.HURT:
 						
 						break;
+
+					case PlayerStates.ATTACKING_AIR_CHARGING:
+
+						mCurrentAttackDirection = new Vector3(evt.JoystickInfo.AmountX, evt.JoystickInfo.AmountY, 0).normalized;
+
+						break;
+
+					case PlayerStates.ATTACKING_GROUND_CHARGING:
+
+						mCurrentAttackDirection = new Vector3(evt.JoystickInfo.AmountX, evt.JoystickInfo.AmountY, 0).normalized;
+
+						break;
 					}
 				}
 				else if (evt.JoystickInfo.AmountY <= 0 && mPlayerState == PlayerStates.JUMPING_JOYSTICK)
@@ -593,6 +671,44 @@ public class BrawlerPlayerComponent : MonoBehaviour
 
 			}
 		}       
+	}
+
+	private void Attack(float attackForce, float attackMultiplier, Vector3 attackDirection)
+	{
+		EventManager.Instance.Post(new HitEvent(this, PunchBox.collider.bounds, PunchBox.collider.bounds.center));
+
+		Vector3 attackVector = attackDirection * (attackForce * attackMultiplier);
+
+		foreach(Collider obj in PunchBox.ObjectList)
+		{
+			if (obj.gameObject.GetInstanceID() == gameObject.GetInstanceID())
+			{
+				continue;
+			}
+			
+			if (obj.GetComponent<Rigidbody>() != null)
+			{
+				obj.GetComponent<Rigidbody>().AddForceAtPosition(attackVector, obj.transform.position);
+				
+				Transform go = (Transform)Instantiate(HitParticle, obj.transform.position + new Vector3(0f,0f,-2f), Quaternion.identity);
+				
+				ParticleSystem hitParticle = go.GetComponent<ParticleSystem>();
+				
+				if (hitParticle != null)
+				{
+					hitParticle.startColor = PlayerColor;
+					Destroy (go.gameObject, hitParticle.duration);
+				}
+				
+				go.transform.rotation = mSpriteRenderer.transform.rotation;
+				
+				if (obj.GetComponentInChildren<BrawlerPlayerComponent>() != null)
+				{
+					obj.GetComponentInChildren<BrawlerPlayerComponent>().Hurt();
+				}
+				
+			}
+		}
 	}
 
 	public void SetID(int id)
