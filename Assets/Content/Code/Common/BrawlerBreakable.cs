@@ -24,9 +24,9 @@ public class BrawlerBreakable : BrawlerHittable
 		mOriginalMat = mRenderer.material;
 	}
 
-	protected override void OnHit(Vector3 hitLocation)
+	protected override void OnHit(HitEvent hitEvent)
 	{
-		TakeDamage(10, hitLocation);
+		TakeDamage(10, hitEvent.HitPoint);
 	}
 
 	private void TakeDamage(float dmgAmt, Vector3 dmgLocation)

@@ -32,14 +32,14 @@ public class BrawlerHittable : BaseObject
 
 				actualHitPoint += mCollider.bounds.extents;
 
-				OnHit(actualHitPoint);
+				OnHit(hitEvent);
 			}
 		}
 		else if (mRenderer != null)
 		{
 			if (mRenderer.bounds.Intersects(hitEvent.HitBounds))
 		    {
-				OnHit(actualHitPoint);
+				OnHit(hitEvent);
 			}
 		}
 		else
@@ -48,7 +48,7 @@ public class BrawlerHittable : BaseObject
 		}
 	}
 
-	protected virtual void OnHit(Vector3 hitLocation)
+	protected virtual void OnHit(HitEvent hitEvent)
 	{
 		//override to do stuff on hit
 	}
