@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class BrawlerHUD : Singleton<BrawlerHUD>
 {   
     public bool HideWindowsMouse = true;
+	public GameObject TestEffect;
 
 	private Rect mScreenRect = new Rect();
 	   
@@ -22,7 +23,12 @@ public class BrawlerHUD : Singleton<BrawlerHUD>
     {
 		GUILayout.BeginArea(mScreenRect);
 
-		DrawPlayerStatuses();   
+		DrawPlayerStatuses();
+
+		if(GUI.Button(new Rect(500, 500, 100, 100), "Test FX"))
+		{
+			GrendelFXManager.Instance.SpawnEffect(TestEffect, BrawlerPlayerManager.Instance.PlayerList[Random.Range(0, BrawlerPlayerManager.Instance.PlayerList.Count)].transform.position, Quaternion.identity, true);			                                    
+		}
 
 		GUILayout.EndArea();
     }  

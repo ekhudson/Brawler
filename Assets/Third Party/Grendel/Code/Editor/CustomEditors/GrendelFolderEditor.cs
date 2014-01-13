@@ -15,6 +15,7 @@ public class GrendelFolderEditor : GrendelEditor<GrendelFolder>
     private const int kGridRowMax = 8;
     private const float kGridSize = 16f;
     private const float kGrideBuffer = 2f;
+	private static GUIStyle mFolderTextStyle;
 
     [MenuItem("GameObject/Create Folder %#f", false, 0)]
     [MenuItem("GameObject/Create Other/Folder %#f", false)]
@@ -44,7 +45,13 @@ public class GrendelFolderEditor : GrendelEditor<GrendelFolder>
 
     public static void HierarchyWindowItemOnGUI(int instanceID, Rect selectionRect)
     {
-        GrendelFolder folder = (EditorUtility.InstanceIDToObject(instanceID) as GameObject).GetComponent<GrendelFolder>();
+        if (mFolderTextStyle == null)
+		{
+			mFolderTextStyle = new GUIStyle(GUI.skin.label);
+			mFolderTextStyle.normal.textColor = EditorGUIUtility.isProSkin ? Color.black : Color.white;
+		}
+
+		GrendelFolder folder = (EditorUtility.InstanceIDToObject(instanceID) as GameObject).GetComponent<GrendelFolder>();
 
         if (folder != null)
         {
@@ -88,7 +95,7 @@ public class GrendelFolderEditor : GrendelEditor<GrendelFolder>
                 GUI.DrawTexture(new Rect(selectionRect.x + kToggleWidth, selectionRect.y, kIconWidth, selectionRect.height), folder.DefaultTexture);
             }
 
-            GUI.Label(new Rect(selectionRect.x + kIconWidth + kToggleWidth, selectionRect.y, selectionRect.width, selectionRect.height), folder.name);
+			GUI.Label(new Rect(selectionRect.x + kIconWidth + kToggleWidth, selectionRect.y, selectionRect.width, selectionRect.height), folder.name, mFolderTextStyle);
 
             if (!folder.IsVisible)
             {

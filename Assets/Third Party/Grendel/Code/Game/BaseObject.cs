@@ -24,7 +24,7 @@ public class BaseObject : MonoBehaviour
     public bool DebugMode = false;
     public bool GameObjectActiveOnStart = true;
     public bool RigidBodyAwakeOnStart = false;
-    public int UpdatesPerSecond = 30;
+    //public int UpdatesPerSecond = 30; //not particularly relevant for all objects? Probably belongs on BaseActor
     
     //PROTECTED REFERENCES
     protected Transform mTransform;
@@ -33,6 +33,7 @@ public class BaseObject : MonoBehaviour
     protected Collider mCollider;
     protected Rigidbody mRigidbody;
     protected int mInstanceID;
+	protected ParticleSystem mParticleSystem;
     
     //PROTECTED VARIABLES
     protected bool mIsHidden = false;
@@ -72,6 +73,12 @@ public class BaseObject : MonoBehaviour
         get { return mRigidbody; }
         set { mRigidbody = value; }
     }
+
+	public ParticleSystem BaseParticleSystem
+	{
+		get { return mParticleSystem; }
+		set { mParticleSystem = value; }
+	}
     
     public int BaseInstanceID
     {
@@ -111,10 +118,11 @@ public class BaseObject : MonoBehaviour
         mRenderer = renderer;
         mCollider = collider;
         mRigidbody = rigidbody;
+		mParticleSystem = particleSystem;
         mInstanceID = gameObject.GetInstanceID();
         
         //calculate the update interval (assuming ideal target of 60 fps)
-        mUpdateInterval = UpdatesPerSecond / 60f;
+        //mUpdateInterval = UpdatesPerSecond / 60f;
         
         //check conditions
         if (mRigidbody != null && !RigidBodyAwakeOnStart) { mRigidbody.Sleep(); }
