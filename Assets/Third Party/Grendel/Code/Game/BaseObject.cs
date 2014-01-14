@@ -76,7 +76,7 @@ public class BaseObject : MonoBehaviour
 
 	public ParticleSystem BaseParticleSystem
 	{
-		get { return mParticleSystem; }
+		get {  if (mParticleSystem == null){ mParticleSystem = gameObject.particleSystem; } return mParticleSystem; }
 		set { mParticleSystem = value; }
 	}
     

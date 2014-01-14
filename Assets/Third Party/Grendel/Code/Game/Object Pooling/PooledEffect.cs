@@ -6,6 +6,6 @@ public class PooledEffect : GrendelPooledObject<PooledEffect>
 {
 	protected override void OnInstantiated()
 	{
-		mParticleSystem.Play();
+		mParticleSystem.Play(true);
 	}
 }
