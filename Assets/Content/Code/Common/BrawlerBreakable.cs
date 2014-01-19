@@ -26,7 +26,7 @@ public class BrawlerBreakable : BrawlerHittable
 
 	protected override void OnHit(HitEvent hitEvent)
 	{
-		TakeDamage(10, hitEvent.HitPoint);
+		TakeDamage(hitEvent.HitForce, hitEvent.HitPoint);
 	}
 
 	private void TakeDamage(float dmgAmt, Vector3 dmgLocation)

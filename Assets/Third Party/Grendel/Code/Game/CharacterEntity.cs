@@ -61,10 +61,10 @@ public class CharacterEntity : Entity
     // Update is called once per frame
     private void FixedUpdate ()
     {
-        if (!mIsGrounded)
-        {
+        //if (!mIsGrounded)
+        //{
             CheckIfGrounded();
-        }
+        //}
 
         //mTransform.Translate(mCurrentMove, Space.World);
         //mRigidbody.MovePosition(mTransform.position + mCurrentMove);
@@ -87,10 +87,29 @@ public class CharacterEntity : Entity
         Ray ray = new Ray(mTransform.position, -mTransform.up);
         RaycastHit hit;
 
+		mIsGrounded = false;
+
 		if (Physics.Raycast(ray, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, ~(1 << mLayer)))
         {
             mIsGrounded = true;
         }
+
+
+		//left bounds check
+		ray.origin = new Vector3(ray.origin.x - mCollider.bounds.size.x, ray.origin.y, ray.origin.z);
+		if (Physics.Raycast(ray, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, ~(1 << mLayer)))
+		{
+			mIsGrounded = true;
+		}
+
+
+		//right bounds check
+		ray.origin = new Vector3(ray.origin.x + (mCollider.bounds.size.x * 2), ray.origin.y, ray.origin.z);
+		if (Physics.Raycast(ray, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, ~(1 << mLayer)))
+		{
+			mIsGrounded = true;
+		}
+
     }
 
 	public void SetGrounded(bool grounded)

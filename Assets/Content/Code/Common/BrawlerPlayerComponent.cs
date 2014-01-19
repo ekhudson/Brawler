@@ -21,6 +21,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 	public float JumpForce = 2.0f;
 	public float MinimumJumpTime = 0.5f;
 	public AnimationCurve JumpCurve = new AnimationCurve();
+	public float DropForce = 2f;
 	public float LandingTime = 0.2f;
 	public float HurtTime = 0.3f;
 	public float AirControl = 0.9f;
@@ -42,11 +43,12 @@ public class BrawlerPlayerComponent : BrawlerHittable
 	protected Vector3 mTarget = Vector3.zero;
 	protected CharacterEntity mController;
 	
-	private Collider mClimbingVolume;  
+	private bool mIsDropping = false;  
 	
 	private Vector3 mInitialRotation;
 	private SpriteRenderer mSpriteRenderer;
 	private float mLastAttackEndTime;
+	private Vector3 mLastMovingDirection;
 
 	private Vector3 mCurrentAttackDirection;
 	
@@ -190,7 +192,9 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			
 			mController.SetGrounded(false);
 			mController.Move( mController.BaseTransform.up * (JumpForce * JumpCurve.Evaluate(mTimeInState)));	
-			
+
+			mLastMovingDirection = mTarget;
+
 			mTarget *= AirControl;
 			
 			break;
@@ -201,8 +205,15 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			{
 				SetState(PlayerStates.LANDING);
 			}
-			
+
+			mLastMovingDirection = mTarget;
+
 			mTarget *= AirControl;
+
+			if (mIsDropping)
+			{
+				mTarget += Physics.gravity * DropForce;
+			}
 			
 			break;
 			
@@ -231,6 +242,12 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			{
 				SetState(PlayerStates.FALLING);
 				mLastAttackEndTime = Time.realtimeSinceStartup;
+			}
+
+			if (mController.IsGrounded)
+			{
+				SetState(PlayerStates.ATTACKING_GROUND, true);
+				return;
 			}
 			
 			break;
@@ -264,6 +281,14 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				SetState(PlayerStates.ATTACKING_AIR);
 			}
 
+			if (mController.IsGrounded)
+			{
+				SetState(PlayerStates.ATTACKING_GROUND_CHARGING, true);
+				return;
+			}
+
+			mTarget += mLastMovingDirection;
+
 			break;
 
 		}		
@@ -285,8 +310,13 @@ public class BrawlerPlayerComponent : BrawlerHittable
 	{
 		mTarget += direction;
 	}      
-	
+
 	public void SetState(PlayerStates state)
+	{
+		SetState(state, false);
+	}
+
+	public void SetState(PlayerStates state, bool carryOverTimeInState)
 	{
 		if (state == mPlayerState)
 		{
@@ -299,6 +329,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			
 			rigidbody.useGravity = true;
 			mSpriteRenderer.sprite = DefaultSprite;
+			mIsDropping = false;
 			
 			break;
 			
@@ -306,6 +337,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			
 			rigidbody.useGravity = true;
 			mSpriteRenderer.sprite = MoveSprite;
+			mIsDropping = false;
 			
 			break;
 
@@ -365,19 +397,27 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		case PlayerStates.HURT:
 
 			mSpriteRenderer.sprite = HurtSprite;
+			mIsDropping = false;
 			
 			break;
 
 		case PlayerStates.ATTACKING_AIR_CHARGING:
 
+			mSpriteRenderer.sprite = JumpSprite;
+
 			break;
 
 		case PlayerStates.ATTACKING_GROUND_CHARGING:
 
+			mSpriteRenderer.sprite = DefaultSprite;
+
 			break;
 		}
-		
-		mTimeInState = 0.0f;
+
+		if (!carryOverTimeInState)
+		{
+			mTimeInState = 0.0f;
+		}
 		
 		mPlayerState = state;
 	}
@@ -446,6 +486,14 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			if(evt.KeyBind == BrawlerUserInput.Instance.MoveUp && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 			{
 				
+			}
+
+			if(evt.KeyBind == BrawlerUserInput.Instance.MoveDown && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
+			{
+				if (mPlayerState == PlayerStates.FALLING && !mIsDropping)
+				{
+					mIsDropping = true;
+				}
 			}
 			
 			if(evt.KeyBind == BrawlerUserInput.Instance.Jump)
@@ -534,11 +582,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				}
 			}
 			
-			if(evt.KeyBind == BrawlerUserInput.Instance.MoveDown && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
-			{
-				
-			}
-			
 			if(evt.KeyBind == BrawlerUserInput.Instance.PrimaryFire && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN))
 			{
 				
@@ -571,55 +614,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				}
 				else if (mPlayerState == PlayerStates.ATTACKING_AIR_CHARGING || mPlayerState == PlayerStates.ATTACKING_GROUND_CHARGING)
 				{
-//					if (mTimeInState > AttackChargeTime)
-//					{
-//						if (mPlayerState == PlayerStates.ATTACKING_AIR_CHARGING)
-//						{
-//							SetState(PlayerStates.ATTACKING_AIR);
-//						}
-//						else if (mPlayerState == PlayerStates.ATTACKING_GROUND_CHARGING)
-//						{
-//							SetState(PlayerStates.ATTACKING_GROUND);
-//						}
-//					}
 				}
-				//else if (mPlayerState == PlayerStates.ATTACKING_AIR || mPlayerState == PlayerStates.ATTACKING_GROUND)
-				//{
-				//	return;
-				//}
-
-//				EventManager.Instance.Post(new HitEvent(this, PunchBox.collider.bounds, PunchBox.collider.bounds.center));
-//
-//				foreach(Collider obj in PunchBox.ObjectList)
-//				{
-//					if (obj.gameObject.GetInstanceID() == gameObject.GetInstanceID())
-//					{
-//						continue;
-//					}
-//
-//					if (obj.GetComponent<Rigidbody>() != null)
-//					{
-//						obj.GetComponent<Rigidbody>().AddForceAtPosition(mSpriteRenderer.transform.right * PlayerStrength, obj.transform.position);
-//
-//						Transform go = (Transform)Instantiate(HitParticle, obj.transform.position + new Vector3(0f,0f,-2f), Quaternion.identity);
-//
-//						ParticleSystem hitParticle = go.GetComponent<ParticleSystem>();
-//						
-//						if (hitParticle != null)
-//						{
-//							hitParticle.startColor = PlayerColor;
-//							Destroy (go.gameObject, hitParticle.duration);
-//						}
-//
-//						go.transform.rotation = mSpriteRenderer.transform.rotation;
-//
-//						if (obj.GetComponentInChildren<BrawlerPlayerComponent>() != null)
-//						{
-//							obj.GetComponentInChildren<BrawlerPlayerComponent>().Hurt();
-//						}
-//
-//					}
-//				}
 			}
 			
 			if (evt.KeyBind == BrawlerUserInput.Instance.MoveCharacter)
@@ -689,6 +684,14 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				else if (evt.JoystickInfo.AmountY <= 0 && mPlayerState == PlayerStates.JUMPING_JOYSTICK)
 				{
 					SetState(PlayerStates.FALLING);
+				}
+				
+				if (evt.JoystickInfo.AmountY < 0)
+				{
+					if (mPlayerState == PlayerStates.FALLING && !mIsDropping)
+					{
+						mIsDropping = true;
+					}
 				}
 
 			}
