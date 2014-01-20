@@ -12,7 +12,8 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 	//TODO: Wrap this in a PlayerAttributes class
 	#region PlayerAttributes
-	public float PlayerStrength = 100f;
+	public float PlayerMinStrength = 10f;
+	public float PlayerMaxStrength = 50f;
 	public float AttackTime = 0.4f;
 	public float AttackChargeTime = 1f;
 	public float MinimumTimeBetweenAttacks = 0.5f;
@@ -248,10 +249,11 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 			mSpriteRenderer.color = Color.Lerp(mSpriteRenderer.color, Color.white, mTimeInState);
 
-			if (mTimeInState > AttackChargeTime)
-			{
-				SetState(PlayerStates.ATTACKING_GROUND);
-			}
+			//if (mTimeInState > AttackChargeTime)
+			//{
+				//SetState(PlayerStates.ATTACKING_GROUND);
+				//return;
+			//}
 
 			break;
 
@@ -259,10 +261,11 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 			mSpriteRenderer.color = Color.Lerp(mSpriteRenderer.color, Color.white, mTimeInState);
 
-			if (mTimeInState > AttackChargeTime)
-			{
-				SetState(PlayerStates.ATTACKING_AIR);
-			}
+			//if (mTimeInState > AttackChargeTime)
+			//{
+				//SetState(PlayerStates.ATTACKING_AIR);
+				//return;
+			//}
 
 			break;
 
@@ -350,7 +353,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 			mSpriteRenderer.color = mPlayerColor;
 			mSpriteRenderer.sprite = AttackSprite;
-			Attack(PlayerStrength, 1 + mTimeInState, mCurrentAttackDirection);
+			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
 			
 			break;
 
@@ -358,7 +361,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			
 			mSpriteRenderer.color = mPlayerColor;
 			mSpriteRenderer.sprite = JumpAttackSprite;
-			Attack (PlayerStrength, 1 + mTimeInState, mCurrentAttackDirection);
+			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
 			
 			break;
 
@@ -375,11 +378,12 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		case PlayerStates.ATTACKING_GROUND_CHARGING:
 
 			break;
-		}
-		
-		mTimeInState = 0.0f;
+		}	
+
 		
 		mPlayerState = state;
+
+		mTimeInState = 0.0f;
 	}
 	
 	public void InputHandler(object sender, UserInputKeyEvent evt)
@@ -396,11 +400,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		
 		if(evt.PlayerIndexInt != mPlayerID - 1 && evt.PlayerIndexInt != -1)
 		{
-			if (evt.KeyBind != BrawlerUserInput.Instance.MoveCharacter)
-			{
-				//Debug.Log ("Ignoring");
-			}
-
 			return;
 		}
 
@@ -625,19 +624,22 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			if (evt.KeyBind == BrawlerUserInput.Instance.MoveCharacter)
 			{
 
-				if (mPlayerState != PlayerStates.ATTACKING_AIR_CHARGING || mPlayerState != PlayerStates.ATTACKING_GROUND_CHARGING)
+				if (mPlayerState != PlayerStates.ATTACKING_AIR_CHARGING && mPlayerState != PlayerStates.ATTACKING_GROUND_CHARGING)
 				{
-					mTarget.x += (evt.JoystickInfo.AmountX);
-				}
+					mTarget.x += (evt.JoystickInfo.AmountX);			
 
-
-				if (evt.JoystickInfo.AmountX < 0 && mSpriteRenderer.transform.rotation.eulerAngles.y == 0)
-				{
-					mSpriteRenderer.transform.rotation = Quaternion.Euler(new Vector3(0,180,0));
+					if (evt.JoystickInfo.AmountX < 0 && mSpriteRenderer.transform.rotation.eulerAngles.y == 0)
+					{
+						mSpriteRenderer.transform.rotation = Quaternion.Euler(new Vector3(0,180,0));
+					}
+					else if (evt.JoystickInfo.AmountX > 0 && mSpriteRenderer.transform.rotation.eulerAngles.y != 0)
+					{
+						mSpriteRenderer.transform.rotation = Quaternion.Euler(new Vector3(0,0,0));
+					}
 				}
-				else if (evt.JoystickInfo.AmountX > 0 && mSpriteRenderer.transform.rotation.eulerAngles.y != 0)
+				else
 				{
-					mSpriteRenderer.transform.rotation = Quaternion.Euler(new Vector3(0,0,0));
+					mCurrentAttackDirection = new Vector3(evt.JoystickInfo.AmountX, evt.JoystickInfo.AmountY, 0).normalized;
 				}
 
 				if (evt.JoystickInfo.AmountY > 0)
@@ -675,13 +677,13 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 					case PlayerStates.ATTACKING_AIR_CHARGING:
 
-						mCurrentAttackDirection = new Vector3(evt.JoystickInfo.AmountX, evt.JoystickInfo.AmountY, 0).normalized;
+						//mCurrentAttackDirection.y = new Vector3(evt.JoystickInfo.AmountX, evt.JoystickInfo.AmountY, 0).normalized.y;
 
 						break;
 
 					case PlayerStates.ATTACKING_GROUND_CHARGING:
 
-						mCurrentAttackDirection = new Vector3(evt.JoystickInfo.AmountX, evt.JoystickInfo.AmountY, 0).normalized;
+						//mCurrentAttackDirection.y = new Vector3(evt.JoystickInfo.AmountX, evt.JoystickInfo.AmountY, 0).normalized.y;
 
 						break;
 					}
@@ -750,7 +752,14 @@ public class BrawlerPlayerComponent : BrawlerHittable
 	{
 		if (mPlayerState == PlayerStates.ATTACKING_AIR_CHARGING || mPlayerState == PlayerStates.ATTACKING_GROUND_CHARGING)
 		{
-			Gizmos.DrawLine(PunchBox.transform.position, PunchBox.transform.position + (mCurrentAttackDirection * (1 + mTimeInState)));
+			if (mCurrentAttackDirection != Vector3.zero)
+			{
+				Gizmos.DrawLine(PunchBox.transform.position, PunchBox.transform.position + (mCurrentAttackDirection * (1 + mTimeInState)));
+			}
+			else
+			{
+				Gizmos.DrawLine(PunchBox.transform.position, PunchBox.transform.position + (mSpriteRenderer.transform.right * (1 + mTimeInState)));
+			}
 		}
 	}
 
@@ -790,7 +799,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 		Debug.Log (hitEvent.HitVector);
 
-		mRigidbody.AddForce (hitEvent.HitVector, ForceMode.Impulse);
+		mRigidbody.AddForce (hitEvent.HitVector, ForceMode.VelocityChange);
 						
 		Transform go = (Transform)Instantiate(HitParticle, hitEvent.HitPoint, Quaternion.identity);
 		

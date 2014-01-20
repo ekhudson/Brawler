@@ -25,10 +25,10 @@ public class BrawlerHUD : Singleton<BrawlerHUD>
 
 		DrawPlayerStatuses();
 
-		if(GUI.Button(new Rect(500, 500, 100, 100), "Test FX"))
-		{
-			GrendelFXManager.Instance.SpawnEffect(TestEffect, BrawlerPlayerManager.Instance.PlayerList[Random.Range(0, BrawlerPlayerManager.Instance.PlayerList.Count)].transform.position, Quaternion.identity, true);			                                    
-		}
+//		if(GUI.Button(new Rect(500, 500, 100, 100), "Test FX"))
+//		{
+//			GrendelFXManager.Instance.SpawnEffect(TestEffect, BrawlerPlayerManager.Instance.PlayerList[Random.Range(0, BrawlerPlayerManager.Instance.PlayerList.Count)].transform.position, Quaternion.identity, true);			                                    
+//		}
 
 		GUILayout.EndArea();
     }  

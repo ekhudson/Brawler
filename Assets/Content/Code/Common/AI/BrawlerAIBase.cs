@@ -11,6 +11,7 @@ public class BrawlerAIBase : BaseObject
 		mPlayerComponent = gameObject.GetComponent<BrawlerPlayerComponent>();
 		mPlayerComponent.IsAI = true;
 		mPlayerComponent.IsActivePlayer = true;
+		mPlayerComponent.SetPlayerColor (mPlayerComponent.PlayerColor);
 		gameObject.SetActive(true);
 	}
 
