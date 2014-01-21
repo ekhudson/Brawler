@@ -18,16 +18,16 @@ public class AdjustableAudioClipEditor : GrendelEditor<AdjustableAudioClip>
 
             EditorGUILayout.Space();
 
-            if (GrendelAudioOptions.PreviewAudioSource != null &&
-                GrendelAudioOptions.PreviewAudioSource.isPlaying &&
-                GrendelAudioOptions.PreviewAudioSource.clip == target.Clip)
+			if (GrendelAudioData.PreviewAudioSource != null &&
+		    	GrendelAudioData.PreviewAudioSource.isPlaying &&
+		    	GrendelAudioData.PreviewAudioSource.clip == target.Clip)
             {
                 GUI.color = Color.green;
             }
 
             if(GUILayout.Button(string.Format("{0} {1}",target.Clip.name, GUI.color == Color.green ? "\u25A0" : "\u25BA"), GUILayout.Width(kPlayButtonWidth)))
             {
-                GrendelAudioOptions.PlayAudioClipPreview(target);
+				GrendelAudioData.PlayAudioClipPreview(target);
             }
 
             Rect buttonRect = GUILayoutUtility.GetLastRect();
@@ -75,11 +75,11 @@ public class AdjustableAudioClipEditor : GrendelEditor<AdjustableAudioClip>
 
         GUI.DrawTexture(boxRect, AssetPreview.GetAssetPreview(target.Clip), ScaleMode.StretchToFill);
 
-        if (GrendelAudioOptions.PreviewAudioSource != null &&
-                GrendelAudioOptions.PreviewAudioSource.isPlaying &&
-                GrendelAudioOptions.PreviewAudioSource.clip == target.Clip)
+		if (GrendelAudioData.PreviewAudioSource != null &&
+		    GrendelAudioData.PreviewAudioSource.isPlaying &&
+		    GrendelAudioData.PreviewAudioSource.clip == target.Clip)
         {
-            boxRect.width = boxRect.width * (GrendelAudioOptions.PreviewAudioSource.time / target.Clip.length);
+			boxRect.width = boxRect.width * (GrendelAudioData.PreviewAudioSource.time / target.Clip.length);
 
             GUI.color = GrendelColor.CustomAlpha(Color.green, 0.25f);
             GUI.Box(boxRect, string.Empty);

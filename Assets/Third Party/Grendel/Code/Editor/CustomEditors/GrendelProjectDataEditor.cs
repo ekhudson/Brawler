@@ -34,7 +34,7 @@ public class GrendelProjectDataEditor : GrendelEditor<GrendelProjectData>
 
         EditorGUI.BeginChangeCheck();
 
-        GrendelAudioOptionsEditor.StaticOnInspectorGUI(Target.AudioOptions);
+        GrendelAudioDataEditor.StaticOnInspectorGUI(Target.AudioOptions);
 
         if(EditorGUI.EndChangeCheck())
         {

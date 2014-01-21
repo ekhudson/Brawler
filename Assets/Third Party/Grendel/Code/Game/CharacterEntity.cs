@@ -96,7 +96,7 @@ public class CharacterEntity : Entity
 
 
 		//left bounds check
-		ray.origin = new Vector3(ray.origin.x - mCollider.bounds.size.x, ray.origin.y, ray.origin.z);
+		ray.origin = new Vector3(ray.origin.x - (mCollider.bounds.size.x * 0.5f), ray.origin.y, ray.origin.z);
 		if (Physics.Raycast(ray, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, ~(1 << mLayer)))
 		{
 			mIsGrounded = true;

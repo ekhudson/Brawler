@@ -10,5 +10,5 @@ public class GrendelProjectData : ScriptableObject
     public GrendelGameOptions GameOptions;
     public GrendelConsoleOptions ConsoleOptions;
     public GrendelFolderOptions FolderOptions;
-    [HideInInspector]public GrendelAudioOptions AudioOptions;	
+	[HideInInspector]public GrendelAudioData AudioOptions;	
 }

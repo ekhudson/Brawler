@@ -78,8 +78,8 @@ public class ConsoleCommandList : Singleton<ConsoleCommandList>
 	
 	void RandomTrack(ConsoleCommandParams parameters)
 	{
-		int randomNum = UnityEngine.Random.Range(0, AudioList.Instance.MusicTracks.Count);
-		Console.Instance.OutputToConsole(string.Format("Going to a random track: {0} ", AudioList.Instance.MusicTracks[randomNum].ToString()), Console.Instance.Style_Admin);
+		//int randomNum = UnityEngine.Random.Range(0, AudioList.Instance.MusicTracks.Count);
+		//Console.Instance.OutputToConsole(string.Format("Going to a random track: {0} ", AudioList.Instance.MusicTracks[randomNum].ToString()), Console.Instance.Style_Admin);
 		//AudioManager.Instance.PlayMusicTrack(AudioList.Instance.MusicTracks[randomNum]);	
 	}
 	
@@ -93,7 +93,7 @@ public class ConsoleCommandList : Singleton<ConsoleCommandList>
 		else
 		{
 			int index = (int)parameters.Params[0];
-			Console.Instance.OutputToConsole(string.Format("Requesting music track {0} : {1}", index.ToString(), AudioList.Instance.MusicTracks[index].ToString()), Console.Instance.Style_Admin);
+			//Console.Instance.OutputToConsole(string.Format("Requesting music track {0} : {1}", index.ToString(), AudioList.Instance.MusicTracks[index].ToString()), Console.Instance.Style_Admin);
 		}
 	}
 	
@@ -102,10 +102,10 @@ public class ConsoleCommandList : Singleton<ConsoleCommandList>
 		Console.Instance.OutputToConsole("Listing Music Tracks: ", Console.Instance.Style_Admin);
 		Console.Instance.OutputToConsole("", Console.Instance.Style_Admin, false);
 		
-		for(int i = 0; i < AudioList.Instance.MusicTracks.Count; i++)
-		{
-			Console.Instance.OutputToConsole( string.Format("{0} : {1}", i.ToString(), AudioList.Instance.MusicTracks[i]), Console.Instance.Style_Admin, false);			
-		}
+//		for(int i = 0; i < AudioList.Instance.MusicTracks.Count; i++)
+//		{
+//			Console.Instance.OutputToConsole( string.Format("{0} : {1}", i.ToString(), AudioList.Instance.MusicTracks[i]), Console.Instance.Style_Admin, false);			
+//		}
 		
 		Console.Instance.OutputToConsole("", Console.Instance.Style_Admin, false);
 	}

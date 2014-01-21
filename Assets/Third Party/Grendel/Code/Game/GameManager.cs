@@ -27,6 +27,31 @@ public class GameManager : Singleton<GameManager>
 	private static bool mFirstTimeLoaded = true; //is this the very first time this script was loaded?
     [HideInInspector]public bool LoadDefaultScene; //are we supposed to load the default scene?
     
+	protected GrendelProjectData mProjectData;
+	
+	public GrendelProjectData ProjectData
+	{
+		get
+		{
+			if (mProjectData == null)
+			{
+				GetProjectData();
+			}
+			
+			return mProjectData;
+		}
+	}
+	
+	private void GetProjectData()
+	{
+		mProjectData = (GrendelProjectData)Resources.Load("Grendel/Grendel Project Data", typeof(GrendelProjectData));
+		
+		if (mProjectData == null)
+		{
+			Debug.LogError("This Grendel Project is missing its project data. Please make sure there is one located at Assets|Resource|Grendel", this);
+		}
+	}
+
     public static class GameStates
     {
         public enum STATES

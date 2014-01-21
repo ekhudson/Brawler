@@ -43,7 +43,7 @@ public class LevelManager : Singleton<LevelManager>
     
     void PlayBackgroundMusicTrack()
     {
-        
+		GrendelAudioData.PlayAudioClipPreview( GameManager.Instance.ProjectData.AudioOptions.AudioBanks[0].AudioClips[0] );
     }
     
     public void LoadLevel(string sceneName)

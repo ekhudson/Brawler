@@ -6,6 +6,7 @@ public class BrawlerGameManager : GameManager
 	protected override void Awake()
 	{
 		base.Awake();
+
 	}
 
 	protected override void Start()
@@ -15,7 +16,7 @@ public class BrawlerGameManager : GameManager
 
 	protected override void Update()
 	{
-		base.Start();
+		base.Update();
 	}
 
 }

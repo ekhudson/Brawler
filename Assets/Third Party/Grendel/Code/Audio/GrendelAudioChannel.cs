@@ -5,7 +5,9 @@ using System.Collections;
 public class GrendelAudioChannel
 {
     public string ChannelName = "Audio Channel";
-    private float mChannelVolume = 1f;
+	public int MaxSimultaneousSounds = 50f;
+
+	private float mChannelVolume = 1f;
 
     public float ChannelVolume
     {

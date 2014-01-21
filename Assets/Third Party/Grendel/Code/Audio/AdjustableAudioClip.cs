@@ -9,6 +9,7 @@ public class AdjustableAudioClip
     public float PitchMin = 1;
     public float PitchMax = 1;
     public float StaticPitch = 1;
+	public bool Loop = false;
 
     [HideInInspector]public bool AttributesExpanded = false;
 
@@ -30,4 +31,9 @@ public class AdjustableAudioClip
             StaticPitch = value;
         }
     }
+
+	public void Play()
+	{
+
+	}
 }
