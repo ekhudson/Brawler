@@ -30,23 +30,39 @@ public class GrendelAudioDataEditor : GrendelEditor<GrendelAudioData>
 
             for (int i = 0; i < target.AudioChannels.Count; i++)
             {
-                GUILayout.BeginHorizontal();
+				GUILayout.BeginVertical(EditorStyles.textField);
 
-                target.AudioChannels[i].ChannelName = EditorGUILayout.TextField("Channel Name", target.AudioChannels[i].ChannelName);
+					EditorGUILayout.Space();
 
-                if (GUILayout.Button(new GUIContent("X", "Delete Channel"), GUILayout.Width(kDeleteButtonWidth)))
-                {
-                    if (!EditorUtility.DisplayDialog("Delete Audio Channel", string.Format("Are you sure you want to delete the {0} Audio Channel?", target.AudioChannels[i].ChannelName), "Delete", "Cancel"))
-                    {
-                        break;
-                    }
+					EditorGUILayout.SelectableLabel(target.AudioChannels[i].ChannelName, EditorStyles.whiteLabel);
 
-                    target.AudioChannels.RemoveAt(i);
-                    GUILayout.EndHorizontal();
-                    break;
-                }
+					GUILayout.BeginHorizontal();
 
-                GUILayout.EndHorizontal();
+	                target.AudioChannels[i].ChannelName = EditorGUILayout.TextField("Channel Name", target.AudioChannels[i].ChannelName);
+
+	                if (GUILayout.Button(new GUIContent("X", "Delete Channel"), GUILayout.Width(kDeleteButtonWidth)))
+	                {
+	                    if (!EditorUtility.DisplayDialog("Delete Audio Channel", string.Format("Are you sure you want to delete the {0} Audio Channel?", target.AudioChannels[i].ChannelName), "Delete", "Cancel"))
+	                    {
+	                        break;
+	                    }
+
+	                    target.AudioChannels.RemoveAt(i);
+	                    GUILayout.EndHorizontal();
+	                    break;
+	                }
+
+	                GUILayout.EndHorizontal();
+
+					GUILayout.BeginHorizontal();
+
+					target.AudioChannels[i].ChannelVolume = (float)System.Math.Round(EditorGUILayout.Slider("Channel Volume", target.AudioChannels[i].ChannelVolume, 0, 1), 2);
+
+					GUILayout.EndHorizontal();
+
+					EditorGUILayout.Space();
+
+				GUILayout.EndVertical();
             }
 
             GUILayout.BeginHorizontal();

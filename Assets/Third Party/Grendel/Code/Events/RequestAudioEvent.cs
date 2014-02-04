@@ -8,17 +8,19 @@ public class RequestAudioEvent : EventBase
 	public readonly Transform AttachToTarget = null;
 	public readonly Vector3 Location = Vector3.zero;
 	public readonly bool ForceLooping = false;
+	public readonly float Volume = 0f;
 
-	public RequestAudioEvent(GrendelAudioChannel channel, AdjustableAudioClip audioClip, Vector3 location, Transform attachToTarget, bool forceLooping, object sender) : base (Vector3.zero, sender)
+	public RequestAudioEvent(GrendelAudioChannel channel, AdjustableAudioClip audioClip, Vector3 location, Transform attachToTarget, float volume, bool forceLooping, object sender) : base (Vector3.zero, sender)
 	{
 		Channel = channel;
 		Clip = audioClip;
 		AttachToTarget = attachToTarget;
 		Location = location;
 		ForceLooping = forceLooping;
+		Volume = volume;
 	}
 
-	public RequestAudioEvent(GrendelAudioChannel channel, AdjustableAudioClip audioClip, Vector3 location, Transform attachToTarget) : base (Vector3.zero, sender)
+	public RequestAudioEvent(GrendelAudioChannel channel, AdjustableAudioClip audioClip, Vector3 location, Transform attachToTarget, object sender) : base (Vector3.zero, sender)
 	{
 		Channel = channel;
 		Clip = audioClip;
@@ -26,7 +28,7 @@ public class RequestAudioEvent : EventBase
 		AttachToTarget = attachToTarget;
 	}
 
-	public RequestAudioEvent(GrendelAudioChannel channel, AdjustableAudioClip audioClip, Vector3 location) : base (Vector3.zero, sender)
+	public RequestAudioEvent(GrendelAudioChannel channel, AdjustableAudioClip audioClip, Vector3 location, object sender) : base (Vector3.zero, sender)
 	{
 		Channel = channel;
 		Clip = audioClip;

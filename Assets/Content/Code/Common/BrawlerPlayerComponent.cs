@@ -22,6 +22,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 	public float JumpForce = 2.0f;
 	public float MinimumJumpTime = 0.5f;
 	public AnimationCurve JumpCurve = new AnimationCurve();
+	public float DropMaxAmountX = 0.4f; //maximum amount of movement along X when attempting to drop
 	public float DropForce = 2f;
 	public float LandingTime = 0.2f;
 	public float HurtTime = 0.3f;
@@ -34,11 +35,13 @@ public class BrawlerPlayerComponent : BrawlerHittable
 	#region Sprites
 	public Sprite DefaultSprite;
 	public Sprite JumpSprite;
-	public Sprite AttackSprite;
+	public Sprite[] AttackSprite;
 	public Sprite JumpAttackSprite;
+	public Sprite FallSprite;
 	public Sprite LandSprite;
 	public Sprite MoveSprite;
 	public Sprite HurtSprite;
+	public Sprite DropSprite;
 	#endregion
 
 	protected Vector3 mTarget = Vector3.zero;
@@ -371,7 +374,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		case PlayerStates.FALLING:
 			
 			rigidbody.useGravity = true;
-			mSpriteRenderer.sprite = JumpSprite;
+			mSpriteRenderer.sprite = FallSprite;
 			
 			break;
 			
@@ -384,7 +387,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		case PlayerStates.ATTACKING_GROUND:
 
 			mSpriteRenderer.color = mPlayerColor;
-			mSpriteRenderer.sprite = AttackSprite;
+			mSpriteRenderer.sprite = AttackSprite[Random.Range(0, AttackSprite.Length)];
 			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
 			
 			break;
@@ -492,6 +495,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				if (mPlayerState == PlayerStates.FALLING && !mIsDropping)
 				{
 					mIsDropping = true;
+					mSpriteRenderer.sprite = DropSprite;
 				}
 			}
 			
@@ -690,9 +694,10 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				
 				if (evt.JoystickInfo.AmountY < 0)
 				{
-					if (mPlayerState == PlayerStates.FALLING && !mIsDropping)
+					if (mPlayerState == PlayerStates.FALLING && !mIsDropping && Mathf.Abs(evt.JoystickInfo.AmountX) < DropMaxAmountX)
 					{
 						mIsDropping = true;
+						mSpriteRenderer.sprite = DropSprite;
 					}
 				}
 

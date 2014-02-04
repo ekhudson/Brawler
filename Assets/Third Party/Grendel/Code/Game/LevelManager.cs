@@ -32,7 +32,7 @@ public class LevelManager : Singleton<LevelManager>
     void Start () 
     {
         Console.Instance.OutputToConsole(string.Format("{0}: {1} loaded, calling music track", this.ToString(), Application.loadedLevelName), Console.Instance.Style_Admin);
-        PlayBackgroundMusicTrack();        
+        //PlayBackgroundMusicTrack();        
     }
     
     // Update is called once per frame
