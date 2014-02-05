@@ -42,6 +42,18 @@ public class BrawlerPlayerComponent : BrawlerHittable
 	public Sprite MoveSprite;
 	public Sprite HurtSprite;
 	public Sprite DropSprite;
+	public Sprite CrouchSprite;
+	public Sprite CrouchPunchSprite;
+	public Sprite CrouchKickSprite;
+	public Sprite CrouchBlockSprite;
+	public Sprite CrouchPunchChargeSprite;
+	public Sprite CrouchKickChargeSprite;
+	public Sprite KickSprite;
+	public Sprite KickChargeSprite;
+	public Sprite BlockSprite;
+	public Sprite BlockAirSprite;
+	public Sprite KickAirSprite;
+	public Sprite KickAirChargeSprite;
 	#endregion
 
 	protected Vector3 mTarget = Vector3.zero;
@@ -70,6 +82,18 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		HURT,
 		ATTACKING_GROUND_CHARGING,
 		ATTACKING_AIR_CHARGING,
+		ATTACKING_CROUCH_CHARING,
+		ATTACKING_CROUCH,
+		KICK_GROUND,
+		KICK_AIR,
+		KICK_CROUCH,
+		KICK_GROUND_CHARGING,
+		KICK_CROUCH_CHARGING,
+		KICK_AIR_CHARGING,
+		BLOCK_GROUND,
+		BLOCK_AIR,
+		BLOCK_CROUCH,
+		CROUCH,
 	}
 	
 	protected PlayerStates mPlayerState = PlayerStates.IDLE;
@@ -418,6 +442,12 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			mSpriteRenderer.sprite = DefaultSprite;
 
 			break;
+
+		case PlayerStates.CROUCH:
+
+			mSpriteRenderer.sprite = CrouchSprite;
+
+			break;
 		}	
 
 
@@ -451,7 +481,8 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		if (GetState == PlayerStates.IDLE || GetState == PlayerStates.MOVING || 
 		    mPlayerState == PlayerStates.FALLING || mPlayerState == PlayerStates.JUMPING ||
 		    mPlayerState == PlayerStates.ATTACKING_AIR || mPlayerState == PlayerStates.JUMPING_JOYSTICK ||
-		    mPlayerState == PlayerStates.ATTACKING_AIR_CHARGING || mPlayerState == PlayerStates.ATTACKING_GROUND_CHARGING)
+		    mPlayerState == PlayerStates.ATTACKING_AIR_CHARGING || mPlayerState == PlayerStates.ATTACKING_GROUND_CHARGING ||
+		    mPlayerState == PlayerStates.CROUCH)
 		{
 			
 			if(evt.KeyBind == BrawlerUserInput.Instance.MoveLeft && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
@@ -623,7 +654,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			if (evt.KeyBind == BrawlerUserInput.Instance.MoveCharacter)
 			{
 
-				if (mPlayerState != PlayerStates.ATTACKING_AIR_CHARGING && mPlayerState != PlayerStates.ATTACKING_GROUND_CHARGING)
+				if (mPlayerState != PlayerStates.ATTACKING_AIR_CHARGING && mPlayerState != PlayerStates.ATTACKING_GROUND_CHARGING && mPlayerState != PlayerStates.CROUCH)
 				{
 					mTarget.x += (evt.JoystickInfo.AmountX);			
 
@@ -687,9 +718,66 @@ public class BrawlerPlayerComponent : BrawlerHittable
 						break;
 					}
 				}
-				else if (evt.JoystickInfo.AmountY <= 0 && mPlayerState == PlayerStates.JUMPING_JOYSTICK)
+				else if (evt.JoystickInfo.AmountY <= 0)
 				{
-					SetState(PlayerStates.FALLING);
+					switch(mPlayerState)
+					{
+					case PlayerStates.IDLE:
+						
+						if (evt.JoystickInfo.AmountY != 0)
+						{
+							SetState(PlayerStates.CROUCH);
+						}
+						
+						break;
+						
+					case PlayerStates.MOVING:
+						
+						if (evt.JoystickInfo.AmountY != 0)
+						{
+							SetState(PlayerStates.CROUCH);
+						}
+						
+						break;
+
+					case PlayerStates.CROUCH:
+
+						if (evt.JoystickInfo.AmountY == 0)
+						{
+							SetState(PlayerStates.IDLE);
+						}
+
+						break;
+						
+					case PlayerStates.JUMPING_JOYSTICK:
+
+						SetState(PlayerStates.FALLING);
+
+						break;
+						
+					case PlayerStates.FALLING:						
+						
+						
+						break;
+						
+					case PlayerStates.LANDING:
+						
+						break;
+						
+					case PlayerStates.HURT:
+						
+						break;
+						
+					case PlayerStates.ATTACKING_AIR_CHARGING:						
+
+						
+						break;
+						
+					case PlayerStates.ATTACKING_GROUND_CHARGING:						
+
+						
+						break;
+					}
 				}
 				
 				if (evt.JoystickInfo.AmountY < 0)
