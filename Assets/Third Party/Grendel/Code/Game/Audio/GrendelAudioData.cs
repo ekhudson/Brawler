@@ -5,6 +5,13 @@ using System.Collections.Generic;
 using System.IO;
 
 [System.Serializable]
+public class GrendelAudioEntry
+{
+	public int AudioBankNumber = 0;
+	public int AudioClipNumber = 0;
+}
+
+[System.Serializable]
 public class GrendelAudioData
 {
     [HideInInspector]public List<GrendelAudioChannel> AudioChannels = new List<GrendelAudioChannel>();
