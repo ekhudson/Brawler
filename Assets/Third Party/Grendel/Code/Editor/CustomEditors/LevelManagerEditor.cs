@@ -11,7 +11,8 @@ public class LevelManagerEditor : GrendelEditor<LevelManager>
 
     // Override the GUI
     public override void OnInspectorGUI()
-    {        
+    {   
+		DrawDefaultInspector();
 //        if (Application.isPlaying) { return; }
 //
 //        //TheAudioList = (AudioList)GameObject.FindObjectOfType(typeof(AudioList));

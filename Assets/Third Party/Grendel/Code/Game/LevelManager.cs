@@ -3,11 +3,12 @@ using System.Collections;
 using UnityEngine;
 
 public class LevelManager : Singleton<LevelManager> 
-{
-    
-    public bool RandomMusicTrack = false;
-    public AudioClip BackgroundMusicTrack;    
-    
+{    
+    //public bool RandomMusicTrack = false;
+    //public AudioClip BackgroundMusicTrack;   
+	public bool PlayTrackOnLoad = false;
+	public GrendelAudioEntry ClipToPlayOnLoad;
+
     private int _musicTrackIndex; //the index of the currently set music track
     
     [SerializeField]
@@ -29,10 +30,10 @@ public class LevelManager : Singleton<LevelManager>
 
     
     // Use this for initialization
-    void Start () 
+    private void Start () 
     {
         Console.Instance.OutputToConsole(string.Format("{0}: {1} loaded, calling music track", this.ToString(), Application.loadedLevelName), Console.Instance.Style_Admin);
-        //PlayBackgroundMusicTrack();        
+        PlayBackgroundMusicTrack();        
     }
     
     // Update is called once per frame
@@ -43,7 +44,10 @@ public class LevelManager : Singleton<LevelManager>
     
     void PlayBackgroundMusicTrack()
     {
-		GrendelAudioData.PlayAudioClipPreview( GameManager.Instance.ProjectData.AudioOptions.AudioBanks[0].AudioClips[0] );
+		if (PlayTrackOnLoad)
+		{
+			GrendelAudioData.PlayAudioClipPreview( GameManager.Instance.ProjectData.AudioOptions.AudioBanks[ClipToPlayOnLoad.AudioBankNumber].AudioClips[ClipToPlayOnLoad.AudioClipNumber] );
+		}
     }
     
     public void LoadLevel(string sceneName)

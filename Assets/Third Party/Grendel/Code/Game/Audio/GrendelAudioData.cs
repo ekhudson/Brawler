@@ -5,6 +5,13 @@ using System.Collections.Generic;
 using System.IO;
 
 [System.Serializable]
+public class GrendelAudioEntry
+{
+	public int AudioBankNumber = 0;
+	public int AudioClipNumber = 0;
+}
+
+[System.Serializable]
 public class GrendelAudioData
 {
     [HideInInspector]public List<GrendelAudioChannel> AudioChannels = new List<GrendelAudioChannel>();
@@ -37,12 +44,13 @@ public class GrendelAudioData
 
 		if (Application.isPlaying)
 		{
-			mPreviewAudioSource.gameObject.transform.parent = Camera.main.transform;
+			mPreviewAudioSource.gameObject.transform.parent = Camera.current.transform;
 			mPreviewAudioSource.gameObject.transform.localPosition = Vector3.zero;
 		}
 		else
 		{
         	mPreviewAudioSource.gameObject.transform.position = Vector3.zero;
+			mPreviewAudioSource.maxDistance = 1000000f;
 		}
 
         mPreviewAudioSource.clip = clip.Clip;
