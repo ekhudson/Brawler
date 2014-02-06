@@ -48,7 +48,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 	public Sprite CrouchBlockSprite;
 	public Sprite CrouchPunchChargeSprite;
 	public Sprite CrouchKickChargeSprite;
-	public Sprite KickSprite;
+	public Sprite[] KickSprite;
 	public Sprite KickChargeSprite;
 	public Sprite BlockSprite;
 	public Sprite BlockAirSprite;
@@ -82,7 +82,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		HURT,
 		ATTACKING_GROUND_CHARGING,
 		ATTACKING_AIR_CHARGING,
-		ATTACKING_CROUCH_CHARING,
+		ATTACKING_CROUCH_CHARGING,
 		ATTACKING_CROUCH,
 		KICK_GROUND,
 		KICK_AIR,
@@ -279,6 +279,16 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			}
 			
 			break;
+		
+		case PlayerStates.ATTACKING_CROUCH:
+
+			if (mTimeInState > AttackTime)
+			{
+				SetState(PlayerStates.CROUCH);
+				mLastAttackEndTime = Time.realtimeSinceStartup;
+			}
+
+			break;
 			
 		case PlayerStates.HURT:
 
@@ -293,11 +303,11 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 			mSpriteRenderer.color = Color.Lerp(mSpriteRenderer.color, Color.white, mTimeInState);
 
-			//if (mTimeInState > AttackChargeTime)
-			//{
-				//SetState(PlayerStates.ATTACKING_GROUND);
-				//return;
-			//}
+			if (mTimeInState > AttackChargeTime)
+			{
+				SetState(PlayerStates.ATTACKING_GROUND);
+				return;
+			}
 
 			break;
 
@@ -305,11 +315,11 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 			mSpriteRenderer.color = Color.Lerp(mSpriteRenderer.color, Color.white, mTimeInState);
 
-			//if (mTimeInState > AttackChargeTime)
-			//{
-				//SetState(PlayerStates.ATTACKING_AIR);
-				//return;
-			//}
+			if (mTimeInState > AttackChargeTime)
+			{
+				SetState(PlayerStates.ATTACKING_AIR);
+				return;
+			}
 
 			if (mController.IsGrounded)
 			{
@@ -318,6 +328,113 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			}
 
 			mTarget += mLastMovingDirection;
+
+			break;
+		
+		case PlayerStates.ATTACKING_CROUCH_CHARGING:
+			
+			mSpriteRenderer.color = Color.Lerp(mSpriteRenderer.color, Color.white, mTimeInState);
+			
+			if (mTimeInState > AttackChargeTime)
+			{
+				SetState(PlayerStates.ATTACKING_CROUCH);
+				return;
+			}
+			
+			break;
+			
+		case PlayerStates.BLOCK_GROUND:			
+
+			
+			break;
+			
+		case PlayerStates.BLOCK_CROUCH:			
+
+			
+			break;
+			
+		case PlayerStates.BLOCK_AIR:			
+
+			
+			break;
+			
+		case PlayerStates.KICK_AIR:
+			
+			if (mTimeInState > AttackTime)
+			{
+				SetState(PlayerStates.FALLING);
+				mLastAttackEndTime = Time.realtimeSinceStartup;
+			}
+			
+			if (mController.IsGrounded)
+			{
+				SetState(PlayerStates.KICK_GROUND, true);
+				return;
+			}
+
+			break;
+			
+		case PlayerStates.KICK_AIR_CHARGING:
+			
+			mSpriteRenderer.color = Color.Lerp(mSpriteRenderer.color, Color.white, mTimeInState);
+			
+			if (mTimeInState > AttackChargeTime)
+			{
+				SetState(PlayerStates.KICK_AIR);
+				return;
+			}
+
+			if (mController.IsGrounded)
+			{
+				SetState(PlayerStates.KICK_GROUND_CHARGING, true);
+				return;
+			}
+			
+			mTarget += mLastMovingDirection;
+			
+			break;
+			
+		case PlayerStates.KICK_CROUCH:
+			
+			if (mTimeInState > AttackTime)
+			{
+				SetState(PlayerStates.CROUCH);
+				mLastAttackEndTime = Time.realtimeSinceStartup;
+			}
+			
+			break;
+			
+		case PlayerStates.KICK_CROUCH_CHARGING:
+			
+			mSpriteRenderer.color = Color.Lerp(mSpriteRenderer.color, Color.white, mTimeInState);
+			
+			if (mTimeInState > AttackChargeTime)
+			{
+				SetState(PlayerStates.KICK_CROUCH);
+				return;
+			}
+			
+			break;
+			
+		case PlayerStates.KICK_GROUND:
+
+			if (mTimeInState > AttackTime)
+			{
+				SetState(PlayerStates.IDLE);
+				mLastAttackEndTime = Time.realtimeSinceStartup;
+			}
+			
+			break;
+			
+		case PlayerStates.KICK_GROUND_CHARGING:
+			
+			mSpriteRenderer.color = Color.Lerp(mSpriteRenderer.color, Color.white, mTimeInState);
+			
+			if (mTimeInState > AttackChargeTime)
+			{
+				SetState(PlayerStates.KICK_GROUND);
+				return;
+			}
 
 			break;
 
@@ -448,6 +565,81 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			mSpriteRenderer.sprite = CrouchSprite;
 
 			break;
+
+		case PlayerStates.ATTACKING_CROUCH:
+
+			mSpriteRenderer.color = mPlayerColor;
+			mSpriteRenderer.sprite = CrouchPunchSprite;
+			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
+
+			break;
+		
+		case PlayerStates.ATTACKING_CROUCH_CHARGING:
+
+			mSpriteRenderer.sprite = CrouchSprite;
+
+			break;
+
+		case PlayerStates.BLOCK_GROUND:
+
+			mSpriteRenderer.sprite = BlockSprite;
+
+			break;
+
+		case PlayerStates.BLOCK_CROUCH:
+
+			mSpriteRenderer.sprite = CrouchBlockSprite;
+
+			break;
+
+		case PlayerStates.BLOCK_AIR:
+
+			mSpriteRenderer.sprite = BlockAirSprite;
+
+			break;
+
+		case PlayerStates.KICK_AIR:
+
+			mSpriteRenderer.color = mPlayerColor;
+			mSpriteRenderer.sprite = KickAirSprite;
+			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
+
+			break;
+
+		case PlayerStates.KICK_AIR_CHARGING:
+
+			mSpriteRenderer.sprite = JumpSprite;
+
+			break;
+
+		case PlayerStates.KICK_CROUCH:
+
+			mSpriteRenderer.color = mPlayerColor;
+			mSpriteRenderer.sprite = CrouchKickSprite;
+			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
+
+			break;
+
+		case PlayerStates.KICK_CROUCH_CHARGING:
+
+			mSpriteRenderer.sprite = CrouchSprite;
+
+			break;
+
+		case PlayerStates.KICK_GROUND:
+
+			mSpriteRenderer.color = mPlayerColor;
+			mSpriteRenderer.sprite = KickSprite[Random.Range(0, KickSprite.Length)];
+			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
+
+			break;
+
+		case PlayerStates.KICK_GROUND_CHARGING:
+
+			mSpriteRenderer.sprite = DefaultSprite;
+
+			break;		
+		
 		}	
 
 
@@ -476,18 +668,18 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			return;
 		}
 
-		//Debug.Log("Doing");
 
-		if (GetState == PlayerStates.IDLE || GetState == PlayerStates.MOVING || 
-		    mPlayerState == PlayerStates.FALLING || mPlayerState == PlayerStates.JUMPING ||
-		    mPlayerState == PlayerStates.ATTACKING_AIR || mPlayerState == PlayerStates.JUMPING_JOYSTICK ||
-		    mPlayerState == PlayerStates.ATTACKING_AIR_CHARGING || mPlayerState == PlayerStates.ATTACKING_GROUND_CHARGING ||
-		    mPlayerState == PlayerStates.CROUCH)
+		if (mPlayerState != PlayerStates.FROZEN || mPlayerState != PlayerStates.HURT)
 		{
 			
 			if(evt.KeyBind == BrawlerUserInput.Instance.MoveLeft && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 			{
 				if (mPlayerState == PlayerStates.ATTACKING_AIR_CHARGING || mPlayerState == PlayerStates.ATTACKING_GROUND_CHARGING)
+				{
+					//return;
+				}
+
+				if (mPlayerState == PlayerStates.CROUCH || mPlayerState == PlayerStates.BLOCK_CROUCH || mPlayerState == PlayerStates.BLOCK_GROUND)
 				{
 					return;
 				}
@@ -504,6 +696,11 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			if(evt.KeyBind == BrawlerUserInput.Instance.MoveRight && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.KEYHELD))
 			{
 				if (mPlayerState == PlayerStates.ATTACKING_AIR_CHARGING || mPlayerState == PlayerStates.ATTACKING_GROUND_CHARGING)
+				{
+					//return;
+				}
+
+				if (mPlayerState == PlayerStates.CROUCH || mPlayerState == PlayerStates.BLOCK_CROUCH || mPlayerState == PlayerStates.BLOCK_GROUND)
 				{
 					return;
 				}
@@ -631,7 +828,9 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				
 			}
 
-			if (evt.KeyBind == BrawlerUserInput.Instance.Attack && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN))
+			if (evt.KeyBind == BrawlerUserInput.Instance.Attack && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN) ||
+			    evt.KeyBind == BrawlerUserInput.Instance.Kick && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN) ||
+			    evt.KeyBind == BrawlerUserInput.Instance.Block && (evt.Type == UserInputKeyEvent.TYPE.KEYDOWN || evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_DOWN))
 			{
 				if ( (Time.realtimeSinceStartup - mLastAttackEndTime) < MinimumTimeBetweenAttacks )
 				{
@@ -640,21 +839,62 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 				if (mPlayerState == PlayerStates.IDLE || mPlayerState == PlayerStates.MOVING)
 				{
-					SetState(PlayerStates.ATTACKING_GROUND_CHARGING);
+					if (evt.KeyBind == BrawlerUserInput.Instance.Attack)
+					{
+						SetState(PlayerStates.ATTACKING_GROUND_CHARGING);
+					}
+					else if (evt.KeyBind == BrawlerUserInput.Instance.Kick)
+					{
+						SetState(PlayerStates.KICK_GROUND_CHARGING);
+					}
+					else if (evt.KeyBind == BrawlerUserInput.Instance.Block)
+					{
+						SetState(PlayerStates.BLOCK_GROUND);
+					}
 				}
 				else if (mPlayerState == PlayerStates.JUMPING || mPlayerState == PlayerStates.JUMPING_JOYSTICK || mPlayerState == PlayerStates.FALLING)
 				{
-					SetState(PlayerStates.ATTACKING_AIR_CHARGING);
+					if (evt.KeyBind == BrawlerUserInput.Instance.Attack)
+					{
+						SetState(PlayerStates.ATTACKING_AIR_CHARGING);
+					}
+					else if (evt.KeyBind == BrawlerUserInput.Instance.Kick)
+					{
+						SetState(PlayerStates.KICK_AIR_CHARGING);
+					}
+					else if (evt.KeyBind == BrawlerUserInput.Instance.Block)
+					{
+						SetState(PlayerStates.BLOCK_AIR);
+					}
+
 				}
-				else if (mPlayerState == PlayerStates.ATTACKING_AIR_CHARGING || mPlayerState == PlayerStates.ATTACKING_GROUND_CHARGING)
+				else if (mPlayerState == PlayerStates.CROUCH)
 				{
+					if (evt.KeyBind == BrawlerUserInput.Instance.Attack)
+					{
+						SetState(PlayerStates.ATTACKING_CROUCH_CHARGING);
+					}
+					else if (evt.KeyBind == BrawlerUserInput.Instance.Kick)
+					{
+						SetState(PlayerStates.KICK_CROUCH_CHARGING);
+					}
+					else if (evt.KeyBind == BrawlerUserInput.Instance.Block)
+					{
+						SetState(PlayerStates.BLOCK_CROUCH);
+					}
+				}
+				else if (mPlayerState == PlayerStates.ATTACKING_AIR_CHARGING || 
+				         mPlayerState == PlayerStates.ATTACKING_GROUND_CHARGING ||
+				         mPlayerState == PlayerStates.ATTACKING_CROUCH_CHARGING)
+				{
+					//do nothing, charging
 				}
 			}
 			
 			if (evt.KeyBind == BrawlerUserInput.Instance.MoveCharacter)
 			{
 
-				if (mPlayerState != PlayerStates.ATTACKING_AIR_CHARGING && mPlayerState != PlayerStates.ATTACKING_GROUND_CHARGING && mPlayerState != PlayerStates.CROUCH)
+				if (mPlayerState != PlayerStates.CROUCH && mPlayerState != PlayerStates.BLOCK_CROUCH && mPlayerState != PlayerStates.BLOCK_GROUND)
 				{
 					mTarget.x += (evt.JoystickInfo.AmountX);			
 
@@ -667,10 +907,10 @@ public class BrawlerPlayerComponent : BrawlerHittable
 						mSpriteRenderer.transform.rotation = Quaternion.Euler(new Vector3(0,0,0));
 					}
 				}
-				else
-				{
-					mCurrentAttackDirection = new Vector3(evt.JoystickInfo.AmountX, evt.JoystickInfo.AmountY, 0).normalized;
-				}
+				//else
+				//{
+					//mCurrentAttackDirection = new Vector3(evt.JoystickInfo.AmountX, evt.JoystickInfo.AmountY, 0).normalized;
+				//}
 
 				if (evt.JoystickInfo.AmountY > 0)
 				{
@@ -748,6 +988,42 @@ public class BrawlerPlayerComponent : BrawlerHittable
 						}
 
 						break;
+
+					case PlayerStates.BLOCK_CROUCH:
+
+						if (evt.JoystickInfo.AmountY == 0)
+						{
+							SetState(PlayerStates.BLOCK_GROUND);
+						}
+
+						break;
+
+					case PlayerStates.BLOCK_GROUND:
+
+						if(evt.JoystickInfo.AmountY < 0)
+						{
+							SetState(PlayerStates.BLOCK_CROUCH);
+						}
+
+						break;
+					
+					case PlayerStates.ATTACKING_CROUCH_CHARGING:
+
+						if (evt.JoystickInfo.AmountY == 0)
+						{
+							SetState(PlayerStates.ATTACKING_GROUND_CHARGING, true);
+						}
+
+						break;
+					
+					case PlayerStates.KICK_CROUCH_CHARGING:
+						
+						if (evt.JoystickInfo.AmountY == 0)
+						{
+							SetState(PlayerStates.KICK_GROUND_CHARGING, true);
+						}
+						
+						break;
 						
 					case PlayerStates.JUMPING_JOYSTICK:
 
@@ -792,15 +1068,45 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			}
 		}
 
-		if (evt.KeyBind == BrawlerUserInput.Instance.Attack && (evt.Type == UserInputKeyEvent.TYPE.KEYUP || evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_UP))
+		if (evt.KeyBind == BrawlerUserInput.Instance.Attack && (evt.Type == UserInputKeyEvent.TYPE.KEYUP || evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_UP) ||
+		    evt.KeyBind == BrawlerUserInput.Instance.Kick && (evt.Type == UserInputKeyEvent.TYPE.KEYUP || evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_UP) ||
+		    evt.KeyBind == BrawlerUserInput.Instance.Block && (evt.Type == UserInputKeyEvent.TYPE.KEYUP || evt.Type == UserInputKeyEvent.TYPE.GAMEPAD_BUTTON_UP))
 		{
-			if (mPlayerState == PlayerStates.ATTACKING_AIR_CHARGING)
+			if (mPlayerState == PlayerStates.ATTACKING_AIR_CHARGING && evt.KeyBind == BrawlerUserInput.Instance.Attack)
 			{
 				SetState(PlayerStates.ATTACKING_AIR);
 			}
-			else if (mPlayerState == PlayerStates.ATTACKING_GROUND_CHARGING)
+			else if (mPlayerState == PlayerStates.ATTACKING_GROUND_CHARGING && evt.KeyBind == BrawlerUserInput.Instance.Attack)
 			{
 				SetState(PlayerStates.ATTACKING_GROUND);
+			}
+			else if (mPlayerState == PlayerStates.ATTACKING_CROUCH_CHARGING && evt.KeyBind == BrawlerUserInput.Instance.Attack)
+			{
+				SetState(PlayerStates.ATTACKING_CROUCH);
+			}
+			else if (mPlayerState == PlayerStates.KICK_AIR_CHARGING && evt.KeyBind == BrawlerUserInput.Instance.Kick)
+			{
+				SetState(PlayerStates.KICK_AIR);
+			}
+			else if (mPlayerState == PlayerStates.KICK_GROUND_CHARGING && evt.KeyBind == BrawlerUserInput.Instance.Kick)
+			{
+				SetState(PlayerStates.KICK_GROUND);
+			}
+			else if (mPlayerState == PlayerStates.KICK_CROUCH_CHARGING && evt.KeyBind == BrawlerUserInput.Instance.Kick)
+			{
+				SetState(PlayerStates.KICK_CROUCH);
+			}
+			else if (mPlayerState == PlayerStates.BLOCK_AIR && evt.KeyBind == BrawlerUserInput.Instance.Block)
+			{
+				SetState(PlayerStates.FALLING);
+			}
+			else if (mPlayerState == PlayerStates.BLOCK_CROUCH && evt.KeyBind == BrawlerUserInput.Instance.Block)
+			{
+				SetState(PlayerStates.CROUCH);
+			}
+			else if (mPlayerState == PlayerStates.BLOCK_GROUND && evt.KeyBind == BrawlerUserInput.Instance.Block)
+			{
+				SetState(PlayerStates.IDLE);
 			}
 		}
 	}
@@ -811,37 +1117,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		Vector3 attackVector = (attackDirection == Vector3.zero ? mSpriteRenderer.transform.right : attackDirection) * attackDamage;
 
 		EventManager.Instance.Post(new HitEvent(this, PunchBox.collider.bounds, PunchBox.collider.bounds.center, attackDamage, attackVector));
-
-//		foreach(Collider obj in PunchBox.ObjectList)
-//		{
-//			if (obj.gameObject.GetInstanceID() == gameObject.GetInstanceID())
-//			{
-//				continue;
-//			}
-//			
-//			if (obj.GetComponent<Rigidbody>() != null)
-//			{
-//				obj.GetComponent<Rigidbody>().AddForceAtPosition(attackVector, obj.transform.position);
-//				
-//				Transform go = (Transform)Instantiate(HitParticle, obj.transform.position + new Vector3(0f,0f,-2f), Quaternion.identity);
-//				
-//				ParticleSystem hitParticle = go.GetComponent<ParticleSystem>();
-//				
-//				if (hitParticle != null)
-//				{
-//					hitParticle.startColor = PlayerColor;
-//					Destroy (go.gameObject, hitParticle.duration);
-//				}
-//				
-//				go.transform.rotation = mSpriteRenderer.transform.rotation;
-//				
-//				if (obj.GetComponentInChildren<BrawlerPlayerComponent>() != null)
-//				{
-//					obj.GetComponentInChildren<BrawlerPlayerComponent>().Hurt();
-//				}
-//				
-//			}
-//		}
 	}
 
 	public void OnDrawGizmos()
@@ -906,8 +1181,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			hitParticle.startColor = PlayerColor;
 			Destroy (go.gameObject, hitParticle.duration);
 		}
-		
-		//go.transform.rotation = mSpriteRenderer.transform.rotation;
 
 		Hurt ();	
 						

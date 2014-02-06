@@ -94,17 +94,17 @@ public class CharacterEntity : Entity
             mIsGrounded = true;
         }
 
+		Vector3 rayOrigin = ray.origin;
 
 		//left bounds check
-		ray.origin = new Vector3(ray.origin.x - (mCollider.bounds.size.x * 0.5f), ray.origin.y, ray.origin.z);
+		ray.origin = new Vector3(rayOrigin.x - (mCollider.bounds.size.x * 0.25f), rayOrigin.y, rayOrigin.z);
 		if (Physics.Raycast(ray, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, ~(1 << mLayer)))
 		{
 			mIsGrounded = true;
 		}
 
-
 		//right bounds check
-		ray.origin = new Vector3(ray.origin.x + (mCollider.bounds.size.x * 2), ray.origin.y, ray.origin.z);
+		ray.origin = new Vector3(rayOrigin.x + (mCollider.bounds.size.x * 0.25f), rayOrigin.y, rayOrigin.z);
 		if (Physics.Raycast(ray, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, ~(1 << mLayer)))
 		{
 			mIsGrounded = true;
