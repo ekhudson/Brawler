@@ -58,6 +58,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 	protected Vector3 mTarget = Vector3.zero;
 	protected CharacterEntity mController;
+	protected BrawlerCharacterStateController mStateController;
 	
 	private bool mIsDropping = false;  
 	
@@ -169,6 +170,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		EventManager.Instance.AddHandler<UserInputKeyEvent>(InputHandler);
 		mController = GetComponent<CharacterEntity>();
 		mSpriteRenderer = GetComponentInChildren<SpriteRenderer>();
+		mStateController = GetComponent<BrawlerCharacterStateController>();
 		rigidbody.WakeUp();        
 	}  
 	
@@ -192,6 +194,13 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			{
 				SetState(PlayerStates.FALLING);
 			}
+
+			if (!mStateController.CharacterStates[0].AnimationClip.IsPlaying)
+			{
+				mStateController.CharacterStates[0].AnimationClip.Play();
+			}
+
+			mSpriteRenderer.sprite = mStateController.CharacterStates[0].AnimationClip.CurrentSprite;
 			
 			break;
 			
