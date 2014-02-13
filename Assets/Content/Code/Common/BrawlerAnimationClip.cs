@@ -81,14 +81,14 @@ public class BrawlerAnimationClip : MonoBehaviour
 		AnimationManager.Instance.ActiveClips.Remove (this);
 	}
 
-	public void Tick()
+	public void Tick(float realTime)
 	{
 		if (mFrameStartTime == 0) 
 		{
-			mFrameStartTime = Time.realtimeSinceStartup;
+			mFrameStartTime = realTime;
 		}
 
-		mCurrentFrameTime = Time.realtimeSinceStartup - mFrameStartTime;
+		mCurrentFrameTime = realTime - mFrameStartTime;
 
 		if (mCurrentFrameTime > mFrameTime) 
 		{

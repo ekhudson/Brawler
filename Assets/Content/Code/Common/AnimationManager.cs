@@ -26,7 +26,7 @@ public class AnimationManager : Singleton<AnimationManager>
 					continue;
 				}
 
-				ActiveClips[i].Tick();
+				ActiveClips[i].Tick(Time.realtimeSinceStartup);
 			}
 
 			yield return new WaitForSeconds(mTickWaitTime);
