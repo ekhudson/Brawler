@@ -4,7 +4,9 @@ using System.Collections.Generic;
 
 public class BrawlerPlayerManager : Singleton<BrawlerPlayerManager> 
 {
+	public List<GameObject> CharacterList = new List<GameObject>();
 	public List<BrawlerPlayerComponent> PlayerList = new List<BrawlerPlayerComponent>();
+	public Transform[] SpawnPoints;
 
 	private int mCurrentActivePlayers = 1;
 
@@ -26,7 +28,7 @@ public class BrawlerPlayerManager : Singleton<BrawlerPlayerManager>
 
 	private void Start()
 	{
-		PlayerList = new List<BrawlerPlayerComponent>((BrawlerPlayerComponent[])Object.FindObjectsOfType(typeof(BrawlerPlayerComponent)));
+		//PlayerList = new List<BrawlerPlayerComponent>((BrawlerPlayerComponent[])Object.FindObjectsOfType(typeof(BrawlerPlayerComponent)));
 		SetupPlayerData();
 	}
 
@@ -34,25 +36,50 @@ public class BrawlerPlayerManager : Singleton<BrawlerPlayerManager>
 	{
 		int id = 1;
 
-		foreach(BrawlerPlayerComponent player in PlayerList)
+		for(int i = 0; i < 4; i++)
 		{
-			player.SetID(id);
-			player.SetGamepadID(id - 1);
 
 			if (BrawlerUserInput.Instance.IsGamePadActive(id - 1))
 		    {
 				mCurrentActivePlayers++;
+				GameObject go = (GameObject)GameObject.Instantiate(CharacterList[0], RandomSpawnPoint().position, Quaternion.identity);
+				BrawlerPlayerComponent player = go.GetComponent<BrawlerPlayerComponent>();
+				PlayerList.Add(player);
+				player.SetID(id);
+				player.SetGamepadID(id - 1);
 				player.IsActivePlayer = true;
+				player.SetPlayerColor(PlayerColours[id - 1]);
 			}
 			else if (id != 1) //don't disable the first player
 			{
-				player.IsActivePlayer = false;
-				player.gameObject.SetActive(false);
+				//player.IsActivePlayer = false;
+				//player.gameObject.SetActive(false);
 			}
 
-			player.SetPlayerColor(PlayerColours[id - 1]);
 			id++;
 		}
+	}
+
+	public void AddPlayer()
+	{
+		int id = PlayerList.Count + 1;
+
+		//if (BrawlerUserInput.Instance.IsGamePadActive(id - 1))
+		//{
+			mCurrentActivePlayers++;
+			GameObject go = (GameObject)GameObject.Instantiate(CharacterList[0], RandomSpawnPoint().position, Quaternion.identity);
+			BrawlerPlayerComponent player = go.GetComponent<BrawlerPlayerComponent>();
+			PlayerList.Add(player);
+			player.SetID(id);
+			player.SetGamepadID(id - 1);
+			player.IsActivePlayer = true;
+			player.SetPlayerColor(PlayerColours[id - 1]);
+		//}
+	}
+
+	public Transform RandomSpawnPoint()
+	{
+		return SpawnPoints[Random.Range(0, SpawnPoints.Length)];
 	}
 
 }

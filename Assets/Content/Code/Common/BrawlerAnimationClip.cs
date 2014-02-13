@@ -14,7 +14,7 @@ public class BrawlerAnimationClip : MonoBehaviour
 	private bool mIsPaused = false;
 	private float mCurrentFrameTime = 0f;
 	private float mFrameStartTime = 0f;
-	private float mFrameTime = 0f;
+	private float mFrameTime = -1f;
 	private float mLastTimeCheck = 0f;
 	private int mCurrentFrame = 0;
 	private int mCurrentPlayDirection = 1; //1 == forward, -1 == backward;
@@ -52,7 +52,6 @@ public class BrawlerAnimationClip : MonoBehaviour
 
 	public void Play()
 	{
-		mFrameTime = (1f / FramesPerSecond);
 		mFrameStartTime = 0f;
 
 		if (mIsPaused) 
@@ -72,6 +71,7 @@ public class BrawlerAnimationClip : MonoBehaviour
 	public void Stop()
 	{
 		mIsPlaying = false;
+		mFrameTime = -1;
 		AnimationManager.Instance.ActiveClips.Remove (this);
 	}
 
@@ -86,6 +86,11 @@ public class BrawlerAnimationClip : MonoBehaviour
 		if (mFrameStartTime == 0) 
 		{
 			mFrameStartTime = realTime;
+		}
+
+		if (mFrameTime == -1) 
+		{
+			RecalculateFrameTime();
 		}
 
 		mCurrentFrameTime = realTime - mFrameStartTime;
@@ -132,6 +137,11 @@ public class BrawlerAnimationClip : MonoBehaviour
 			mFrameStartTime = 0f;
 			mCurrentFrameTime = 0f;
 		}
+	}
+
+	public void RecalculateFrameTime()
+	{
+		mFrameTime = (1f / FramesPerSecond);
 	}
 }
 

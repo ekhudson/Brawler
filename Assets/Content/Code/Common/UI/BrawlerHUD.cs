@@ -43,12 +43,21 @@ public class BrawlerHUD : Singleton<BrawlerHUD>
 			DrawPlayerStatus(player);
 		}
 
+		if (BrawlerPlayerManager.Instance.PlayerList.Count < 4) 
+		{
+			if (GUILayout.Button("Add Player"))
+			{
+				BrawlerPlayerManager.Instance.AddPlayer();
+			}
+		}
+
+		GUILayout.FlexibleSpace();
+
 		GUILayout.EndHorizontal();
 	}
 
 	private void DrawPlayerStatus(BrawlerPlayerComponent player)
 	{
-		GUILayout.FlexibleSpace();
 		GUI.color = player.PlayerColor;
 		GUILayout.BeginHorizontal(GUI.skin.button, GUILayout.Width(256f));
 		GUILayout.Label(player.PlayerID.ToString());

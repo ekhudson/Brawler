@@ -7,14 +7,18 @@ using System.Collections.Generic;
 public class AnimationEditorWindow : EditorWindow 
 {
 	private static AnimationEditorWindow mWindowReference = null;
+	private List<BrawlerPlayerComponent> mCharacterList = new List<BrawlerPlayerComponent>();
 	private List<BrawlerAnimationClip> mAnimationList = new List<BrawlerAnimationClip>();
+	private int mCurrentCharacterIndex = 0;
 	private int mCurrentAnimationIndex = 0;
 	private string[] mAnimationNameList;
+	private string[] mCharacterNameList;
 	private GUIStyle mEmptyStyle;
 
 	private const float kGotoButtonWidth = 48f;
 	private const float kAnimPreviewWidth = 128f;
 	private const float kPreviewTickTimerWidth = 128f;
+	private const string kCharacterDirectoryPath = "Prefabs/Characters";
 
 	private float mDeltaTime = 0f;
 	private float mLastFrameTime = 0f;
@@ -37,46 +41,53 @@ public class AnimationEditorWindow : EditorWindow
 
 		string[] paths = AssetDatabase.GetAllAssetPaths();
 
-		EditorUtility.DisplayProgressBar("Loading Animations", string.Empty, 0.5f);
+		EditorUtility.DisplayProgressBar("Loading Characters", string.Empty, 0.5f);
 
-		foreach( string s in paths )			
-		{			
-			Object o = AssetDatabase.LoadAssetAtPath( s, typeof( BrawlerAnimationClip ) );
-			
-			if( o != null )				
-			{
-				mWindowReference.mAnimationList.Add(o as BrawlerAnimationClip);
-			}			
-		}
+		mWindowReference.mCharacterList = new List<BrawlerPlayerComponent>( Resources.LoadAll<BrawlerPlayerComponent> (kCharacterDirectoryPath) );
+
+		mWindowReference.mCharacterNameList = ListToStringArray<BrawlerPlayerComponent>(mWindowReference.mCharacterList);
 
 		EditorUtility.ClearProgressBar();
-
-		mWindowReference.mAnimationNameList = ListToStringArray(mWindowReference.mAnimationList);
 
 		mWindowReference.Show();
 	}
 
 	private void OnGUI()
 	{
-		AnimationSelector();
+		EditorGUI.BeginChangeCheck ();
+
+		if (mCharacterList.Count == 0 || mCharacterNameList.Length == 0)
+		{
+			GUILayout.Label("No Characters Found");
+			return;
+		}
+
+		CharacterSelector();
+
+		if (mAnimationList.Count == 0 || mAnimationNameList.Length == 0)
+		{
+			GUILayout.Label("No Animations Found");
+			
+			return;
+		}
+
 		AnimationPreview();
 		PreviewControl();
 	}
 
-	private void AnimationSelector()
+	private void CharacterSelector()
 	{
 		GUILayout.BeginVertical(GUI.skin.textField);
-		
-		if (mAnimationList.Count == 0 || mAnimationNameList.Length == 0)
-		{
-			GUILayout.Label("No Animations Found");
-			return;
-		}
+
+		mAnimationList = new List<BrawlerAnimationClip>( mCharacterList[mCurrentCharacterIndex].gameObject.GetComponentsInChildren<BrawlerAnimationClip>(true) );
+		mAnimationNameList = ListToStringArray<BrawlerAnimationClip> (mAnimationList);
 		
 		EditorGUILayout.Space();
 		
 		GUILayout.BeginHorizontal();
-		
+
+		mCurrentCharacterIndex = EditorGUILayout.Popup("Current Character:", mCurrentCharacterIndex, mCharacterNameList);
+
 		mCurrentAnimationIndex = EditorGUILayout.Popup("Current Animation:", mCurrentAnimationIndex, mAnimationNameList);
 		
 		if(GUILayout.Button("Go To", EditorStyles.miniButton, GUILayout.Width(kGotoButtonWidth)))
@@ -121,6 +132,7 @@ public class AnimationEditorWindow : EditorWindow
 
 		if (mPreviewTickTimeCurrent > mPreviewTickTime)
 		{
+			CurrentClip.RecalculateFrameTime();
 			CurrentClip.Tick((float)EditorApplication.timeSinceStartup);
 			mPreviewTickTimeCurrent = 0;
 		}
@@ -138,7 +150,8 @@ public class AnimationEditorWindow : EditorWindow
 
 		GUILayout.FlexibleSpace();
 
-		mAnimationTicksPerSecond = EditorGUILayout.FloatField(mAnimationTicksPerSecond, GUILayout.Width(kGotoButtonWidth));
+		mAnimationTicksPerSecond = EditorGUILayout.FloatField("Animation Rate", mAnimationTicksPerSecond);
+		CurrentClip.FramesPerSecond = EditorGUILayout.FloatField ("Animation FPS", CurrentClip.FramesPerSecond);
 
 		GUILayout.FlexibleSpace();
 
@@ -148,13 +161,13 @@ public class AnimationEditorWindow : EditorWindow
 
 	}
 
-	private static string[] ListToStringArray(List<BrawlerAnimationClip> list)
+	private static string[] ListToStringArray<T>(List<T> list) where T : Component
 	{
 		string[] names = new string[list.Count];
 
 		int count = 0;
 
-		foreach(BrawlerAnimationClip clip in list)
+		foreach(T clip in list)
 		{
 			names[count] = clip.name;
 			count++;
