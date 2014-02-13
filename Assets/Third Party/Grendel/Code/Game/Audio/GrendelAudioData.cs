@@ -44,7 +44,7 @@ public class GrendelAudioData
 
 		if (Application.isPlaying)
 		{
-			mPreviewAudioSource.gameObject.transform.parent = Camera.current.transform;
+			mPreviewAudioSource.gameObject.transform.parent = Camera.main.transform;
 			mPreviewAudioSource.gameObject.transform.localPosition = Vector3.zero;
 		}
 		else
