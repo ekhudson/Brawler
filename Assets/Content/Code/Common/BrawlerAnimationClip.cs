@@ -65,20 +65,32 @@ public class BrawlerAnimationClip : MonoBehaviour
 
 		mIsPlaying = true;
 		mLastTimeCheck = Time.realtimeSinceStartup;
-		AnimationManager.Instance.ActiveClips.Add (this);
+
+		if (Application.isPlaying)
+		{
+			AnimationManager.Instance.ActiveClips.Add (this);
+		}
 	}
 
 	public void Stop()
 	{
 		mIsPlaying = false;
 		mFrameTime = -1;
-		AnimationManager.Instance.ActiveClips.Remove (this);
+
+		if (Application.isPlaying)
+		{
+			AnimationManager.Instance.ActiveClips.Remove (this);
+		}
 	}
 
 	public void Pause()
 	{
 		mIsPaused = true;
-		AnimationManager.Instance.ActiveClips.Remove (this);
+
+		if (Application.isPlaying)
+		{
+			AnimationManager.Instance.ActiveClips.Remove (this);
+		}
 	}
 
 	public void Tick(float realTime)

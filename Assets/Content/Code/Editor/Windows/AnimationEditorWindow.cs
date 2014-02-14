@@ -17,14 +17,19 @@ public class AnimationEditorWindow : EditorWindow
 
 	private const float kGotoButtonWidth = 48f;
 	private const float kAnimPreviewWidth = 128f;
-	private const float kPreviewTickTimerWidth = 128f;
+	private const float kAnimControlLabelWidth = 64f;
 	private const string kCharacterDirectoryPath = "Prefabs/Characters";
+	private const float kFramePreviewWidth = 128f;
+	private const float kControlWidthTiny = 32f;
+	private const float kControlWidthSmall = 72f;
+	private const float kControlWidthMedium = 128f;
+	private const float kControlWidthLarge = 256f;
 
 	private float mDeltaTime = 0f;
 	private float mLastFrameTime = 0f;
 	private float mPreviewTickTime = 0f;
 	private float mPreviewTickTimeCurrent = 0f;
-	private float mAnimationTicksPerSecond = 120f;
+	private float mAnimationTicksPerSecond = 60f;
 
 	private BrawlerAnimationClip CurrentClip
 	{
@@ -41,15 +46,25 @@ public class AnimationEditorWindow : EditorWindow
 
 		string[] paths = AssetDatabase.GetAllAssetPaths();
 
-		EditorUtility.DisplayProgressBar("Loading Characters", string.Empty, 0.5f);
-
-		mWindowReference.mCharacterList = new List<BrawlerPlayerComponent>( Resources.LoadAll<BrawlerPlayerComponent> (kCharacterDirectoryPath) );
-
-		mWindowReference.mCharacterNameList = ListToStringArray<BrawlerPlayerComponent>(mWindowReference.mCharacterList);
-
-		EditorUtility.ClearProgressBar();
+		mWindowReference.GetCharacters();
 
 		mWindowReference.Show();
+	}
+
+	private void OnProjectChange()
+	{
+		GetCharacters();
+	}
+
+	private void GetCharacters()
+	{
+		EditorUtility.DisplayProgressBar("Loading Characters", string.Empty, 0.5f);
+
+		mCharacterList = new List<BrawlerPlayerComponent>( Resources.LoadAll<BrawlerPlayerComponent> (kCharacterDirectoryPath) );
+		
+		mCharacterNameList = ListToStringArray<BrawlerPlayerComponent>(mWindowReference.mCharacterList);
+
+		EditorUtility.ClearProgressBar();
 	}
 
 	private void OnGUI()
@@ -73,6 +88,8 @@ public class AnimationEditorWindow : EditorWindow
 
 		AnimationPreview();
 		PreviewControl();
+		AnimationSettings();
+		FramePreviews();
 	}
 
 	private void CharacterSelector()
@@ -122,43 +139,116 @@ public class AnimationEditorWindow : EditorWindow
 
 		GUILayout.Box(new GUIContent(CurrentClip.CurrentSprite.texture), mEmptyStyle, GUILayout.Width(kAnimPreviewWidth), GUILayout.Height(kAnimPreviewWidth));
 
-		GUILayout.Label(string.Format("{0} / {1}", System.Math.Round(mPreviewTickTimeCurrent, 2).ToString(), System.Math.Round(mPreviewTickTime, 2).ToString()), GUILayout.Width(kPreviewTickTimerWidth));
+		GUILayout.FlexibleSpace();
+		
+		GUILayout.EndHorizontal();
 
+		GUILayout.BeginHorizontal();
+		
 		GUILayout.FlexibleSpace();
 
+		GUILayout.Label(string.Format("Frame: {0} of {1}", CurrentClip.CurrentFrame.ToString(), (CurrentClip.Frames.Length - 1).ToString()), GUILayout.Width(kFramePreviewWidth));
+
+		GUILayout.FlexibleSpace();
+		
 		GUILayout.EndHorizontal();
 
 		GUILayout.EndVertical();
 
-		if (mPreviewTickTimeCurrent > mPreviewTickTime)
+		if (focusedWindow == this && CurrentClip.IsPlaying)
 		{
-			CurrentClip.RecalculateFrameTime();
-			CurrentClip.Tick((float)EditorApplication.timeSinceStartup);
-			mPreviewTickTimeCurrent = 0;
-		}
+			if (mPreviewTickTimeCurrent > mPreviewTickTime)
+			{
+				CurrentClip.RecalculateFrameTime();
+				CurrentClip.Tick((float)EditorApplication.timeSinceStartup);
+				mPreviewTickTimeCurrent = 0;
+			}
 
-		Repaint();	
+			Repaint();	
+		}
 
 		mLastFrameTime = (float)EditorApplication.timeSinceStartup;
 	}
 
 	private void PreviewControl()
 	{
+		GUILayout.BeginHorizontal();
+
+		GUILayout.FlexibleSpace();	
+
+		if (CurrentClip.IsPlaying)
+		{
+			GUI.color = Color.green;
+		}
+
+		if (GUILayout.Button( CurrentClip.IsPlaying ? "Stop" : "Play" , GUILayout.Width(kControlWidthSmall)))
+		{
+			if (CurrentClip.IsPlaying)
+			{
+				CurrentClip.Stop();
+			}
+			else if (!CurrentClip.IsPlaying)
+			{
+				CurrentClip.Play();
+			}
+		}
+
+		GUI.color = Color.white;
+
+		GUILayout.FlexibleSpace();
+
+		GUILayout.EndHorizontal();
+	}
+
+	private void AnimationSettings()
+	{
 		GUILayout.BeginVertical(GUI.skin.textArea);
+
+		EditorGUILayout.Space();
 
 		GUILayout.BeginHorizontal();
 
 		GUILayout.FlexibleSpace();
 
-		mAnimationTicksPerSecond = EditorGUILayout.FloatField("Animation Rate", mAnimationTicksPerSecond);
-		CurrentClip.FramesPerSecond = EditorGUILayout.FloatField ("Animation FPS", CurrentClip.FramesPerSecond);
+		GUILayout.Label("Clip FPS:", GUILayout.Width(kControlWidthSmall));
+
+		CurrentClip.FramesPerSecond = EditorGUILayout.FloatField (CurrentClip.FramesPerSecond, GUILayout.Width(kControlWidthTiny));
+
+		EditorGUILayout.Space();
+
+		GUILayout.Label("Loop Mode:", GUILayout.Width(kControlWidthSmall));
+
+		CurrentClip.LoopMode = (BrawlerAnimationClip.LoopModes)EditorGUILayout.EnumPopup(CurrentClip.LoopMode, GUILayout.Width(kControlWidthMedium));
+
+		EditorGUILayout.Space();
+		
+		GUILayout.Label("Start Frame:", GUILayout.Width(kControlWidthSmall));
+		
+		CurrentClip.StartingFrame = EditorGUILayout.IntField(CurrentClip.StartingFrame, GUILayout.Width(kControlWidthTiny));
 
 		GUILayout.FlexibleSpace();
 
 		GUILayout.EndHorizontal();
 
-		GUILayout.EndVertical();
+		EditorGUILayout.Space();
 
+		GUILayout.EndVertical();
+	}
+
+	private void FramePreviews()
+	{
+		GUILayout.BeginHorizontal();
+
+		Sprite tempSprite;
+
+		for(int frameCount = 0; frameCount < CurrentClip.Frames.Length; frameCount++)
+		{
+			tempSprite = CurrentClip.Sprites[ CurrentClip.Frames[frameCount].SpriteIndex ];
+				
+			tempSprite = (Sprite)EditorGUILayout.ObjectField(new GUIContent(tempSprite.texture), tempSprite, typeof(Sprite), false, GUILayout.Width(kControlWidthSmall), GUILayout.Height(kControlWidthSmall));
+		}
+
+		GUILayout.EndHorizontal();
 	}
 
 	private static string[] ListToStringArray<T>(List<T> list) where T : Component
