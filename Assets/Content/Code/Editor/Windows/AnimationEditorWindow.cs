@@ -245,7 +245,7 @@ public class AnimationEditorWindow : EditorWindow
 		{
 			tempSprite = CurrentClip.Sprites[ CurrentClip.Frames[frameCount].SpriteIndex ];
 				
-			tempSprite = (Sprite)EditorGUILayout.ObjectField(new GUIContent(tempSprite.texture), tempSprite, typeof(Sprite), false, GUILayout.Width(kControlWidthSmall), GUILayout.Height(kControlWidthSmall));
+			tempSprite = (Sprite)EditorGUILayout.ObjectField(tempSprite, typeof(Sprite), false);
 		}
 
 		GUILayout.EndHorizontal();
