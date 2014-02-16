@@ -4,6 +4,8 @@ using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
+using GrendelEditor.UI;
+
 public class AnimationEditorWindow : EditorWindow 
 {
 	private static AnimationEditorWindow mWindowReference = null;
@@ -21,15 +23,20 @@ public class AnimationEditorWindow : EditorWindow
 	private const string kCharacterDirectoryPath = "Prefabs/Characters";
 	private const float kFramePreviewWidth = 128f;
 	private const float kControlWidthTiny = 32f;
-	private const float kControlWidthSmall = 72f;
+	private const float kControlWidthSmall = 64f;
 	private const float kControlWidthMedium = 128f;
 	private const float kControlWidthLarge = 256f;
+	private const float kFrameEditorSpriteWidth = 256f;
 
 	private float mDeltaTime = 0f;
 	private float mLastFrameTime = 0f;
+	private Color mPreviewColor = Color.white;
 	private float mPreviewTickTime = 0f;
 	private float mPreviewTickTimeCurrent = 0f;
+	private int mCurrentSelectedPreview = -1;
 	private float mAnimationTicksPerSecond = 60f;
+	private bool mNeedCharacterRefresh = true;
+	private bool mMouseDragging = false;
 
 	private BrawlerAnimationClip CurrentClip
 	{
@@ -43,6 +50,7 @@ public class AnimationEditorWindow : EditorWindow
 	public static void Init()
 	{
 		mWindowReference = (AnimationEditorWindow)EditorWindow.GetWindow(typeof(AnimationEditorWindow));
+		mWindowReference.wantsMouseMove = true;
 
 		string[] paths = AssetDatabase.GetAllAssetPaths();
 
@@ -58,17 +66,37 @@ public class AnimationEditorWindow : EditorWindow
 
 	private void GetCharacters()
 	{
+		if (mWindowReference == null)
+		{
+			mWindowReference = this;
+			mWindowReference.wantsMouseMove = true;
+		}
+
 		EditorUtility.DisplayProgressBar("Loading Characters", string.Empty, 0.5f);
 
 		mCharacterList = new List<BrawlerPlayerComponent>( Resources.LoadAll<BrawlerPlayerComponent> (kCharacterDirectoryPath) );
-		
+
+		mCharacterNameList = new string[mCharacterList.Count];
+
 		mCharacterNameList = ListToStringArray<BrawlerPlayerComponent>(mWindowReference.mCharacterList);
 
 		EditorUtility.ClearProgressBar();
+
+		mNeedCharacterRefresh = false;
 	}
 
 	private void OnGUI()
 	{
+		if (EditorApplication.isCompiling || EditorApplication.isUpdating && !mNeedCharacterRefresh)
+		{
+			mNeedCharacterRefresh = true;
+		}
+
+		if (mNeedCharacterRefresh && !EditorApplication.isCompiling && !EditorApplication.isUpdating)
+		{
+			GetCharacters();
+		}
+
 		EditorGUI.BeginChangeCheck ();
 
 		if (mCharacterList.Count == 0 || mCharacterNameList.Length == 0)
@@ -87,9 +115,38 @@ public class AnimationEditorWindow : EditorWindow
 		}
 
 		AnimationPreview();
+
+		EditorGUILayout.Space();
+
 		PreviewControl();
+
+		EditorGUILayout.Space();
+
 		AnimationSettings();
+
+		EditorGUILayout.Space();
+
 		FramePreviews();
+
+		EditorGUILayout.Space();
+
+		FrameEditor();
+
+		if (EditorGUI.EndChangeCheck() && CurrentClip != null)
+		{
+			EditorUtility.SetDirty(CurrentClip);
+		}
+
+		if (Event.current.type == EventType.dragUpdated && !mMouseDragging)
+		{
+			mMouseDragging = true;
+		}
+		else if (Event.current.type == EventType.DragExited && mMouseDragging)
+		{
+			mMouseDragging = false;
+		}
+
+		Repaint();	
 	}
 
 	private void CharacterSelector()
@@ -137,7 +194,11 @@ public class AnimationEditorWindow : EditorWindow
 
 		GUILayout.FlexibleSpace();
 
+		GUI.color = mPreviewColor;
+
 		GUILayout.Box(new GUIContent(CurrentClip.CurrentSprite.texture), mEmptyStyle, GUILayout.Width(kAnimPreviewWidth), GUILayout.Height(kAnimPreviewWidth));
+
+		GUI.color = Color.white;
 
 		GUILayout.FlexibleSpace();
 		
@@ -163,8 +224,6 @@ public class AnimationEditorWindow : EditorWindow
 				CurrentClip.Tick((float)EditorApplication.timeSinceStartup);
 				mPreviewTickTimeCurrent = 0;
 			}
-
-			Repaint();	
 		}
 
 		mLastFrameTime = (float)EditorApplication.timeSinceStartup;
@@ -195,13 +254,25 @@ public class AnimationEditorWindow : EditorWindow
 
 		GUI.color = Color.white;
 
+		EditorGUILayout.Space();
+
+		GUILayout.Label("Preview Color:", GUILayout.Width(kControlWidthSmall + kControlWidthTiny));
+
+		mPreviewColor = EditorGUILayout.ColorField(mPreviewColor, GUILayout.Width(kControlWidthTiny));
+
 		GUILayout.FlexibleSpace();
 
 		GUILayout.EndHorizontal();
+
+		EditorGUILayout.Space();
 	}
 
 	private void AnimationSettings()
 	{
+		GUILayout.Label("Animation Settings:", EditorStyles.toolbarDropDown);
+
+		EditorGUILayout.Space();
+
 		GUILayout.BeginVertical(GUI.skin.textArea);
 
 		EditorGUILayout.Space();
@@ -216,13 +287,13 @@ public class AnimationEditorWindow : EditorWindow
 
 		EditorGUILayout.Space();
 
-		GUILayout.Label("Loop Mode:", GUILayout.Width(kControlWidthSmall));
+		GUILayout.Label("Loop Mode:", GUILayout.Width(kControlWidthSmall + 8f));
 
 		CurrentClip.LoopMode = (BrawlerAnimationClip.LoopModes)EditorGUILayout.EnumPopup(CurrentClip.LoopMode, GUILayout.Width(kControlWidthMedium));
 
 		EditorGUILayout.Space();
 		
-		GUILayout.Label("Start Frame:", GUILayout.Width(kControlWidthSmall));
+		GUILayout.Label("Start Frame:", GUILayout.Width(kControlWidthSmall + 12f));
 		
 		CurrentClip.StartingFrame = EditorGUILayout.IntField(CurrentClip.StartingFrame, GUILayout.Width(kControlWidthTiny));
 
@@ -237,18 +308,188 @@ public class AnimationEditorWindow : EditorWindow
 
 	private void FramePreviews()
 	{
-		GUILayout.BeginHorizontal();
+		if (mWindowReference == null)
+		{
+			mWindowReference = this;
+			mWindowReference.wantsMouseMove = true;
+		}
 
-		Sprite tempSprite;
+		int framesPerRow = (int)(mWindowReference.position.width / kControlWidthMedium);
+		int rowCount = 1;
+
+		GUILayout.Label("Frame Previews:", EditorStyles.toolbarDropDown);
+
+		EditorGUILayout.Space();
+
+		GUILayout.BeginVertical(GUI.skin.textArea);
+
+		GUILayout.BeginHorizontal();
 
 		for(int frameCount = 0; frameCount < CurrentClip.Frames.Length; frameCount++)
 		{
-			tempSprite = CurrentClip.Sprites[ CurrentClip.Frames[frameCount].SpriteIndex ];
-				
-			tempSprite = (Sprite)EditorGUILayout.ObjectField(tempSprite, typeof(Sprite), false);
+			PreviewFrame(CurrentClip.Frames[frameCount], frameCount);
+
+			if (rowCount == framesPerRow)
+			{
+				GUILayout.EndHorizontal();
+				GUILayout.BeginHorizontal();
+				rowCount = 1;
+			}
+			else
+			{
+				rowCount++;
+			}
 		}
 
 		GUILayout.EndHorizontal();
+
+		GUILayout.EndVertical();
+	}
+
+	private void PreviewFrame(BrawlerFrameEntry frame, int frameCount)
+	{
+		Sprite tempSprite;
+		
+		Rect tempRect;
+
+		tempSprite = CurrentClip.Sprites[ frame.SpriteIndex ];
+
+		GUILayout.Box(string.Empty, GUILayout.Width(kControlWidthMedium), GUILayout.Height(kControlWidthMedium));
+
+		tempRect = GUILayoutUtility.GetLastRect();
+
+		if(mMouseDragging && tempRect.Contains(Event.current.mousePosition))
+		{
+			GUI.color = Color.cyan;
+		}
+
+		if(GUI.Button(tempRect, string.Empty))
+		{
+			mCurrentSelectedPreview = frameCount;
+			Event.current.Use();
+		}
+
+		if (mCurrentSelectedPreview == frameCount)
+		{
+			GUI.color = Color.yellow;
+			GUI.Box(tempRect, string.Empty);
+			GUI.color = Color.white;
+		}
+
+		if (CurrentClip.IsPlaying && CurrentClip.CurrentFrame == frameCount)
+		{
+			GUI.color = Color.green;
+			GUI.Box(tempRect, string.Empty);
+			GUI.color = Color.white;
+		}
+
+		GUI.color = Color.white;
+
+		GUI.DrawTexture(tempRect, tempSprite.texture);
+
+		GUI.Label(tempRect, string.Format("{0} / {1}", frameCount.ToString(), CurrentClip.Frames.Length.ToString()), EditorStyles.whiteMiniLabel);
+	}
+
+	private void FrameEditor()
+	{
+		if (mCurrentSelectedPreview == -1)
+		{
+			return;
+		}
+
+		if (mCurrentSelectedPreview > CurrentClip.Frames.Length)
+		{
+			mCurrentSelectedPreview = -1;
+			return;
+		}
+
+		GUILayout.Label("Frame Editor:", EditorStyles.toolbarDropDown);
+
+		EditorGUILayout.Space();
+
+		GUILayout.BeginVertical(GUI.skin.textArea);
+
+		GUILayout.BeginHorizontal();
+
+		GUILayout.BeginVertical();
+
+		HitboxControl(CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, "Attack Box", Color.red);
+		HitboxControl(CurrentClip.Frames[mCurrentSelectedPreview].HeadBoxSettings, "Head Box", Color.blue);
+		HitboxControl(CurrentClip.Frames[mCurrentSelectedPreview].BodyBoxSettings, "Body Box", Color.blue);
+		HitboxControl(CurrentClip.Frames[mCurrentSelectedPreview].LegBoxSettings, "Leg Box", Color.blue);
+		HitboxControl(CurrentClip.Frames[mCurrentSelectedPreview].CollisionBoxSettings, "Collision Box", Color.green);
+
+		GUILayout.EndVertical();
+
+		GUILayout.FlexibleSpace();
+
+		GUILayout.Box(string.Empty, mEmptyStyle, GUILayout.Width(kFrameEditorSpriteWidth), GUILayout.Height(kFrameEditorSpriteWidth));
+
+		GUILayout.FlexibleSpace();
+
+		GUILayout.EndHorizontal();
+
+		GUILayout.EndVertical();
+
+		Rect hitboxControlsRect = GUILayoutUtility.GetLastRect();
+
+		GUI.DrawTexture(CenterRectOnOtherRect(new Rect(0,0,kFrameEditorSpriteWidth, kFrameEditorSpriteWidth), hitboxControlsRect) , CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture);
+	
+		HitboxEditor(hitboxControlsRect, CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, Color.red, false);	
+	}
+
+	private void HitboxControl(BrawlerHitboxSettings settings, string name, Color color)
+	{
+		EditorGUILayout.Space();
+		GUI.color = Color.Lerp(color, Color.white, settings.Active ? 0.45f : 0.75f);
+		GUILayout.BeginHorizontal();
+		EditorGUILayout.Space();
+		GUILayout.Label(string.Format("{0}:", name), EditorStyles.toolbarButton);
+
+		if (settings.Active)
+		{
+			settings.Position = EditorGUILayout.RectField(settings.Position);
+		}
+
+		if( GUILayout.Button(settings.Active ? "Select" : "Add", EditorStyles.toolbarButton) )
+		{
+			if (!settings.Active)
+			{
+				settings.Active = true;
+			}
+			else
+			{
+
+			}
+		}
+
+		if (settings.Active)
+		{
+			if(GUILayout.Button("X", EditorStyles.toolbarButton))
+			{
+				settings.Active = false;
+			}
+		}
+
+		GUILayout.FlexibleSpace();
+
+		GUILayout.EndHorizontal();
+		GUI.color = Color.white;
+		EditorGUILayout.Space();
+	}
+
+	private void HitboxEditor(Rect areaRect, BrawlerHitboxSettings settings, Color color, bool editing)
+	{
+		if (!settings.Active)
+		{
+			return;
+		}
+
+		Rect previewRect = CenterRectOnOtherRect(settings.Position, areaRect);
+
+		GUI.color = color;
+
+		GUI.Box(previewRect, string.Empty);
 	}
 
 	private static string[] ListToStringArray<T>(List<T> list) where T : Component
@@ -264,5 +505,11 @@ public class AnimationEditorWindow : EditorWindow
 		}
 
 		return names;
+	}
+
+	private static Rect CenterRectOnOtherRect(Rect newRect, Rect otherRect)
+	{
+		newRect.center = otherRect.center + new Vector2(newRect.x, newRect.y);
+		return newRect;	
 	}
 }

@@ -48,7 +48,7 @@ public class BrawlerPlayerManager : Singleton<BrawlerPlayerManager>
 				player.SetID(id);
 				player.SetGamepadID(id - 1);
 				player.IsActivePlayer = true;
-				player.SetPlayerColor(PlayerColours[id - 1]);
+				player.SetPlayerColor(PlayerColours[id]);
 			}
 			else if (id != 1) //don't disable the first player
 			{
@@ -73,7 +73,7 @@ public class BrawlerPlayerManager : Singleton<BrawlerPlayerManager>
 			player.SetID(id);
 			player.SetGamepadID(id - 1);
 			player.IsActivePlayer = true;
-			player.SetPlayerColor(PlayerColours[id - 1]);
+			player.SetPlayerColor(PlayerColours[id]);
 		//}
 	}
 

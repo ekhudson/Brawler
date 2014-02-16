@@ -32,6 +32,14 @@ public class BrawlerPlayerComponent : BrawlerHittable
 	public Transform HitParticle;
 	#endregion
 
+	#region Hitboxes
+	public Collider AttackBox;
+	public Collider HitBoxHead;
+	public Collider HitBoxBody;
+	public Collider HitBoxLeg;
+	public Collider CollisionBox;
+	#endregion
+
 	#region Sprites
 	public Sprite DefaultSprite;
 	public Sprite JumpSprite;
@@ -1163,6 +1171,60 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		{ 
 			GetComponentInChildren<SpriteRenderer>().color = mPlayerColor;
 		}
+	}
+
+	public void SetHitboxesForFrame(Bounds attackBounds, Bounds headBounds, Bounds bodyBounds, Bounds legBounds, Bounds colliderBounds)
+	{
+		if (attackBounds == null)
+		{
+			AttackBox.enabled = false;
+		}
+		else
+		{
+			AttackBox.enabled = true;
+			//AttackBox.bounds = attackBounds;
+		}
+
+		if (headBounds == null)
+		{
+			HitBoxHead.enabled = false;
+		}
+		else
+		{
+			HitBoxHead.enabled = true;
+			//HitBoxHead.bounds = headBounds;
+		}
+
+		if (bodyBounds == null)
+		{
+			HitBoxHead.enabled = false;
+		}
+		else
+		{
+			HitBoxHead.enabled = true;
+			//HitBoxBody.bounds = bodyBounds;
+		}
+
+		if (legBounds == null)
+		{
+			HitBoxHead.enabled = false;
+		}
+		else
+		{
+			HitBoxHead.enabled = true;
+			//HitBoxLeg.bounds = legBounds;
+		}
+
+		if (colliderBounds == null)
+		{
+			CollisionBox.enabled = false;
+		}
+		else
+		{
+			CollisionBox.enabled = true;
+			//CollisionBox.bounds.center = colliderBounds.center;
+		}
+
 	}
 
 	public void Hurt()
