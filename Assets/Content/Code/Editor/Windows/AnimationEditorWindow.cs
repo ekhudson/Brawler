@@ -9,6 +9,7 @@ using GrendelEditor.UI;
 public class AnimationEditorWindow : EditorWindow 
 {
 	private static AnimationEditorWindow mWindowReference = null;
+
 	private List<BrawlerPlayerComponent> mCharacterList = new List<BrawlerPlayerComponent>();
 	private List<BrawlerAnimationClip> mAnimationList = new List<BrawlerAnimationClip>();
 	private int mCurrentCharacterIndex = 0;
@@ -16,6 +17,24 @@ public class AnimationEditorWindow : EditorWindow
 	private string[] mAnimationNameList;
 	private string[] mCharacterNameList;
 	private GUIStyle mEmptyStyle;
+	private float mDeltaTime = 0f;
+	private float mLastFrameTime = 0f;
+	private Color mPreviewColor = Color.white;
+	private float mPreviewTickTime = 0f;
+	private float mPreviewTickTimeCurrent = 0f;
+	private int mCurrentSelectedPreview = -1;
+	private float mAnimationTicksPerSecond = 60f;
+	private bool mNeedCharacterRefresh = true;
+	private bool mMouseDragging = false;
+	private GUIStyle mHitboxStyle = null;
+	private CurrentEditingHitbox mCurrentEditingHitbox;
+	private const float kHitBoxResizeBorderFactor = 0.15f;
+
+	class CurrentEditingHitbox
+	{
+		public int FrameNumber;
+		public BrawlerHitboxSettings HitboxSettings;
+	}
 
 	private const float kGotoButtonWidth = 48f;
 	private const float kAnimPreviewWidth = 128f;
@@ -27,17 +46,6 @@ public class AnimationEditorWindow : EditorWindow
 	private const float kControlWidthMedium = 128f;
 	private const float kControlWidthLarge = 256f;
 	private const float kFrameEditorSpriteWidth = 256f;
-
-	private float mDeltaTime = 0f;
-	private float mLastFrameTime = 0f;
-	private Color mPreviewColor = Color.white;
-	private float mPreviewTickTime = 0f;
-	private float mPreviewTickTimeCurrent = 0f;
-	private int mCurrentSelectedPreview = -1;
-	private float mAnimationTicksPerSecond = 60f;
-	private bool mNeedCharacterRefresh = true;
-	private bool mMouseDragging = false;
-
 	private BrawlerAnimationClip CurrentClip
 	{
 		get
@@ -208,7 +216,7 @@ public class AnimationEditorWindow : EditorWindow
 		
 		GUILayout.FlexibleSpace();
 
-		GUILayout.Label(string.Format("Frame: {0} of {1}", CurrentClip.CurrentFrame.ToString(), (CurrentClip.Frames.Length - 1).ToString()), GUILayout.Width(kFramePreviewWidth));
+		GUILayout.Label(string.Format("Frame: {0} of {1}", (CurrentClip.CurrentFrame + 1).ToString(), CurrentClip.Frames.Length.ToString()), GUILayout.Width(kFramePreviewWidth));
 
 		GUILayout.FlexibleSpace();
 		
@@ -387,7 +395,7 @@ public class AnimationEditorWindow : EditorWindow
 
 		GUI.DrawTexture(tempRect, tempSprite.texture);
 
-		GUI.Label(tempRect, string.Format("{0} / {1}", frameCount.ToString(), CurrentClip.Frames.Length.ToString()), EditorStyles.whiteMiniLabel);
+		GUI.Label(tempRect, string.Format("{0} / {1}", (frameCount + 1).ToString(), CurrentClip.Frames.Length.ToString()), EditorStyles.whiteMiniLabel);
 	}
 
 	private void FrameEditor()
@@ -402,6 +410,8 @@ public class AnimationEditorWindow : EditorWindow
 			mCurrentSelectedPreview = -1;
 			return;
 		}
+
+		EditorGUI.BeginChangeCheck();
 
 		GUILayout.Label("Frame Editor:", EditorStyles.toolbarDropDown);
 
@@ -435,31 +445,62 @@ public class AnimationEditorWindow : EditorWindow
 
 		GUI.DrawTexture(CenterRectOnOtherRect(new Rect(0,0,kFrameEditorSpriteWidth, kFrameEditorSpriteWidth), hitboxControlsRect) , CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture);
 	
-		HitboxEditor(hitboxControlsRect, CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, Color.red, false);	
+		HitboxEditor(hitboxControlsRect, CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, Color.red, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, 100);	
+		HitboxEditor(hitboxControlsRect, CurrentClip.Frames[mCurrentSelectedPreview].HeadBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].HeadBoxSettings, 101);
+		HitboxEditor(hitboxControlsRect, CurrentClip.Frames[mCurrentSelectedPreview].BodyBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].BodyBoxSettings, 102);
+		HitboxEditor(hitboxControlsRect, CurrentClip.Frames[mCurrentSelectedPreview].LegBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].LegBoxSettings, 103);
+		HitboxEditor(hitboxControlsRect, CurrentClip.Frames[mCurrentSelectedPreview].CollisionBoxSettings, Color.green, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].CollisionBoxSettings, 104);
+	
+		if (EditorGUI.EndChangeCheck())
+		{
+			EditorUtility.SetDirty(CurrentClip);
+		}
 	}
 
 	private void HitboxControl(BrawlerHitboxSettings settings, string name, Color color)
 	{
 		EditorGUILayout.Space();
 		GUI.color = Color.Lerp(color, Color.white, settings.Active ? 0.45f : 0.75f);
+
+		GUILayout.BeginVertical(GUI.skin.textArea, GUILayout.Width(kControlWidthLarge));
+
+		EditorGUILayout.Space();
+
 		GUILayout.BeginHorizontal();
 		EditorGUILayout.Space();
 		GUILayout.Label(string.Format("{0}:", name), EditorStyles.toolbarButton);
 
+		string buttonText = "Add";
+
 		if (settings.Active)
 		{
-			settings.Position = EditorGUILayout.RectField(settings.Position);
+			buttonText = "Select";
 		}
 
-		if( GUILayout.Button(settings.Active ? "Select" : "Add", EditorStyles.toolbarButton) )
+		if (mCurrentEditingHitbox != null && mCurrentEditingHitbox.HitboxSettings == settings)
+		{
+			buttonText = "Deselect";
+		}
+
+		if( GUILayout.Button(buttonText, EditorStyles.toolbarButton) )
 		{
 			if (!settings.Active)
 			{
 				settings.Active = true;
 			}
+			else if(settings.Active && mCurrentEditingHitbox != null && mCurrentEditingHitbox.HitboxSettings == settings)
+			{
+				mCurrentEditingHitbox = null;
+			}
 			else
 			{
+				if (mCurrentEditingHitbox == null)
+				{
+					mCurrentEditingHitbox = new CurrentEditingHitbox();
+				}
 
+				mCurrentEditingHitbox.FrameNumber = mCurrentSelectedPreview;
+				mCurrentEditingHitbox.HitboxSettings = settings;
 			}
 		}
 
@@ -468,28 +509,90 @@ public class AnimationEditorWindow : EditorWindow
 			if(GUILayout.Button("X", EditorStyles.toolbarButton))
 			{
 				settings.Active = false;
+				if (mCurrentEditingHitbox != null && mCurrentEditingHitbox.HitboxSettings == settings)
+				{
+					mCurrentEditingHitbox = null;
+				}
 			}
 		}
 
 		GUILayout.FlexibleSpace();
 
 		GUILayout.EndHorizontal();
+
+		GUILayout.BeginHorizontal();
+
+		if (settings.Active)
+		{
+			settings.Position = EditorGUILayout.RectField(settings.Position);
+		}
+
+		GUILayout.FlexibleSpace();
+
+		GUILayout.EndHorizontal();
+
+		EditorGUILayout.Space();
+
+		GUILayout.EndVertical();
+
 		GUI.color = Color.white;
 		EditorGUILayout.Space();
 	}
 
-	private void HitboxEditor(Rect areaRect, BrawlerHitboxSettings settings, Color color, bool editing)
+	private void HitboxEditor(Rect areaRect, BrawlerHitboxSettings settings, Color color, bool editing, int windowID)
 	{
 		if (!settings.Active)
 		{
 			return;
 		}
 
-		Rect previewRect = CenterRectOnOtherRect(settings.Position, areaRect);
+		Rect invertedRect = new Rect(settings.Position);
+		invertedRect.y *= -1;
+		Rect previewRect = new Rect( CenterRectOnOtherRect(invertedRect, areaRect) );
 
-		GUI.color = color;
+		GUI.color = Color.Lerp(color, Color.clear, editing ? 0.15f : 0.55f);
 
-		GUI.Box(previewRect, string.Empty);
+		GUI.Box(previewRect, string.Empty, GUI.skin.textArea);
+
+		Rect moveRect = new Rect( previewRect );
+
+		moveRect.width = moveRect.width - (moveRect.width * (kHitBoxResizeBorderFactor * 2));
+		moveRect.height = moveRect.height - (moveRect.height * (kHitBoxResizeBorderFactor * 2));
+
+		Rect moveRectLeft = new Rect( previewRect );
+
+		//moveRectLeft.x -= (previewRect.width * 0.5f) + ((previewRect.width * kHitBoxResizeBorderFactor) * 0.5f);
+		moveRectLeft.width = (previewRect.width * kHitBoxResizeBorderFactor);
+
+		if (editing)
+		{
+			EditorGUIUtility.AddCursorRect(moveRect, MouseCursor.MoveArrow);
+			EditorGUIUtility.AddCursorRect(moveRectLeft, MouseCursor.SplitResizeLeftRight);
+
+			if (previewRect.Contains(Event.current.mousePosition) && Event.current.type == EventType.mouseDrag)
+			{
+				Vector2 delta = Event.current.delta;
+				delta.y *= -1;
+				settings.Translate(delta);
+			}
+		}
+	}
+
+	private void EmptyWindow(int windowID)
+	{
+		GUILayout.BeginVertical();
+
+		GUILayout.FlexibleSpace();
+
+		GUILayout.BeginHorizontal();
+
+		GUILayout.FlexibleSpace();
+
+		GUILayout.EndHorizontal();
+
+		GUILayout.FlexibleSpace();
+
+		GUILayout.BeginVertical();
 	}
 
 	private static string[] ListToStringArray<T>(List<T> list) where T : Component

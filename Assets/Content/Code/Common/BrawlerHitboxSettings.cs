@@ -6,20 +6,22 @@ public class BrawlerHitboxSettings
 {
 	public bool Active = false;
 
-	private Rect mPosition = new Rect(0f,0f,12f,12f);
+	[SerializeField]private Rect mPosition;
+
+	private const float kRectMaxWidth = 12f;
 
 	public Rect Position
 	{
 		get
 		{
-			if (mPosition.width < 12f)
+			if (mPosition.width < kRectMaxWidth)
 			{
-				mPosition.width = 12f;
+				mPosition.width = kRectMaxWidth;
 			}
 
-			if (mPosition.height < 12f)
+			if (mPosition.height < kRectMaxWidth)
 			{
-				mPosition.height = 12f;
+				mPosition.height = kRectMaxWidth;
 			}
 
 			return mPosition;
@@ -28,15 +30,20 @@ public class BrawlerHitboxSettings
 		{
 			mPosition = value;
 
-			if (mPosition.width < 12f)
+			if (mPosition.width < kRectMaxWidth)
 			{
-				mPosition.width = 12f;
+				mPosition.width = kRectMaxWidth;
 			}
 			
-			if (mPosition.height < 12f)
+			if (mPosition.height < kRectMaxWidth)
 			{
-				mPosition.height = 12f;
+				mPosition.height = kRectMaxWidth;
 			}
 		}
+	}
+
+	public void Translate(Vector2 delta)
+	{
+		mPosition.center += delta;
 	}
 }
