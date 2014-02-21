@@ -8,20 +8,20 @@ public class BrawlerHitboxSettings
 
 	[SerializeField]private Rect mPosition;
 
-	private const float kRectMaxWidth = 12f;
+	private const float kRectMinWidth = 24f;
 
 	public Rect Position
 	{
 		get
 		{
-			if (mPosition.width < kRectMaxWidth)
+			if (mPosition.width < kRectMinWidth)
 			{
-				mPosition.width = kRectMaxWidth;
+				mPosition.width = kRectMinWidth;
 			}
 
-			if (mPosition.height < kRectMaxWidth)
+			if (mPosition.height < kRectMinWidth)
 			{
-				mPosition.height = kRectMaxWidth;
+				mPosition.height = kRectMinWidth;
 			}
 
 			return mPosition;
@@ -30,14 +30,14 @@ public class BrawlerHitboxSettings
 		{
 			mPosition = value;
 
-			if (mPosition.width < kRectMaxWidth)
+			if (mPosition.width < kRectMinWidth)
 			{
-				mPosition.width = kRectMaxWidth;
+				mPosition.width = kRectMinWidth;
 			}
 			
-			if (mPosition.height < kRectMaxWidth)
+			if (mPosition.height < kRectMinWidth)
 			{
-				mPosition.height = kRectMaxWidth;
+				mPosition.height = kRectMinWidth;
 			}
 		}
 	}

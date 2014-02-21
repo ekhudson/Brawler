@@ -281,15 +281,48 @@ namespace GrendelEditor.UI
                 changed = true;
             }
 
-
             GUI.color = Color.white;
 
             return changed;
         }
 
-		public static Rect ResizableBox(Rect position, Color color, float borderWidth, GUIStyle style)
+		public class ResizableBoxState
+		{
+			public enum DragDirections
+			{
+				None,
+				Left,
+				Right,
+				Up,
+				Down,
+				UpLeft,
+				UpRight,
+				DownLeft,
+				DownRight,
+				Move,
+			}
+
+			public DragDirections CurrentDragDirection = DragDirections.None;
+
+			public float SnapValue(float value, float snapAmount)
+			{
+				return Mathf.Round(value / snapAmount) * snapAmount;
+			}
+		}
+
+		public static Rect ResizableBox(Rect position, Color color, float borderWidth, float snapAmount, GUIStyle style)
 		{
 			Event evt = Event.current;
+			bool snapping = false;
+
+			if (evt.control)
+			{
+				snapping = true;
+			}
+
+			int id = GUIUtility.GetControlID(FocusType.Passive, position);
+			
+			ResizableBoxState controlState = (ResizableBoxState)GUIUtility.GetStateObject(typeof(ResizableBoxState), id);
 
 			Rect moveRect = new Rect( position );			
 			moveRect.width = moveRect.width - (borderWidth * 2);
@@ -297,36 +330,161 @@ namespace GrendelEditor.UI
 			moveRect.x += borderWidth;
 			moveRect.y += borderWidth;
 			
-			Rect moveRectLeft = new Rect( position );
-			moveRectLeft.width = borderWidth;
-			moveRectLeft.height -= (borderWidth * 2);
-			moveRectLeft.y += borderWidth;
+			Rect sizeRectLeft = new Rect( position );
+			sizeRectLeft.width = borderWidth;
+			sizeRectLeft.height -= (borderWidth * 2);
+			sizeRectLeft.y += borderWidth;
 
-			Rect moveRectRight = new Rect (position);
-			moveRectRight.width = borderWidth;
-			moveRectRight.height -= (borderWidth * 2);
-			moveRectRight.y += borderWidth;
-			moveRectRight.x = (position.x + position.width) - borderWidth;
+			Rect sizeRectRight = new Rect (position);
+			sizeRectRight.width = borderWidth;
+			sizeRectRight.height -= (borderWidth * 2);
+			sizeRectRight.y += borderWidth;
+			sizeRectRight.x = (position.x + position.width) - borderWidth;
 
 			Rect sizeRectTop = new Rect (position);
 			sizeRectTop.width -= (borderWidth * 2);
-			sizeRectTop.height -= borderWidth;
+			sizeRectTop.height = borderWidth;
 			sizeRectTop.x += borderWidth;
 
 			Rect sizeRectBottom = new Rect (position);
 			sizeRectBottom.width -= (borderWidth * 2);
-			sizeRectTop.height -= borderWidth;
-			sizeRectTop.x += borderWidth;
-			sizeRectTop.y = (position.y + position.height) - borderWidth;
+			sizeRectBottom.height = borderWidth;
+			sizeRectBottom.x += borderWidth;
+			sizeRectBottom.y = (position.y + position.height) - borderWidth;
+
+			Rect sizeRectTopLeft = new Rect (position);
+			sizeRectTopLeft.width = borderWidth;
+			sizeRectTopLeft.height = borderWidth;
+
+			Rect sizeRectBottomLeft = new Rect (position);
+			sizeRectBottomLeft.width = borderWidth;
+			sizeRectBottomLeft.height = borderWidth;
+			sizeRectBottomLeft.y = (position.y + position.height) - borderWidth;
+
+			Rect sizeRectTopRight = new Rect (position);
+			sizeRectTopRight.width = borderWidth;
+			sizeRectTopRight.height = borderWidth;
+			sizeRectTopRight.x = (position.x + position.width) - borderWidth;
+
+			Rect sizeRectBottomRight = new Rect (position);
+			sizeRectBottomRight.width = borderWidth;
+			sizeRectBottomRight.height = borderWidth;
+			sizeRectBottomRight.x = (position.x + position.width) - borderWidth;
+			sizeRectBottomRight.y = (position.y + position.height) - borderWidth;
 
 			GUI.color = color;
 			GUI.Box (position, string.Empty, style);
 
 			EditorGUIUtility.AddCursorRect (moveRect, MouseCursor.MoveArrow);
-			EditorGUIUtility.AddCursorRect (moveRectLeft, MouseCursor.SplitResizeLeftRight);
-			EditorGUIUtility.AddCursorRect (moveRectRight, MouseCursor.SplitResizeLeftRight);
+			EditorGUIUtility.AddCursorRect (sizeRectLeft, MouseCursor.SplitResizeLeftRight);
+			EditorGUIUtility.AddCursorRect (sizeRectRight, MouseCursor.SplitResizeLeftRight);
 			EditorGUIUtility.AddCursorRect (sizeRectTop, MouseCursor.SplitResizeUpDown);
 			EditorGUIUtility.AddCursorRect (sizeRectBottom, MouseCursor.SplitResizeUpDown);
+			EditorGUIUtility.AddCursorRect (sizeRectTopLeft, MouseCursor.ResizeUpLeft);
+			EditorGUIUtility.AddCursorRect (sizeRectBottomLeft, MouseCursor.ResizeUpRight);
+			EditorGUIUtility.AddCursorRect (sizeRectTopRight, MouseCursor.ResizeUpRight);
+			EditorGUIUtility.AddCursorRect (sizeRectBottomRight, MouseCursor.ResizeUpLeft);
+
+			if (position.Contains(evt.mousePosition))
+			{
+				if (evt.type == EventType.mouseDown)
+				{
+					if (sizeRectTop.Contains(evt.mousePosition))
+					{
+						controlState.CurrentDragDirection = ResizableBoxState.DragDirections.Up;					
+					}
+					else if (sizeRectBottom.Contains(evt.mousePosition))
+					{
+						controlState.CurrentDragDirection = ResizableBoxState.DragDirections.Down;						
+					}
+					else if (sizeRectLeft.Contains(evt.mousePosition))
+					{
+						controlState.CurrentDragDirection = ResizableBoxState.DragDirections.Left;						
+					}
+					else if (sizeRectRight.Contains(evt.mousePosition))
+					{
+						controlState.CurrentDragDirection = ResizableBoxState.DragDirections.Right;
+					}
+					else if (sizeRectTopLeft.Contains(evt.mousePosition))
+					{
+						controlState.CurrentDragDirection = ResizableBoxState.DragDirections.UpLeft;						
+					}
+					else if (sizeRectTopRight.Contains(evt.mousePosition))
+					{
+						controlState.CurrentDragDirection = ResizableBoxState.DragDirections.UpRight;
+					}
+					else if (sizeRectBottomLeft.Contains(evt.mousePosition))
+					{
+						controlState.CurrentDragDirection = ResizableBoxState.DragDirections.DownLeft;
+					}
+					else if (sizeRectBottomRight.Contains(evt.mousePosition))
+					{
+						controlState.CurrentDragDirection = ResizableBoxState.DragDirections.DownRight;
+					}
+					else if (moveRect.Contains(evt.mousePosition))
+					{
+						controlState.CurrentDragDirection = ResizableBoxState.DragDirections.Move;
+					}
+				}
+			}
+
+			if (evt.type == EventType.mouseDrag)
+			{
+				if (controlState.CurrentDragDirection == ResizableBoxState.DragDirections.Up)
+				{
+					position.height -= evt.delta.y;
+					
+				}
+				else if (controlState.CurrentDragDirection == ResizableBoxState.DragDirections.Down)
+				{
+					position.y += snapping ? controlState.SnapValue(evt.delta.y, snapAmount) : evt.delta.y;
+					position.height += snapping ? controlState.SnapValue(evt.delta.y, snapAmount) : evt.delta.y;
+					
+				}
+				else if (controlState.CurrentDragDirection == ResizableBoxState.DragDirections.Left)
+				{
+					position.x += snapping ? controlState.SnapValue(evt.delta.x, snapAmount) : evt.delta.x;
+					position.width -= snapping ? controlState.SnapValue(evt.delta.x, snapAmount) : evt.delta.x;
+					
+				}
+				else if (controlState.CurrentDragDirection == ResizableBoxState.DragDirections.Right)
+				{
+					position.width += snapping ? controlState.SnapValue(evt.delta.x, snapAmount) : evt.delta.x;
+				}
+				else if (controlState.CurrentDragDirection == ResizableBoxState.DragDirections.UpLeft)
+				{
+					position.x += snapping ? controlState.SnapValue(evt.delta.x, snapAmount) : evt.delta.x;
+					position.width -= snapping ? controlState.SnapValue(evt.delta.x, snapAmount) : evt.delta.x;
+					position.height -= snapping ? controlState.SnapValue(evt.delta.y, snapAmount) : evt.delta.y;					
+				}
+				else if (controlState.CurrentDragDirection == ResizableBoxState.DragDirections.UpRight)
+				{
+					position.width += snapping ? controlState.SnapValue(evt.delta.x, snapAmount) : evt.delta.x;
+					position.height -= snapping ? controlState.SnapValue(evt.delta.y, snapAmount) : evt.delta.y;
+				}
+				else if (controlState.CurrentDragDirection == ResizableBoxState.DragDirections.DownLeft)
+				{
+					position.x += snapping ? controlState.SnapValue(evt.delta.x, snapAmount) : evt.delta.x;
+					position.width -= snapping ? controlState.SnapValue(evt.delta.x, snapAmount) : evt.delta.x;
+					position.height += snapping ? controlState.SnapValue(evt.delta.y, snapAmount) : evt.delta.y;
+					position.y += snapping ? controlState.SnapValue(evt.delta.y, snapAmount) : evt.delta.y;
+				}
+				else if (controlState.CurrentDragDirection == ResizableBoxState.DragDirections.DownRight)
+				{
+					position.width += snapping ? controlState.SnapValue(evt.delta.x, snapAmount) : evt.delta.x;
+					position.height += snapping ? controlState.SnapValue(evt.delta.y, snapAmount) : evt.delta.y;
+					position.y += snapping ? controlState.SnapValue(evt.delta.y, snapAmount) : evt.delta.y;
+				}
+				else if (controlState.CurrentDragDirection == ResizableBoxState.DragDirections.Move)
+				{
+					position.center += snapping ? new Vector2( controlState.SnapValue(evt.delta.x, snapAmount), controlState.SnapValue(evt.delta.y, snapAmount)) : evt.delta;
+				}				
+			}
+
+			if (evt.type == EventType.mouseUp && controlState.CurrentDragDirection != ResizableBoxState.DragDirections.None)
+			{
+				controlState.CurrentDragDirection = ResizableBoxState.DragDirections.None;
+			}
 
 			return position;
 		}

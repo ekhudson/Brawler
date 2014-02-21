@@ -46,6 +46,7 @@ public class AnimationEditorWindow : EditorWindow
 	private const float kControlWidthMedium = 128f;
 	private const float kControlWidthLarge = 256f;
 	private const float kFrameEditorSpriteWidth = 256f;
+	private const float kHitboxControlHeight = 412f;
 	private BrawlerAnimationClip CurrentClip
 	{
 		get
@@ -411,17 +412,19 @@ public class AnimationEditorWindow : EditorWindow
 			return;
 		}
 
+		int textureWidth = CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.width;
+		int textureHeight = CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.height;
+		float scaleFactor = kFrameEditorSpriteWidth / textureWidth;
+
 		EditorGUI.BeginChangeCheck();
 
 		GUILayout.Label("Frame Editor:", EditorStyles.toolbarDropDown);
 
 		EditorGUILayout.Space();
 
-		GUILayout.BeginVertical(GUI.skin.textArea);
+		GUILayout.BeginHorizontal(GUI.skin.textArea);
 
-		GUILayout.BeginHorizontal();
-
-		GUILayout.BeginVertical();
+		GUILayout.BeginVertical(GUILayout.Height(kHitboxControlHeight));
 
 		HitboxControl(CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, "Attack Box", Color.red);
 		HitboxControl(CurrentClip.Frames[mCurrentSelectedPreview].HeadBoxSettings, "Head Box", Color.blue);
@@ -433,23 +436,29 @@ public class AnimationEditorWindow : EditorWindow
 
 		GUILayout.FlexibleSpace();
 
-		GUILayout.Box(string.Empty, mEmptyStyle, GUILayout.Width(kFrameEditorSpriteWidth), GUILayout.Height(kFrameEditorSpriteWidth));
+		GUILayout.BeginVertical();
+
+		GUILayout.Box(string.Empty, GUILayout.Width(kFrameEditorSpriteWidth), GUILayout.Height(kFrameEditorSpriteWidth));
+
+		Rect previewRect = GUILayoutUtility.GetLastRect();
+
+		GUILayout.EndVertical();
 
 		GUILayout.FlexibleSpace();
 
 		GUILayout.EndHorizontal();
 
-		GUILayout.EndVertical();
-
 		Rect hitboxControlsRect = GUILayoutUtility.GetLastRect();
 
-		GUI.DrawTexture(CenterRectOnOtherRect(new Rect(0,0,kFrameEditorSpriteWidth, kFrameEditorSpriteWidth), hitboxControlsRect) , CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture);
+		GUI.DrawTexture(CenterRectOnOtherRect(new Rect(0,0,kFrameEditorSpriteWidth, kFrameEditorSpriteWidth), previewRect) , CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture);
 	
-		HitboxEditor(hitboxControlsRect, CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, Color.red, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, 100);	
-		HitboxEditor(hitboxControlsRect, CurrentClip.Frames[mCurrentSelectedPreview].HeadBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].HeadBoxSettings, 101);
-		HitboxEditor(hitboxControlsRect, CurrentClip.Frames[mCurrentSelectedPreview].BodyBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].BodyBoxSettings, 102);
-		HitboxEditor(hitboxControlsRect, CurrentClip.Frames[mCurrentSelectedPreview].LegBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].LegBoxSettings, 103);
-		HitboxEditor(hitboxControlsRect, CurrentClip.Frames[mCurrentSelectedPreview].CollisionBoxSettings, Color.green, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].CollisionBoxSettings, 104);
+		GUI.Label(previewRect, string.Format("{0} x {1} [Scale Factor: {2}]", textureWidth.ToString(), textureHeight.ToString(), scaleFactor.ToString())); 
+
+		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, Color.red, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, 100);	
+		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].HeadBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].HeadBoxSettings, 101);
+		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].BodyBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].BodyBoxSettings, 102);
+		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].LegBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].LegBoxSettings, 103);
+		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].CollisionBoxSettings, Color.green, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].CollisionBoxSettings, 104);
 	
 		if (EditorGUI.EndChangeCheck())
 		{
@@ -546,7 +555,12 @@ public class AnimationEditorWindow : EditorWindow
 			return;
 		}
 
-		Rect invertedRect = new Rect(settings.Position);
+		int textureWidth = CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.width;
+		int textureHeight = CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.height;
+		float scaleFactor = kFrameEditorSpriteWidth / textureWidth;
+		float reverseScaleFactor = textureWidth / kFrameEditorSpriteWidth;
+
+		Rect invertedRect = new Rect(ScaleRect(settings.Position, scaleFactor));
 		invertedRect.y *= -1;
 		Rect previewRect = new Rect( CenterRectOnOtherRect(invertedRect, areaRect) );
 
@@ -554,19 +568,9 @@ public class AnimationEditorWindow : EditorWindow
 		
 		GUI.color = col;
 
-//		Rect moveRect = new Rect( previewRect );
-//
-//		moveRect.width = moveRect.width - (moveRect.width * (kHitBoxResizeBorderFactor * 2));
-//		moveRect.height = moveRect.height - (moveRect.height * (kHitBoxResizeBorderFactor * 2));
-//
-//		Rect moveRectLeft = new Rect( previewRect );
-//
-//		//moveRectLeft.x -= (previewRect.width * 0.5f) + ((previewRect.width * kHitBoxResizeBorderFactor) * 0.5f);
-//		moveRectLeft.width = (previewRect.width * kHitBoxResizeBorderFactor);
-
 		if (editing)
 		{
-			Rect newRect = new Rect( CustomEditorGUI.ResizableBox(previewRect, col, 6f, GUI.skin.textArea) );
+			Rect newRect = ScaleRect(new Rect( CustomEditorGUI.ResizableBox(previewRect, col, 12f, 4f, GUI.skin.textArea) ) , reverseScaleFactor);
 			previewRect.y *= -1;
 			newRect.y *= -1;
 			settings.Position = new Rect(settings.Position.x + (newRect.center - previewRect.center).x, settings.Position.y + (newRect.center.y - previewRect.center.y),
@@ -616,5 +620,10 @@ public class AnimationEditorWindow : EditorWindow
 	{
 		newRect.center = otherRect.center + new Vector2(newRect.x, newRect.y);
 		return newRect;	
+	}
+
+	private static Rect ScaleRect(Rect rect, float scale)
+	{
+		return new Rect(rect.x * scale, rect.y * scale, rect.width * scale, rect.height * scale);
 	}
 }
