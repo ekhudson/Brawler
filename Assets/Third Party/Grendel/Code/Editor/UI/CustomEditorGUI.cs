@@ -287,6 +287,51 @@ namespace GrendelEditor.UI
             return changed;
         }
 
+		public static Rect ResizableBox(Rect position, Color color, float borderWidth, GUIStyle style)
+		{
+			Event evt = Event.current;
+
+			Rect moveRect = new Rect( position );			
+			moveRect.width = moveRect.width - (borderWidth * 2);
+			moveRect.height = moveRect.height - (borderWidth * 2);
+			moveRect.x += borderWidth;
+			moveRect.y += borderWidth;
+			
+			Rect moveRectLeft = new Rect( position );
+			moveRectLeft.width = borderWidth;
+			moveRectLeft.height -= (borderWidth * 2);
+			moveRectLeft.y += borderWidth;
+
+			Rect moveRectRight = new Rect (position);
+			moveRectRight.width = borderWidth;
+			moveRectRight.height -= (borderWidth * 2);
+			moveRectRight.y += borderWidth;
+			moveRectRight.x = (position.x + position.width) - borderWidth;
+
+			Rect sizeRectTop = new Rect (position);
+			sizeRectTop.width -= (borderWidth * 2);
+			sizeRectTop.height -= borderWidth;
+			sizeRectTop.x += borderWidth;
+
+			Rect sizeRectBottom = new Rect (position);
+			sizeRectBottom.width -= (borderWidth * 2);
+			sizeRectTop.height -= borderWidth;
+			sizeRectTop.x += borderWidth;
+			sizeRectTop.y = (position.y + position.height) - borderWidth;
+
+			GUI.color = color;
+			GUI.Box (position, string.Empty, style);
+
+			EditorGUIUtility.AddCursorRect (moveRect, MouseCursor.MoveArrow);
+			EditorGUIUtility.AddCursorRect (moveRectLeft, MouseCursor.SplitResizeLeftRight);
+			EditorGUIUtility.AddCursorRect (moveRectRight, MouseCursor.SplitResizeLeftRight);
+			EditorGUIUtility.AddCursorRect (sizeRectTop, MouseCursor.SplitResizeUpDown);
+			EditorGUIUtility.AddCursorRect (sizeRectBottom, MouseCursor.SplitResizeUpDown);
+
+			return position;
+		}
+
+
         public static void DrawSeparatorLayout()
         {
             GUILayout.Box(string.Empty, new GUILayoutOption[]{GUILayout.ExpandWidth(true), GUILayout.Height(1)});

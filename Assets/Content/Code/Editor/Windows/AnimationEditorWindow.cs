@@ -550,32 +550,34 @@ public class AnimationEditorWindow : EditorWindow
 		invertedRect.y *= -1;
 		Rect previewRect = new Rect( CenterRectOnOtherRect(invertedRect, areaRect) );
 
-		GUI.color = Color.Lerp(color, Color.clear, editing ? 0.15f : 0.55f);
+		Color col = Color.Lerp(color, Color.clear, editing ? 0.15f : 0.55f);
+		
+		GUI.color = col;
 
-		GUI.Box(previewRect, string.Empty, GUI.skin.textArea);
-
-		Rect moveRect = new Rect( previewRect );
-
-		moveRect.width = moveRect.width - (moveRect.width * (kHitBoxResizeBorderFactor * 2));
-		moveRect.height = moveRect.height - (moveRect.height * (kHitBoxResizeBorderFactor * 2));
-
-		Rect moveRectLeft = new Rect( previewRect );
-
-		//moveRectLeft.x -= (previewRect.width * 0.5f) + ((previewRect.width * kHitBoxResizeBorderFactor) * 0.5f);
-		moveRectLeft.width = (previewRect.width * kHitBoxResizeBorderFactor);
+//		Rect moveRect = new Rect( previewRect );
+//
+//		moveRect.width = moveRect.width - (moveRect.width * (kHitBoxResizeBorderFactor * 2));
+//		moveRect.height = moveRect.height - (moveRect.height * (kHitBoxResizeBorderFactor * 2));
+//
+//		Rect moveRectLeft = new Rect( previewRect );
+//
+//		//moveRectLeft.x -= (previewRect.width * 0.5f) + ((previewRect.width * kHitBoxResizeBorderFactor) * 0.5f);
+//		moveRectLeft.width = (previewRect.width * kHitBoxResizeBorderFactor);
 
 		if (editing)
 		{
-			EditorGUIUtility.AddCursorRect(moveRect, MouseCursor.MoveArrow);
-			EditorGUIUtility.AddCursorRect(moveRectLeft, MouseCursor.SplitResizeLeftRight);
-
-			if (previewRect.Contains(Event.current.mousePosition) && Event.current.type == EventType.mouseDrag)
-			{
-				Vector2 delta = Event.current.delta;
-				delta.y *= -1;
-				settings.Translate(delta);
-			}
+			Rect newRect = new Rect( CustomEditorGUI.ResizableBox(previewRect, col, 6f, GUI.skin.textArea) );
+			previewRect.y *= -1;
+			newRect.y *= -1;
+			settings.Position = new Rect(settings.Position.x + (newRect.center - previewRect.center).x, settings.Position.y + (newRect.center.y - previewRect.center.y),
+			                               newRect.width, newRect.height);
 		}
+		else
+		{
+			GUI.Box(previewRect, string.Empty, GUI.skin.textArea);
+		}
+
+		GUI.color = Color.white;
 	}
 
 	private void EmptyWindow(int windowID)
