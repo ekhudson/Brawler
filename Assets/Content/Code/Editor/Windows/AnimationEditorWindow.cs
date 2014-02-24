@@ -22,6 +22,7 @@ public class AnimationEditorWindow : EditorWindow
 	private Color mPreviewColor = Color.white;
 	private float mPreviewTickTime = 0f;
 	private float mPreviewTickTimeCurrent = 0f;
+	private bool mPreviewShowHitboxes = false;
 	private int mCurrentSelectedPreview = -1;
 	private float mAnimationTicksPerSecond = 60f;
 	private bool mNeedCharacterRefresh = true;
@@ -47,6 +48,7 @@ public class AnimationEditorWindow : EditorWindow
 	private const float kControlWidthLarge = 256f;
 	private const float kFrameEditorSpriteWidth = 256f;
 	private const float kHitboxControlHeight = 412f;
+
 	private BrawlerAnimationClip CurrentClip
 	{
 		get
@@ -207,6 +209,45 @@ public class AnimationEditorWindow : EditorWindow
 
 		GUILayout.Box(new GUIContent(CurrentClip.CurrentSprite.texture), mEmptyStyle, GUILayout.Width(kAnimPreviewWidth), GUILayout.Height(kAnimPreviewWidth));
 
+		if (mPreviewShowHitboxes) 
+		{
+			Rect previewRect = GUILayoutUtility.GetLastRect();
+			float scaleFactor = kAnimPreviewWidth / CurrentClip.CurrentSprite.texture.width;
+
+			GUI.color = Color.Lerp(Color.cyan, Color.clear, 0.65f);
+
+			if (CurrentClip.CurrentFrameEntry.HeadBoxSettings.Active)
+			{
+				GUI.Box( InvertRectY(ScaleRect(CenterRectOnOtherRect(CurrentClip.CurrentFrameEntry.HeadBoxSettings.Position, previewRect), scaleFactor)), string.Empty);
+			}
+
+			if (CurrentClip.CurrentFrameEntry.BodyBoxSettings.Active)
+			{
+				GUI.Box( InvertRectY(ScaleRect(CenterRectOnOtherRect(CurrentClip.CurrentFrameEntry.BodyBoxSettings.Position, previewRect), scaleFactor)), string.Empty);
+			}
+
+			if (CurrentClip.CurrentFrameEntry.LegBoxSettings.Active)
+			{
+				GUI.Box( InvertRectY(ScaleRect(CenterRectOnOtherRect(CurrentClip.CurrentFrameEntry.LegBoxSettings.Position, previewRect), scaleFactor)), string.Empty);
+			}
+
+			GUI.color = Color.Lerp(Color.red, Color.clear, 0.65f);
+
+			if (CurrentClip.CurrentFrameEntry.AttackBoxSettings.Active)
+			{
+				GUI.Box( InvertRectY(ScaleRect(CenterRectOnOtherRect(CurrentClip.CurrentFrameEntry.AttackBoxSettings.Position, previewRect), scaleFactor)), string.Empty);
+			}
+
+			GUI.color = Color.Lerp(Color.green, Color.clear, 0.65f);
+
+			if (CurrentClip.CurrentFrameEntry.CollisionBoxSettings.Active)
+			{
+				GUI.Box( InvertRectY(ScaleRect(CenterRectOnOtherRect(CurrentClip.CurrentFrameEntry.CollisionBoxSettings.Position, previewRect), scaleFactor)), string.Empty);
+			}
+
+			GUI.color = Color.white;
+		}
+
 		GUI.color = Color.white;
 
 		GUILayout.FlexibleSpace();
@@ -268,6 +309,12 @@ public class AnimationEditorWindow : EditorWindow
 		GUILayout.Label("Preview Color:", GUILayout.Width(kControlWidthSmall + kControlWidthTiny));
 
 		mPreviewColor = EditorGUILayout.ColorField(mPreviewColor, GUILayout.Width(kControlWidthTiny));
+
+		EditorGUILayout.Space();
+		
+		GUILayout.Label("Show Hitboxes:", GUILayout.Width(kControlWidthSmall + kControlWidthTiny));
+		
+		mPreviewShowHitboxes = EditorGUILayout.Toggle(mPreviewShowHitboxes, GUILayout.Width(kControlWidthTiny));
 
 		GUILayout.FlexibleSpace();
 
@@ -570,11 +617,17 @@ public class AnimationEditorWindow : EditorWindow
 
 		if (editing)
 		{
-			Rect newRect = ScaleRect(new Rect( CustomEditorGUI.ResizableBox(previewRect, col, 12f, 4f, GUI.skin.textArea) ) , reverseScaleFactor);
+			Rect newRect = new Rect( CustomEditorGUI.ResizableBox(previewRect, col, 12f, 4f, GUI.skin.textArea) );
 			previewRect.y *= -1;
 			newRect.y *= -1;
-			settings.Position = new Rect(settings.Position.x + (newRect.center - previewRect.center).x, settings.Position.y + (newRect.center.y - previewRect.center.y),
-			                               newRect.width, newRect.height);
+			float newX = (newRect.center.x - previewRect.center.x) * reverseScaleFactor;
+			float newY = (newRect.center.y - previewRect.center.y) * reverseScaleFactor;
+			float newWidth = newRect.width * reverseScaleFactor;
+			float newHeight = newRect.height * reverseScaleFactor;
+
+
+			settings.Position = new Rect(settings.Position.x + newX, settings.Position.y + newY,
+			                               newWidth, newHeight);
 		}
 		else
 		{
@@ -625,5 +678,10 @@ public class AnimationEditorWindow : EditorWindow
 	private static Rect ScaleRect(Rect rect, float scale)
 	{
 		return new Rect(rect.x * scale, rect.y * scale, rect.width * scale, rect.height * scale);
+	}
+
+	private static Rect InvertRectY(Rect rect)
+	{
+		return new Rect (rect.x, rect.y * -1, rect.width, rect.height);
 	}
 }

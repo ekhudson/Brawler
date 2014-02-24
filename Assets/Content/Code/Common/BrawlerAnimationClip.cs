@@ -35,6 +35,14 @@ public class BrawlerAnimationClip : MonoBehaviour
 		}
 	}
 
+	public BrawlerFrameEntry CurrentFrameEntry
+	{
+		get
+		{
+			return Frames[mCurrentFrame];
+		}
+	}
+
 	public bool IsPlaying
 	{
 		get
