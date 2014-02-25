@@ -209,50 +209,23 @@ public class AnimationEditorWindow : EditorWindow
 
 		GUILayout.Box(new GUIContent(CurrentClip.CurrentSprite.texture), mEmptyStyle, GUILayout.Width(kAnimPreviewWidth), GUILayout.Height(kAnimPreviewWidth));
 
-		if (mPreviewShowHitboxes) 
-		{
-			Rect previewRect = GUILayoutUtility.GetLastRect();
-			float scaleFactor = kAnimPreviewWidth / CurrentClip.CurrentSprite.texture.width;
-
-			GUI.color = Color.Lerp(Color.cyan, Color.clear, 0.65f);
-
-			if (CurrentClip.CurrentFrameEntry.HeadBoxSettings.Active)
-			{
-				GUI.Box( InvertRectY(ScaleRect(CenterRectOnOtherRect(CurrentClip.CurrentFrameEntry.HeadBoxSettings.Position, previewRect), scaleFactor)), string.Empty);
-			}
-
-			if (CurrentClip.CurrentFrameEntry.BodyBoxSettings.Active)
-			{
-				GUI.Box( InvertRectY(ScaleRect(CenterRectOnOtherRect(CurrentClip.CurrentFrameEntry.BodyBoxSettings.Position, previewRect), scaleFactor)), string.Empty);
-			}
-
-			if (CurrentClip.CurrentFrameEntry.LegBoxSettings.Active)
-			{
-				GUI.Box( InvertRectY(ScaleRect(CenterRectOnOtherRect(CurrentClip.CurrentFrameEntry.LegBoxSettings.Position, previewRect), scaleFactor)), string.Empty);
-			}
-
-			GUI.color = Color.Lerp(Color.red, Color.clear, 0.65f);
-
-			if (CurrentClip.CurrentFrameEntry.AttackBoxSettings.Active)
-			{
-				GUI.Box( InvertRectY(ScaleRect(CenterRectOnOtherRect(CurrentClip.CurrentFrameEntry.AttackBoxSettings.Position, previewRect), scaleFactor)), string.Empty);
-			}
-
-			GUI.color = Color.Lerp(Color.green, Color.clear, 0.65f);
-
-			if (CurrentClip.CurrentFrameEntry.CollisionBoxSettings.Active)
-			{
-				GUI.Box( InvertRectY(ScaleRect(CenterRectOnOtherRect(CurrentClip.CurrentFrameEntry.CollisionBoxSettings.Position, previewRect), scaleFactor)), string.Empty);
-			}
-
-			GUI.color = Color.white;
-		}
-
 		GUI.color = Color.white;
 
 		GUILayout.FlexibleSpace();
 		
 		GUILayout.EndHorizontal();
+
+		if (mPreviewShowHitboxes) 
+		{
+			Rect previewRect = GUILayoutUtility.GetLastRect();
+			float scaleFactor = kAnimPreviewWidth / CurrentClip.CurrentSprite.texture.width;
+
+			HitboxEditor(previewRect, CurrentClip.CurrentFrameEntry.HeadBoxSettings, Color.Lerp(Color.cyan, Color.clear, 0.25f), false, kAnimPreviewWidth);
+			HitboxEditor(previewRect, CurrentClip.CurrentFrameEntry.BodyBoxSettings, Color.Lerp(Color.cyan, Color.clear, 0.25f), false, kAnimPreviewWidth);
+			HitboxEditor(previewRect, CurrentClip.CurrentFrameEntry.LegBoxSettings, Color.Lerp(Color.cyan, Color.clear, 0.25f), false, kAnimPreviewWidth);
+			HitboxEditor(previewRect, CurrentClip.CurrentFrameEntry.AttackBoxSettings, Color.Lerp(Color.red, Color.clear, 0.25f), false, kAnimPreviewWidth);
+			HitboxEditor(previewRect, CurrentClip.CurrentFrameEntry.CollisionBoxSettings, Color.Lerp(Color.green, Color.clear, 0.25f), false, kAnimPreviewWidth);
+		}
 
 		GUILayout.BeginHorizontal();
 		
@@ -501,11 +474,11 @@ public class AnimationEditorWindow : EditorWindow
 	
 		GUI.Label(previewRect, string.Format("{0} x {1} [Scale Factor: {2}]", textureWidth.ToString(), textureHeight.ToString(), scaleFactor.ToString())); 
 
-		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, Color.red, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, 100);	
-		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].HeadBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].HeadBoxSettings, 101);
-		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].BodyBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].BodyBoxSettings, 102);
-		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].LegBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].LegBoxSettings, 103);
-		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].CollisionBoxSettings, Color.green, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].CollisionBoxSettings, 104);
+		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, Color.red, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, kFrameEditorSpriteWidth);	
+		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].HeadBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].HeadBoxSettings, kFrameEditorSpriteWidth);
+		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].BodyBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].BodyBoxSettings, kFrameEditorSpriteWidth);
+		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].LegBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].LegBoxSettings, kFrameEditorSpriteWidth);
+		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].CollisionBoxSettings, Color.green, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].CollisionBoxSettings, kFrameEditorSpriteWidth);
 	
 		if (EditorGUI.EndChangeCheck())
 		{
@@ -595,7 +568,7 @@ public class AnimationEditorWindow : EditorWindow
 		EditorGUILayout.Space();
 	}
 
-	private void HitboxEditor(Rect areaRect, BrawlerHitboxSettings settings, Color color, bool editing, int windowID)
+	private void HitboxEditor(Rect areaRect, BrawlerHitboxSettings settings, Color color, bool editing, float spriteSize)
 	{
 		if (!settings.Active)
 		{
@@ -604,8 +577,8 @@ public class AnimationEditorWindow : EditorWindow
 
 		int textureWidth = CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.width;
 		int textureHeight = CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.height;
-		float scaleFactor = kFrameEditorSpriteWidth / textureWidth;
-		float reverseScaleFactor = textureWidth / kFrameEditorSpriteWidth;
+		float scaleFactor = spriteSize / textureWidth;
+		float reverseScaleFactor = textureWidth / spriteSize;
 
 		Rect invertedRect = new Rect(ScaleRect(settings.Position, scaleFactor));
 		invertedRect.y *= -1;
@@ -635,23 +608,6 @@ public class AnimationEditorWindow : EditorWindow
 		}
 
 		GUI.color = Color.white;
-	}
-
-	private void EmptyWindow(int windowID)
-	{
-		GUILayout.BeginVertical();
-
-		GUILayout.FlexibleSpace();
-
-		GUILayout.BeginHorizontal();
-
-		GUILayout.FlexibleSpace();
-
-		GUILayout.EndHorizontal();
-
-		GUILayout.FlexibleSpace();
-
-		GUILayout.BeginVertical();
 	}
 
 	private static string[] ListToStringArray<T>(List<T> list) where T : Component
