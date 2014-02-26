@@ -220,11 +220,11 @@ public class AnimationEditorWindow : EditorWindow
 			Rect previewRect = GUILayoutUtility.GetLastRect();
 			float scaleFactor = kAnimPreviewWidth / CurrentClip.CurrentSprite.texture.width;
 
-			HitboxEditor(previewRect, CurrentClip.CurrentFrameEntry.HeadBoxSettings, Color.Lerp(Color.cyan, Color.clear, 0.25f), false, kAnimPreviewWidth);
-			HitboxEditor(previewRect, CurrentClip.CurrentFrameEntry.BodyBoxSettings, Color.Lerp(Color.cyan, Color.clear, 0.25f), false, kAnimPreviewWidth);
-			HitboxEditor(previewRect, CurrentClip.CurrentFrameEntry.LegBoxSettings, Color.Lerp(Color.cyan, Color.clear, 0.25f), false, kAnimPreviewWidth);
-			HitboxEditor(previewRect, CurrentClip.CurrentFrameEntry.AttackBoxSettings, Color.Lerp(Color.red, Color.clear, 0.25f), false, kAnimPreviewWidth);
-			HitboxEditor(previewRect, CurrentClip.CurrentFrameEntry.CollisionBoxSettings, Color.Lerp(Color.green, Color.clear, 0.25f), false, kAnimPreviewWidth);
+			HitboxEditor(previewRect, CurrentClip.CurrentFrameEntry.HeadBoxSettings, Color.Lerp(Color.cyan, Color.clear, 0.25f), false, CurrentClip.CurrentSprite.texture.width, kAnimPreviewWidth);
+			HitboxEditor(previewRect, CurrentClip.CurrentFrameEntry.BodyBoxSettings, Color.Lerp(Color.cyan, Color.clear, 0.25f), false, CurrentClip.CurrentSprite.texture.width, kAnimPreviewWidth);
+			HitboxEditor(previewRect, CurrentClip.CurrentFrameEntry.LegBoxSettings, Color.Lerp(Color.cyan, Color.clear, 0.25f), false, CurrentClip.CurrentSprite.texture.width, kAnimPreviewWidth);
+			HitboxEditor(previewRect, CurrentClip.CurrentFrameEntry.AttackBoxSettings, Color.Lerp(Color.red, Color.clear, 0.25f), false, CurrentClip.CurrentSprite.texture.width, kAnimPreviewWidth);
+			HitboxEditor(previewRect, CurrentClip.CurrentFrameEntry.CollisionBoxSettings, Color.Lerp(Color.green, Color.clear, 0.25f), false, CurrentClip.CurrentSprite.texture.width, kAnimPreviewWidth);
 		}
 
 		GUILayout.BeginHorizontal();
@@ -474,11 +474,11 @@ public class AnimationEditorWindow : EditorWindow
 	
 		GUI.Label(previewRect, string.Format("{0} x {1} [Scale Factor: {2}]", textureWidth.ToString(), textureHeight.ToString(), scaleFactor.ToString())); 
 
-		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, Color.red, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, kFrameEditorSpriteWidth);	
-		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].HeadBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].HeadBoxSettings, kFrameEditorSpriteWidth);
-		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].BodyBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].BodyBoxSettings, kFrameEditorSpriteWidth);
-		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].LegBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].LegBoxSettings, kFrameEditorSpriteWidth);
-		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].CollisionBoxSettings, Color.green, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].CollisionBoxSettings, kFrameEditorSpriteWidth);
+		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, Color.red, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.width, kFrameEditorSpriteWidth);	
+		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].HeadBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].HeadBoxSettings, CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.width, kFrameEditorSpriteWidth);
+		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].BodyBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].BodyBoxSettings, CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.width, kFrameEditorSpriteWidth);
+		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].LegBoxSettings, Color.cyan, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].LegBoxSettings, CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.width, kFrameEditorSpriteWidth);
+		HitboxEditor(previewRect, CurrentClip.Frames[mCurrentSelectedPreview].CollisionBoxSettings, Color.green, mCurrentEditingHitbox == null ? false : mCurrentEditingHitbox.HitboxSettings == CurrentClip.Frames[mCurrentSelectedPreview].CollisionBoxSettings, CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.width, kFrameEditorSpriteWidth);
 	
 		if (EditorGUI.EndChangeCheck())
 		{
@@ -568,17 +568,17 @@ public class AnimationEditorWindow : EditorWindow
 		EditorGUILayout.Space();
 	}
 
-	private void HitboxEditor(Rect areaRect, BrawlerHitboxSettings settings, Color color, bool editing, float spriteSize)
+	private void HitboxEditor(Rect areaRect, BrawlerHitboxSettings settings, Color color, bool editing, float spriteSize, float previewSize)
 	{
 		if (!settings.Active)
 		{
 			return;
 		}
 
-		int textureWidth = CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.width;
-		int textureHeight = CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.height;
-		float scaleFactor = spriteSize / textureWidth;
-		float reverseScaleFactor = textureWidth / spriteSize;
+		//int textureWidth = CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.width;
+		//int textureHeight = CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.height;
+		float scaleFactor = previewSize / spriteSize;
+		float reverseScaleFactor = spriteSize / previewSize;
 
 		Rect invertedRect = new Rect(ScaleRect(settings.Position, scaleFactor));
 		invertedRect.y *= -1;

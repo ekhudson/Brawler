@@ -116,7 +116,7 @@ public class EditorObject : BaseObject, IEditorObject
 	
 	protected override void Awake ()
 	{
-		
+		base.Awake();
 	}
 	
 	// Use this for initialization

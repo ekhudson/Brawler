@@ -67,6 +67,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 	protected Vector3 mTarget = Vector3.zero;
 	protected CharacterEntity mController;
 	protected BrawlerCharacterStateController mStateController;
+	public BrawlerHitboxController HitboxController;
 	
 	private bool mIsDropping = false;  
 	
@@ -209,6 +210,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			}
 
 			mSpriteRenderer.sprite = mStateController.CharacterStates[0].AnimationClip.CurrentSprite;
+			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.HeadBoxSettings, HitboxController.HeadCollider);
 			
 			break;
 			
