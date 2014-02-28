@@ -30,12 +30,12 @@ public class BrawlerHitboxController : BaseObject
 
 		Vector3 spritePosition = mGameObject.transform.parent.position;
 
-		float scaleFactor = 10f / 512f;
+		float scaleFactor = (512f / 100f) / 512f;
 
-		Debug.Log (scaleFactor);
+		//boxCollider.center = new Vector3(spritePosition.x + (setting.Position.x * scaleFactor), spritePosition.y + (setting.Position.y * scaleFactor), mGameObject.transform.position.z);
 
-		hitbox.transform.position = new Vector3(spritePosition.x + (setting.Position.center.x * (scaleFactor * 0.5f)), spritePosition.y + (setting.Position.center.y * (scaleFactor * 0.5f)), mGameObject.transform.position.z);
+		boxCollider.center = new Vector3((setting.Position.x * scaleFactor), (setting.Position.y * scaleFactor), 0f);
 
-		boxCollider.size = new Vector3( (setting.Position.width * (scaleFactor * 0.5f)), (setting.Position.height * (scaleFactor * 0.5f)), 1f);
+		boxCollider.size = new Vector3( (setting.Position.width * scaleFactor), (setting.Position.height * scaleFactor), 1f);
 	}
 }

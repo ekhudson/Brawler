@@ -575,8 +575,6 @@ public class AnimationEditorWindow : EditorWindow
 			return;
 		}
 
-		//int textureWidth = CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.width;
-		//int textureHeight = CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.height;
 		float scaleFactor = previewSize / spriteSize;
 		float reverseScaleFactor = spriteSize / previewSize;
 
@@ -599,8 +597,8 @@ public class AnimationEditorWindow : EditorWindow
 			float newHeight = newRect.height * reverseScaleFactor;
 
 
-			settings.Position = new Rect(settings.Position.x + newX, settings.Position.y + newY,
-			                               newWidth, newHeight);
+			settings.Position = new Rect(Mathf.RoundToInt(settings.Position.x + newX), Mathf.RoundToInt(settings.Position.y + newY),
+			                               Mathf.RoundToInt(newWidth), Mathf.RoundToInt(newHeight));
 		}
 		else
 		{
