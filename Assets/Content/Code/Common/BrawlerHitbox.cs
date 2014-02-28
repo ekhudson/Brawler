@@ -23,18 +23,18 @@ public class BrawlerHitbox : TriggerVolume
 
 		if (HitboxType == HitboxTypes.Head || HitboxType == HitboxTypes.Body || HitboxType == HitboxTypes.Leg)
 	    {
-			Gizmos.color = Color.cyan;
+			Gizmos.color = Color.Lerp(Color.cyan, Color.clear, 0.65f);
 		}
 		else if (HitboxType == HitboxTypes.MoveCollider)
 		{
-			Gizmos.color = Color.green;
+			Gizmos.color = Color.Lerp(Color.green, Color.clear, 0.65f);
 		}
 		else if (HitboxType == HitboxTypes.Attack)
 		{
-			Gizmos.color = Color.red;
+			Gizmos.color = Color.Lerp(Color.red, Color.clear, 0.65f);
 		}
 
-		Gizmos.DrawCube(mCollider.bounds.center, mCollider.bounds.extents);
+		Gizmos.DrawCube(mCollider.bounds.center, mCollider.bounds.size);
 
 		Gizmos.color = Color.white;
 	}

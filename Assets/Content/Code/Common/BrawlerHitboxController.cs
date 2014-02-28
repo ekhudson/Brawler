@@ -14,14 +14,28 @@ public class BrawlerHitboxController : BaseObject
 
 	}
 
-	public void ApplySettings(BrawlerHitboxSettings setting, BrawlerHitbox hitbox)
+	public void ApplySettings(BrawlerHitboxSettings setting, BrawlerHitbox hitbox, Sprite sprite)
 	{
 		BoxCollider boxCollider = hitbox.BaseCollider as BoxCollider;
 
+		if (!setting.Active) 
+		{
+			hitbox.gameObject.SetActive (false);
+			return;
+		} 
+		else if (!hitbox.gameObject.activeSelf) 
+		{
+			hitbox.gameObject.SetActive(true);
+		}
+
 		Vector3 spritePosition = mGameObject.transform.parent.position;
 
-		hitbox.transform.position = spritePosition; new Vector3(spritePosition.x + setting.Position.center.x, spritePosition.y + setting.Position.center.y, 0f);
+		float scaleFactor = 10f / 512f;
 
-		boxCollider.size = new Vector3(setting.Position.width * 0.5f, setting.Position.height * 0.5f, 1f);
+		Debug.Log (scaleFactor);
+
+		hitbox.transform.position = new Vector3(spritePosition.x + (setting.Position.center.x * (scaleFactor * 0.5f)), spritePosition.y + (setting.Position.center.y * (scaleFactor * 0.5f)), mGameObject.transform.position.z);
+
+		boxCollider.size = new Vector3( (setting.Position.width * (scaleFactor * 0.5f)), (setting.Position.height * (scaleFactor * 0.5f)), 1f);
 	}
 }

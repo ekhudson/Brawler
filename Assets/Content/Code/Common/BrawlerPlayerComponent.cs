@@ -210,8 +210,15 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			}
 
 			mSpriteRenderer.sprite = mStateController.CharacterStates[0].AnimationClip.CurrentSprite;
-			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.HeadBoxSettings, HitboxController.HeadCollider);
-			
+			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.HeadBoxSettings, HitboxController.HeadCollider, mSpriteRenderer.sprite);
+			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.BodyBoxSettings, HitboxController.BodyCollider, mSpriteRenderer.sprite);
+			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.LegBoxSettings, HitboxController.LegCollider, mSpriteRenderer.sprite);
+			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.AttackBoxSettings, HitboxController.AttackCollider, mSpriteRenderer.sprite);
+			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.CollisionBoxSettings, HitboxController.CollisionCollider, mSpriteRenderer.sprite);
+
+
+
+
 			break;
 			
 		case PlayerStates.MOVING:
