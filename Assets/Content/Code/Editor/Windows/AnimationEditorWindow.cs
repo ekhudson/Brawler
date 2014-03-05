@@ -27,6 +27,7 @@ public class AnimationEditorWindow : EditorWindow
 	private float mAnimationTicksPerSecond = 60f;
 	private bool mNeedCharacterRefresh = true;
 	private bool mMouseDragging = false;
+    private bool mDragJustEnded = false;
 	private GUIStyle mHitboxStyle = null;
 	private CurrentEditingHitbox mCurrentEditingHitbox;
 	private const float kHitBoxResizeBorderFactor = 0.15f;
@@ -152,10 +153,16 @@ public class AnimationEditorWindow : EditorWindow
 		{
 			mMouseDragging = true;
 		}
+        else if(Event.current.keyCode == KeyCode.Escape && mMouseDragging)
+        {            
+            mMouseDragging = false;
+        }
 		else if (Event.current.type == EventType.DragExited && mMouseDragging)
 		{
-			mMouseDragging = false;
+			mDragJustEnded = true;
+            mMouseDragging = false;
 		}
+       
 
 		Repaint();	
 	}
@@ -207,7 +214,10 @@ public class AnimationEditorWindow : EditorWindow
 
 		GUI.color = mPreviewColor;
 
-		GUILayout.Box(new GUIContent(CurrentClip.CurrentSprite.texture), mEmptyStyle, GUILayout.Width(kAnimPreviewWidth), GUILayout.Height(kAnimPreviewWidth));
+        if (CurrentClip.CurrentSprite != null) 
+        {
+            GUILayout.Box (new GUIContent (CurrentClip.CurrentSprite.texture), mEmptyStyle, GUILayout.Width (kAnimPreviewWidth), GUILayout.Height (kAnimPreviewWidth));
+        }
 
 		GUI.color = Color.white;
 
@@ -381,21 +391,34 @@ public class AnimationEditorWindow : EditorWindow
 		
 		Rect tempRect;
 
+		Event currentEvent = Event.current;
+
+		if (!mWindowReference.wantsMouseMove) 
+		{
+            mWindowReference.wantsMouseMove = true;
+		}
+
 		tempSprite = CurrentClip.Sprites[ frame.SpriteIndex ];
 
 		GUILayout.Box(string.Empty, GUILayout.Width(kControlWidthMedium), GUILayout.Height(kControlWidthMedium));
 
 		tempRect = GUILayoutUtility.GetLastRect();
 
-		if(mMouseDragging && tempRect.Contains(Event.current.mousePosition))
+		if(mMouseDragging && tempRect.Contains(currentEvent.mousePosition))
 		{
 			GUI.color = Color.cyan;
+		}
+
+		if (mDragJustEnded && tempRect.Contains(currentEvent.mousePosition))
+		{
+            mDragJustEnded = false;
+			SwapSprite(frame, Selection.activeObject as Sprite);
 		}
 
 		if(GUI.Button(tempRect, string.Empty))
 		{
 			mCurrentSelectedPreview = frameCount;
-			Event.current.Use();
+			currentEvent.Use();
 		}
 
 		if (mCurrentSelectedPreview == frameCount)
@@ -414,7 +437,10 @@ public class AnimationEditorWindow : EditorWindow
 
 		GUI.color = Color.white;
 
-		GUI.DrawTexture(tempRect, tempSprite.texture);
+        if (tempSprite != null)
+        {
+            GUI.DrawTexture (tempRect, tempSprite.texture);
+        }
 
 		GUI.Label(tempRect, string.Format("{0} / {1}", (frameCount + 1).ToString(), CurrentClip.Frames.Length.ToString()), EditorStyles.whiteMiniLabel);
 	}
@@ -431,6 +457,11 @@ public class AnimationEditorWindow : EditorWindow
 			mCurrentSelectedPreview = -1;
 			return;
 		}
+
+        if (CurrentClip == null || CurrentClip.Sprites [CurrentClip.Frames [mCurrentSelectedPreview].SpriteIndex] == null) 
+        {
+            return;
+        }
 
 		int textureWidth = CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.width;
 		int textureHeight = CurrentClip.Sprites[ CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex ].texture.height;
@@ -621,6 +652,25 @@ public class AnimationEditorWindow : EditorWindow
 		}
 
 		return names;
+	}
+
+	private void SwapSprite(BrawlerFrameEntry frame, Sprite sprite)
+	{
+        List<Sprite> sprites = new List<Sprite>(mAnimationList[mCurrentAnimationIndex].Sprites);
+		int spriteIndex = 0;
+
+		if (!sprites.Contains (sprite as Sprite)) 
+		{
+			sprites.Add (sprite as Sprite);
+			spriteIndex = sprites.Count - 1;
+			mAnimationList [mCurrentAnimationIndex].Sprites = sprites.ToArray ();
+		} 
+		else 
+		{
+			spriteIndex = sprites.IndexOf(sprite as Sprite);
+		}
+
+		frame.SpriteIndex = spriteIndex;
 	}
 
 	private static Rect CenterRectOnOtherRect(Rect newRect, Rect otherRect)

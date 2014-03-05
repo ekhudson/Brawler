@@ -31,6 +31,7 @@ public class BaseObject : MonoBehaviour
     protected GameObject mGameObject;
     protected Renderer mRenderer;
     protected Collider mCollider;
+	protected BoxCollider mBoxCollider;
     protected Rigidbody mRigidbody;
     protected int mInstanceID;
 	protected ParticleSystem mParticleSystem;
@@ -117,6 +118,7 @@ public class BaseObject : MonoBehaviour
         mGameObject = gameObject;
         mRenderer = renderer;
         mCollider = collider;
+		mBoxCollider = collider as BoxCollider;
         mRigidbody = rigidbody;
 		mParticleSystem = particleSystem;
         mInstanceID = gameObject.GetInstanceID();

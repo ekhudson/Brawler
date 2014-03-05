@@ -11,6 +11,8 @@ public class CharacterEntity : Entity
     private bool mIsGrounded = false;
 	private PlayerStates mState = PlayerStates.USING;
 	private int mLayer = 0;
+
+	private Ray mCurrentRay;
 	
 	public enum PlayerStates
 	{
@@ -84,28 +86,28 @@ public class CharacterEntity : Entity
 
     public void CheckIfGrounded()
     {
-        Ray ray = new Ray(mTransform.position, -mTransform.up);
+		mCurrentRay = new Ray(mTransform.position + mBoxCollider.center, -mTransform.up);
         RaycastHit hit;
 
 		mIsGrounded = false;
 
-		if (Physics.Raycast(ray, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, ~(1 << mLayer)))
+		if (Physics.Raycast(mCurrentRay, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, ~(1 << mLayer)))
         {
             mIsGrounded = true;
         }
 
-		Vector3 rayOrigin = ray.origin;
+		Vector3 rayOrigin = mCurrentRay.origin;
 
 		//left bounds check
-		ray.origin = new Vector3(rayOrigin.x - (mCollider.bounds.size.x * 0.25f), rayOrigin.y, rayOrigin.z);
-		if (Physics.Raycast(ray, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, ~(1 << mLayer)))
+		mCurrentRay.origin = new Vector3(rayOrigin.x - (mCollider.bounds.size.x * 0.25f), rayOrigin.y, rayOrigin.z);
+		if (Physics.Raycast(mCurrentRay, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, ~(1 << mLayer)))
 		{
 			mIsGrounded = true;
 		}
 
 		//right bounds check
-		ray.origin = new Vector3(rayOrigin.x + (mCollider.bounds.size.x * 0.25f), rayOrigin.y, rayOrigin.z);
-		if (Physics.Raycast(ray, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, ~(1 << mLayer)))
+		mCurrentRay.origin = new Vector3(rayOrigin.x + (mCollider.bounds.size.x * 0.25f), rayOrigin.y, rayOrigin.z);
+		if (Physics.Raycast(mCurrentRay, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, ~(1 << mLayer)))
 		{
 			mIsGrounded = true;
 		}
@@ -129,6 +131,7 @@ public class CharacterEntity : Entity
             return;
         }
 
-        Debug.DrawLine(mTransform.position - new Vector3(0, mCollider.bounds.size.y * 0.5f, 0), mTransform.position - new Vector3(0, (mCollider.bounds.size.y * 0.5f) + SkinWidth, 0), Color.yellow);
+        //Debug.DrawLine(mTransform.position - new Vector3(0, mCollider.bounds.size.y * 0.5f, 0), mTransform.position - new Vector3(0, (mCollider.bounds.size.y * 0.5f) + SkinWidth, 0), Color.yellow);
+		Debug.DrawRay (mCurrentRay.origin, mCurrentRay.direction, Color.magenta, (mCollider.bounds.size.y * 0.5f) + SkinWidth);
     }
 }
