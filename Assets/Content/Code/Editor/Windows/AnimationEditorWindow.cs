@@ -23,6 +23,7 @@ public class AnimationEditorWindow : EditorWindow
 	private float mPreviewTickTime = 0f;
 	private float mPreviewTickTimeCurrent = 0f;
 	private bool mPreviewShowHitboxes = false;
+    private bool mShowSpriteList = false;
 	private int mCurrentSelectedPreview = -1;
 	private float mAnimationTicksPerSecond = 60f;
 	private bool mNeedCharacterRefresh = true;
@@ -138,6 +139,10 @@ public class AnimationEditorWindow : EditorWindow
 
 		EditorGUILayout.Space();
 
+        SpriteList ();
+
+        EditorGUILayout.Space();
+
 		FramePreviews();
 
 		EditorGUILayout.Space();
@@ -166,6 +171,29 @@ public class AnimationEditorWindow : EditorWindow
 
 		Repaint();	
 	}
+
+    private void SpriteList()
+    {
+        mShowSpriteList = GUILayout.Toggle(mShowSpriteList, "Sprite List:", EditorStyles.toolbarDropDown);
+
+        if (!mShowSpriteList)
+        {
+            return;
+        }
+
+        for(int i = 0; i < CurrentClip.Sprites.Length; i++)
+        {
+            GUILayout.BeginHorizontal();
+
+            GUILayout.Label(string.Format("Sprite Index {0}:", i.ToString()));
+
+            CurrentClip.Sprites[i] = (Sprite)EditorGUILayout.ObjectField(CurrentClip.Sprites[i], typeof(Sprite), false);
+
+            GUILayout.FlexibleSpace();
+
+            GUILayout.EndHorizontal();
+        }
+    }
 
 	private void CharacterSelector()
 	{
@@ -398,8 +426,14 @@ public class AnimationEditorWindow : EditorWindow
             mWindowReference.wantsMouseMove = true;
 		}
 
-		tempSprite = CurrentClip.Sprites[ frame.SpriteIndex ];
+        if (frame.SpriteIndex >= CurrentClip.Sprites.Length)
+        {
+            Debug.Log ("reset");
+            frame.SpriteIndex = 0;
+        }
 
+		tempSprite = CurrentClip.Sprites[ frame.SpriteIndex ];
+      
 		GUILayout.Box(string.Empty, GUILayout.Width(kControlWidthMedium), GUILayout.Height(kControlWidthMedium));
 
 		tempRect = GUILayoutUtility.GetLastRect();
@@ -458,7 +492,12 @@ public class AnimationEditorWindow : EditorWindow
 			return;
 		}
 
-        if (CurrentClip == null || CurrentClip.Sprites [CurrentClip.Frames [mCurrentSelectedPreview].SpriteIndex] == null) 
+        if (CurrentClip == null || mCurrentSelectedPreview >= CurrentClip.Frames.Length || CurrentClip.Sprites [CurrentClip.Frames [mCurrentSelectedPreview].SpriteIndex] == null) 
+        {
+            return;
+        }
+
+        if (CurrentClip.Sprites == null || CurrentClip.Sprites.Length == 0)
         {
             return;
         }
@@ -476,6 +515,27 @@ public class AnimationEditorWindow : EditorWindow
 		GUILayout.BeginHorizontal(GUI.skin.textArea);
 
 		GUILayout.BeginVertical(GUILayout.Height(kHitboxControlHeight));
+
+        int[] intArray = new int[CurrentClip.Sprites.Length];
+        string[] stringArray = new string[CurrentClip.Sprites.Length];
+
+        for (int i = 0; i < intArray.Length; i++)
+        {
+            stringArray[i] = string.Format("[{0}] - {1}",i.ToString(), CurrentClip.Sprites[i].name); 
+            intArray[i] = i;
+        }
+
+        CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex = EditorGUILayout.IntPopup("Sprite Index:", CurrentClip.Frames[mCurrentSelectedPreview].SpriteIndex, stringArray, intArray);
+
+        if (GUILayout.Button("Delete Frame"))
+        {
+            if (EditorUtility.DisplayDialog("Delete Frame", "Are you sure you want to delete this frame?", "Delete", "Cancel"))
+            {
+                ArrayUtility.Remove<BrawlerFrameEntry>(ref CurrentClip.Frames, CurrentClip.Frames[mCurrentSelectedPreview]);
+                mCurrentSelectedPreview = -1;
+                return;
+            }
+        }
 
 		HitboxControl(CurrentClip.Frames[mCurrentSelectedPreview].AttackBoxSettings, "Attack Box", Color.red);
 		HitboxControl(CurrentClip.Frames[mCurrentSelectedPreview].HeadBoxSettings, "Head Box", Color.blue);

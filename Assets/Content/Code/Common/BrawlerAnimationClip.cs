@@ -32,6 +32,12 @@ public class BrawlerAnimationClip : MonoBehaviour
 		get
 		{
             mCurrentFrame = Mathf.Clamp(mCurrentFrame, 0, Frames.Length);
+
+            if (Frames[mCurrentFrame].SpriteIndex > Sprites.Length - 1)
+            {
+                Frames[mCurrentFrame].SpriteIndex = Sprites.Length - 1;
+            }
+
 			return Sprites[Frames[mCurrentFrame].SpriteIndex];
 		}
 	}
