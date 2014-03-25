@@ -172,6 +172,19 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			mAIPlayer = value;
 		}
 	}
+
+    public SpriteRenderer PlayerSpriteRenderer
+    {
+        get
+        {
+            return mSpriteRenderer;
+        }
+        set
+        {
+            mSpriteRenderer = value;
+        }
+         
+    }
 	
 	protected override void Start()
 	{
@@ -204,20 +217,17 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				SetState(PlayerStates.FALLING);
 			}
 
-			if (!mStateController.CharacterStates[0].AnimationClip.IsPlaying)
-			{
-				mStateController.CharacterStates[0].AnimationClip.Play();
-			}
+//			if (!mStateController.CharacterStates[0].AnimationClip.IsPlaying)
+//			{
+//				mStateController.CharacterStates[0].AnimationClip.Play();
+//			}
 
-			mSpriteRenderer.sprite = mStateController.CharacterStates[0].AnimationClip.CurrentSprite;
-			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.HeadBoxSettings, HitboxController.HeadCollider, mSpriteRenderer.sprite);
-			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.BodyBoxSettings, HitboxController.BodyCollider, mSpriteRenderer.sprite);
-			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.LegBoxSettings, HitboxController.LegCollider, mSpriteRenderer.sprite);
-			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.AttackBoxSettings, HitboxController.AttackCollider, mSpriteRenderer.sprite);
-			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.CollisionBoxSettings, HitboxController.CollisionCollider, mSpriteRenderer.sprite);
-
-
-
+			//mSpriteRenderer.sprite = mStateController.CharacterStates[0].AnimationClip.CurrentSprite;
+//			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.HeadBoxSettings, HitboxController.HeadCollider, mSpriteRenderer.sprite);
+//			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.BodyBoxSettings, HitboxController.BodyCollider, mSpriteRenderer.sprite);
+//			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.LegBoxSettings, HitboxController.LegCollider, mSpriteRenderer.sprite);
+//			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.AttackBoxSettings, HitboxController.AttackCollider, mSpriteRenderer.sprite);
+//			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.CollisionBoxSettings, HitboxController.CollisionCollider, mSpriteRenderer.sprite);
 
 			break;
 			
@@ -501,7 +511,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		case PlayerStates.IDLE:
 			
 			rigidbody.useGravity = true;
-			mSpriteRenderer.sprite = DefaultSprite;
+			//mSpriteRenderer.sprite = DefaultSprite;
 			mIsDropping = false;
 			
 			break;
@@ -509,7 +519,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		case PlayerStates.MOVING:
 			
 			rigidbody.useGravity = true;
-			mSpriteRenderer.sprite = MoveSprite;
+			//mSpriteRenderer.sprite = MoveSprite;
 			mIsDropping = false;
 			
 			break;
@@ -522,7 +532,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			}
 			
 			mController.SetGrounded(false);
-			mSpriteRenderer.sprite = JumpSprite;
+			//mSpriteRenderer.sprite = JumpSprite;
 
 			break;
 
@@ -534,27 +544,27 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			}
 			
 			mController.SetGrounded(false);
-			mSpriteRenderer.sprite = JumpSprite;
+			//mSpriteRenderer.sprite = JumpSprite;
 			
 			break;
 			
 		case PlayerStates.FALLING:
 			
 			rigidbody.useGravity = true;
-			mSpriteRenderer.sprite = FallSprite;
+			//mSpriteRenderer.sprite = FallSprite;
 			
 			break;
 			
 		case PlayerStates.LANDING:
 
-			mSpriteRenderer.sprite = LandSprite;
+			//mSpriteRenderer.sprite = LandSprite;
 			
 			break;
 
 		case PlayerStates.ATTACKING_GROUND:
 
 			mSpriteRenderer.color = mPlayerColor;
-			mSpriteRenderer.sprite = AttackSprite[Random.Range(0, AttackSprite.Length)];
+			//mSpriteRenderer.sprite = AttackSprite[Random.Range(0, AttackSprite.Length)];
 			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
 			
 			break;
@@ -562,107 +572,107 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		case PlayerStates.ATTACKING_AIR:
 			
 			mSpriteRenderer.color = mPlayerColor;
-			mSpriteRenderer.sprite = JumpAttackSprite;
+			//mSpriteRenderer.sprite = JumpAttackSprite;
 			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
 			
 			break;
 
 		case PlayerStates.HURT:
 
-			mSpriteRenderer.sprite = HurtSprite;
+			//mSpriteRenderer.sprite = HurtSprite;
 			mIsDropping = false;
 			
 			break;
 
 		case PlayerStates.ATTACKING_AIR_CHARGING:
 
-			mSpriteRenderer.sprite = JumpSprite;
+			//mSpriteRenderer.sprite = JumpSprite;
 
 			break;
 
 		case PlayerStates.ATTACKING_GROUND_CHARGING:
 
-			mSpriteRenderer.sprite = DefaultSprite;
+			//mSpriteRenderer.sprite = DefaultSprite;
 
 			break;
 
 		case PlayerStates.CROUCH:
 
-			mSpriteRenderer.sprite = CrouchSprite;
+			//mSpriteRenderer.sprite = CrouchSprite;
 
 			break;
 
 		case PlayerStates.ATTACKING_CROUCH:
 
 			mSpriteRenderer.color = mPlayerColor;
-			mSpriteRenderer.sprite = CrouchPunchSprite;
+			//mSpriteRenderer.sprite = CrouchPunchSprite;
 			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
 
 			break;
 		
 		case PlayerStates.ATTACKING_CROUCH_CHARGING:
 
-			mSpriteRenderer.sprite = CrouchSprite;
+			//mSpriteRenderer.sprite = CrouchSprite;
 
 			break;
 
 		case PlayerStates.BLOCK_GROUND:
 
-			mSpriteRenderer.sprite = BlockSprite;
+			//mSpriteRenderer.sprite = BlockSprite;
 
 			break;
 
 		case PlayerStates.BLOCK_CROUCH:
 
-			mSpriteRenderer.sprite = CrouchBlockSprite;
+			//mSpriteRenderer.sprite = CrouchBlockSprite;
 
 			break;
 
 		case PlayerStates.BLOCK_AIR:
 
-			mSpriteRenderer.sprite = BlockAirSprite;
+			//mSpriteRenderer.sprite = BlockAirSprite;
 
 			break;
 
 		case PlayerStates.KICK_AIR:
 
 			mSpriteRenderer.color = mPlayerColor;
-			mSpriteRenderer.sprite = KickAirSprite;
+			//mSpriteRenderer.sprite = KickAirSprite;
 			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
 
 			break;
 
 		case PlayerStates.KICK_AIR_CHARGING:
 
-			mSpriteRenderer.sprite = JumpSprite;
+			//mSpriteRenderer.sprite = JumpSprite;
 
 			break;
 
 		case PlayerStates.KICK_CROUCH:
 
 			mSpriteRenderer.color = mPlayerColor;
-			mSpriteRenderer.sprite = CrouchKickSprite;
+			//mSpriteRenderer.sprite = CrouchKickSprite;
 			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
 
 			break;
 
 		case PlayerStates.KICK_CROUCH_CHARGING:
 
-			mSpriteRenderer.sprite = CrouchSprite;
+			//mSpriteRenderer.sprite = CrouchSprite;
 
 			break;
 
 		case PlayerStates.KICK_GROUND:
 
 			mSpriteRenderer.color = mPlayerColor;
-			mSpriteRenderer.sprite = KickSprite[Random.Range(0, KickSprite.Length)];
+			//mSpriteRenderer.sprite = KickSprite[Random.Range(0, KickSprite.Length)];
 			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
 
 			break;
 
 		case PlayerStates.KICK_GROUND_CHARGING:
 
-			mSpriteRenderer.sprite = DefaultSprite;
+			//mSpriteRenderer.sprite = DefaultSprite;
 
 			break;		
 		
@@ -675,6 +685,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		}
 		
 		mPlayerState = state;
+        mStateController.SetState(mPlayerState.ToString()); //prepare new animation
 	}
 	
 	public void InputHandler(object sender, UserInputKeyEvent evt)
