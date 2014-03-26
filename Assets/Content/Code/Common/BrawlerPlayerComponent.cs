@@ -42,26 +42,27 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 	#region Sprites
 	public Sprite DefaultSprite;
-	public Sprite JumpSprite;
-	public Sprite[] AttackSprite;
-	public Sprite JumpAttackSprite;
-	public Sprite FallSprite;
-	public Sprite LandSprite;
-	public Sprite MoveSprite;
-	public Sprite HurtSprite;
-	public Sprite DropSprite;
-	public Sprite CrouchSprite;
-	public Sprite CrouchPunchSprite;
-	public Sprite CrouchKickSprite;
-	public Sprite CrouchBlockSprite;
-	public Sprite CrouchPunchChargeSprite;
-	public Sprite CrouchKickChargeSprite;
-	public Sprite[] KickSprite;
-	public Sprite KickChargeSprite;
-	public Sprite BlockSprite;
-	public Sprite BlockAirSprite;
-	public Sprite KickAirSprite;
-	public Sprite KickAirChargeSprite;
+//	public Sprite JumpSprite;
+//	public Sprite[] AttackSprite;
+//	public Sprite JumpAttackSprite;
+//	public Sprite FallSprite;
+//	public Sprite LandSprite;
+//	public Sprite MoveSprite;
+//	public Sprite HurtSprite;
+//	public Sprite DropSprite;
+//	public Sprite CrouchSprite;
+//	public Sprite CrouchPunchSprite;
+//	public Sprite CrouchKickSprite;
+//	public Sprite CrouchBlockSprite;
+//	public Sprite CrouchPunchChargeSprite;
+//	public Sprite CrouchKickChargeSprite;
+//	public Sprite[] KickSprite;
+//	public Sprite KickChargeSprite;
+//	public Sprite BlockSprite;
+//	public Sprite BlockAirSprite;
+//	public Sprite KickAirSprite;
+//	public Sprite KickAirChargeSprite;
+    public int CurrentPlayerOrientation = 1; //1 == right, -1 == left
 	#endregion
 
 	protected Vector3 mTarget = Vector3.zero;
@@ -760,7 +761,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				if (mPlayerState == PlayerStates.FALLING && !mIsDropping)
 				{
 					mIsDropping = true;
-					mSpriteRenderer.sprite = DropSprite;
+//					mSpriteRenderer.sprite = DropSprite;
 				}
 			}
 			
@@ -938,10 +939,12 @@ public class BrawlerPlayerComponent : BrawlerHittable
 					if (evt.JoystickInfo.AmountX < 0 && mSpriteRenderer.transform.rotation.eulerAngles.y == 0)
 					{
 						mSpriteRenderer.transform.rotation = Quaternion.Euler(new Vector3(0,180,0));
+                        CurrentPlayerOrientation = -1;
 					}
 					else if (evt.JoystickInfo.AmountX > 0 && mSpriteRenderer.transform.rotation.eulerAngles.y != 0)
 					{
 						mSpriteRenderer.transform.rotation = Quaternion.Euler(new Vector3(0,0,0));
+                        CurrentPlayerOrientation = 1;
 					}
 				}
 				//else
@@ -1098,7 +1101,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 					if (mPlayerState == PlayerStates.FALLING && !mIsDropping && Mathf.Abs(evt.JoystickInfo.AmountX) < DropMaxAmountX)
 					{
 						mIsDropping = true;
-						mSpriteRenderer.sprite = DropSprite;
 					}
 				}
 

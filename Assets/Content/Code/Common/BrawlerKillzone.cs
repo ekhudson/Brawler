@@ -18,9 +18,7 @@ public class BrawlerKillzone : TriggerVolume
 			}
 
 			Transform go = (Transform)Instantiate(KillParticlePrefab, collider.transform.position, Quaternion.identity);
-			ParticleSystem deathParticle = go.GetComponent<ParticleSystem>();
-
-			Debug.Log("Killed");
+			ParticleSystem deathParticle = go.GetComponent<ParticleSystem>();			
 
 			if (deathParticle != null)
 			{

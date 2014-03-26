@@ -40,11 +40,11 @@ public class BrawlerCharacterStateController : MonoBehaviour
         }
 
         mPlayerComponent.PlayerSpriteRenderer.sprite = CurrentState.CurrentAnimationClip.CurrentSprite;
-        HitboxController.ApplySettings(CurrentState.CurrentAnimationClip.CurrentFrameEntry.HeadBoxSettings, HitboxController.HeadCollider, mPlayerComponent.PlayerSpriteRenderer.sprite);
-        HitboxController.ApplySettings(CurrentState.CurrentAnimationClip.CurrentFrameEntry.BodyBoxSettings, HitboxController.BodyCollider, mPlayerComponent.PlayerSpriteRenderer.sprite);
-        HitboxController.ApplySettings(CurrentState.CurrentAnimationClip.CurrentFrameEntry.LegBoxSettings, HitboxController.LegCollider, mPlayerComponent.PlayerSpriteRenderer.sprite);
-        HitboxController.ApplySettings(CurrentState.CurrentAnimationClip.CurrentFrameEntry.AttackBoxSettings, HitboxController.AttackCollider, mPlayerComponent.PlayerSpriteRenderer.sprite);
-        HitboxController.ApplySettings(CurrentState.CurrentAnimationClip.CurrentFrameEntry.CollisionBoxSettings, HitboxController.CollisionCollider, mPlayerComponent.PlayerSpriteRenderer.sprite);
+        HitboxController.ApplySettings(CurrentState.CurrentAnimationClip.CurrentFrameEntry.HeadBoxSettings, HitboxController.HeadCollider, mPlayerComponent.PlayerSpriteRenderer.sprite, mPlayerComponent.CurrentPlayerOrientation);
+        HitboxController.ApplySettings(CurrentState.CurrentAnimationClip.CurrentFrameEntry.BodyBoxSettings, HitboxController.BodyCollider, mPlayerComponent.PlayerSpriteRenderer.sprite, mPlayerComponent.CurrentPlayerOrientation);
+        HitboxController.ApplySettings(CurrentState.CurrentAnimationClip.CurrentFrameEntry.LegBoxSettings, HitboxController.LegCollider, mPlayerComponent.PlayerSpriteRenderer.sprite, mPlayerComponent.CurrentPlayerOrientation);
+        HitboxController.ApplySettings(CurrentState.CurrentAnimationClip.CurrentFrameEntry.AttackBoxSettings, HitboxController.AttackCollider, mPlayerComponent.PlayerSpriteRenderer.sprite, mPlayerComponent.CurrentPlayerOrientation);
+        HitboxController.ApplySettings(CurrentState.CurrentAnimationClip.CurrentFrameEntry.CollisionBoxSettings, HitboxController.CollisionCollider, mPlayerComponent.PlayerSpriteRenderer.sprite, mPlayerComponent.CurrentPlayerOrientation);
     }                         
 
     private void SetupStateDictionary()

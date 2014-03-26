@@ -14,6 +14,11 @@ public class BrawlerHitbox : TriggerVolume
 
 	public HitboxTypes HitboxType;
 
+    protected override void Start()
+    {
+        base.Start();
+    }
+
 	private void OnDrawGizmos()
 	{
 		if (!Application.isPlaying)

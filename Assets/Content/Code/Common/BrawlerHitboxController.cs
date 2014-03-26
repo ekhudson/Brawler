@@ -14,7 +14,7 @@ public class BrawlerHitboxController : BaseObject
 
 	}
 
-	public void ApplySettings(BrawlerHitboxSettings setting, BrawlerHitbox hitbox, Sprite sprite)
+	public void ApplySettings(BrawlerHitboxSettings setting, BrawlerHitbox hitbox, Sprite sprite, int orientation)
 	{
 		BoxCollider boxCollider = hitbox.BaseCollider as BoxCollider;
 
@@ -30,12 +30,16 @@ public class BrawlerHitboxController : BaseObject
 
 		Vector3 spritePosition = mGameObject.transform.parent.position;
 
+        Rect hitboxRect = new Rect(setting.Position);
+
+        //hitboxRect.width *= orientation;     
+
 		float scaleFactor = (512f / 100f) / 512f;
 
 		//boxCollider.center = new Vector3(spritePosition.x + (setting.Position.x * scaleFactor), spritePosition.y + (setting.Position.y * scaleFactor), mGameObject.transform.position.z);
 
-		boxCollider.center = new Vector3((setting.Position.x * scaleFactor), (setting.Position.y * scaleFactor), 0f);
+        boxCollider.center = new Vector3((hitboxRect.x * scaleFactor) * orientation, (hitboxRect.y * scaleFactor), 0f);
 
-		boxCollider.size = new Vector3( (setting.Position.width * scaleFactor), (setting.Position.height * scaleFactor), 1f);
+        boxCollider.size = new Vector3( (hitboxRect.width * scaleFactor), (hitboxRect.height * scaleFactor), 1f);
 	}
 }
