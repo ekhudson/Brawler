@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BrawlerHittable : BaseObject
+public class BrawlerHittable : Entity
 {
 	public bool FlashWhenHit = true;
 	private bool mHasCollider = false;
@@ -22,25 +22,25 @@ public class BrawlerHittable : BaseObject
 
 		if (mCollider != null)
 		{
-			if (mCollider.bounds.Intersects(hitEvent.HitBounds))
-			{
-				hitDirection = (mCollider.bounds.center - hitEvent.HitBounds.center);
-				actualHitPoint = hitEvent.HitBounds.center + hitDirection;
-
-				actualHitPoint -= mCollider.bounds.extents;
-				actualHitPoint -= hitEvent.HitBounds.extents;
-
-				actualHitPoint += mCollider.bounds.extents;
-
-				OnHit(hitEvent);
-			}
+//			if (mCollider.bounds.Intersects(hitEvent.HitBounds))
+//			{
+//				hitDirection = (mCollider.bounds.center - hitEvent.HitBounds.center);
+//				actualHitPoint = hitEvent.HitBounds.center + hitDirection;
+//
+//				actualHitPoint -= mCollider.bounds.extents;
+//				actualHitPoint -= hitEvent.HitBounds.extents;
+//
+//				actualHitPoint += mCollider.bounds.extents;
+//
+//				OnHit(hitEvent);
+//			}
 		}
 		else if (mRenderer != null)
 		{
-			if (mRenderer.bounds.Intersects(hitEvent.HitBounds))
-		    {
-				OnHit(hitEvent);
-			}
+//			if (mRenderer.bounds.Intersects(hitEvent.HitBounds))
+//		    {
+//				OnHit(hitEvent);
+//			}
 		}
 		else
 		{

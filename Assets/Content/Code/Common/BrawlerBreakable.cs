@@ -3,11 +3,11 @@ using System.Collections;
 
 public class BrawlerBreakable : BrawlerHittable 
 {
-	public float Health = 100;
+	//public float Health = 100;
 	public Transform DamageParticle;
 	public Transform BreakParticle;
 
-	private float mCurrentHealth = 100;
+	//private float mCurrentHealth = 100;
 
 	private const float kTestDamage = 50f;
 
@@ -18,7 +18,7 @@ public class BrawlerBreakable : BrawlerHittable
 	protected override void Start()
 	{
 		base.Start();
-		mCurrentHealth = Health;
+		//mCurrentHealth = Health;
 		mDamageColor.a = 0f;
 		mOriginalColor = mRenderer.sharedMaterial.color;
 		mOriginalMat = mRenderer.material;
@@ -31,7 +31,7 @@ public class BrawlerBreakable : BrawlerHittable
 
 	private void TakeDamage(float dmgAmt, Vector3 dmgLocation)
 	{
-		mCurrentHealth -= dmgAmt;
+		mCurrentHealth -= (int)dmgAmt;
 
 		mRenderer.material.color = Color.Lerp(mOriginalColor, mDamageColor, 1 - ( (Health - (Health - mCurrentHealth)) / Health));
 

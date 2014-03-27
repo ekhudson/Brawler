@@ -1155,7 +1155,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		float attackDamage = attackForce * attackMultiplier;
 		Vector3 attackVector = (attackDirection == Vector3.zero ? mSpriteRenderer.transform.right : attackDirection) * attackDamage;
 
-		EventManager.Instance.Post(new HitEvent(this, PunchBox.collider.bounds, PunchBox.collider.bounds.center, attackDamage, attackVector));
+		//EventManager.Instance.Post(new HitEvent(this, PunchBox.collider.bounds, PunchBox.collider.bounds.center, attackDamage, attackVector));
 	}
 
 	public void OnDrawGizmos()

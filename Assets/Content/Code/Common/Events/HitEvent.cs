@@ -4,14 +4,14 @@ using System.Collections;
 public class HitEvent : EventBase 
 {
 	public readonly Vector3 HitPoint;
-	public readonly Bounds HitBounds;
+    public readonly BaseObject Hitter;
 	public readonly float HitForce;
 	public readonly Vector3 HitVector;
 
-	public HitEvent(Object sender, Bounds hitBounds, Vector3 hitPoint, float hitForce, Vector3 hitVector) : base(hitPoint, sender)
+	public HitEvent(Object sender, BaseObject hitter, Vector3 hitPoint, float hitForce, Vector3 hitVector) : base(hitPoint, sender)
 	{		
 		HitPoint = hitPoint;
-		HitBounds = hitBounds;
+        Hitter = hitter;
 		HitForce = hitForce;
 		HitVector = hitVector;
 	}
@@ -19,7 +19,6 @@ public class HitEvent : EventBase
 	public HitEvent()
 	{		
 		HitPoint = Vector3.zero;
-		HitBounds = new Bounds();
 		HitForce = 0f;
 		HitVector = Vector3.zero;
 	}

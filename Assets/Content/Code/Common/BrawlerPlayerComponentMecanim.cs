@@ -759,7 +759,7 @@ public class BrawlerPlayerComponentMecanim : BrawlerHittable
 		float attackDamage = attackForce * attackMultiplier;
 		Vector3 attackVector = (attackDirection == Vector3.zero ? mTransform.right : attackDirection) * attackDamage;
 
-		EventManager.Instance.Post(new HitEvent(this, PunchBox.collider.bounds, PunchBox.collider.bounds.center, attackDamage, attackVector));
+		//EventManager.Instance.Post(new HitEvent(this, PunchBox.collider.bounds, PunchBox.collider.bounds.center, attackDamage, attackVector));
 
 //		foreach(Collider obj in PunchBox.ObjectList)
 //		{
