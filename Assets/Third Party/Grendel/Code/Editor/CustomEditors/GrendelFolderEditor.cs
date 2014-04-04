@@ -28,9 +28,9 @@ public class GrendelFolderEditor : GrendelEditor<GrendelFolder>
         newFolder.transform.rotation = Quaternion.identity;
         newFolder.transform.localScale = new Vector3(1,1,1);
 
-        if (Selection.activeTransform != null && Selection.activeTransform.parent != null)
+        if (Selection.activeTransform != null)
         {
-            newFolder.transform.parent = Selection.activeTransform.parent;
+            newFolder.transform.parent = Selection.activeTransform;
         }
     }
 
