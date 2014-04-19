@@ -31,11 +31,31 @@ public class BrawlerHitbox : TriggerVolume
         if (HitboxType != HitboxTypes.Attack) //TODO: Somehow make it so attack boxes are the only ones who do collision handling
         {
             return;
-        }
+        }        
 
-        Debug.Log("hit something!");
+		int victimID = 0;
 
-        EventManager.Instance.Post(new HitEvent(this, ParentEntity, transform.position, 100f, ParentEntity.gameObject.transform.right));
+		if (other.transform.parent != null)
+		{
+			victimID = other.transform.parent.gameObject.GetInstanceID();
+		}
+		else
+		{
+			victimID = other.gameObject.GetInstanceID();
+		}
+
+		if (!EntityManager.EntityDictionary.ContainsKey(victimID))
+		{
+			Debug.Log(string.Format("Hit something called {0}, but entity id {1} could not be found in the Entity Manager", other.gameObject.name, other.gameObject.GetInstanceID()));
+			return;
+		}
+		
+		Entity victim = EntityManager.EntityDictionary[victimID];
+
+		if (victim != null)
+		{
+        	EventManager.Instance.Post(new HitEvent(this, ParentEntity, victim, transform.position, 1000f, ParentEntity.gameObject.transform.right));
+		}
     }
 
 	private void OnDrawGizmos()

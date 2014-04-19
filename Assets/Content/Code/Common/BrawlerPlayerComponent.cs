@@ -42,26 +42,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 	#region Sprites
 	public Sprite DefaultSprite;
-//	public Sprite JumpSprite;
-//	public Sprite[] AttackSprite;
-//	public Sprite JumpAttackSprite;
-//	public Sprite FallSprite;
-//	public Sprite LandSprite;
-//	public Sprite MoveSprite;
-//	public Sprite HurtSprite;
-//	public Sprite DropSprite;
-//	public Sprite CrouchSprite;
-//	public Sprite CrouchPunchSprite;
-//	public Sprite CrouchKickSprite;
-//	public Sprite CrouchBlockSprite;
-//	public Sprite CrouchPunchChargeSprite;
-//	public Sprite CrouchKickChargeSprite;
-//	public Sprite[] KickSprite;
-//	public Sprite KickChargeSprite;
-//	public Sprite BlockSprite;
-//	public Sprite BlockAirSprite;
-//	public Sprite KickAirSprite;
-//	public Sprite KickAirChargeSprite;
     public int CurrentPlayerOrientation = 1; //1 == right, -1 == left
 	#endregion
 
@@ -480,6 +460,8 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		Vector3 norm = mTarget.normalized;
 		mController.Move( ((new Vector3(norm.x, 0, norm.z) * (MoveSpeed)) + new Vector3(0, mTarget.y, 0)) * Time.deltaTime);
 		mTarget = Vector3.zero; 
+
+		Debug.Log(mRigidbody.velocity);
 		
 		if (ConstantFriction > 0)
 		{
@@ -727,6 +709,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				if (mSpriteRenderer.transform.rotation.eulerAngles.y == 0)
 				{
 					mSpriteRenderer.transform.rotation = Quaternion.Euler(new Vector3(0,180,0));
+					CurrentPlayerOrientation = -1;
 				}
 
 			}
@@ -748,6 +731,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				if (mSpriteRenderer.transform.rotation.eulerAngles.y != 0)
 				{
 					mSpriteRenderer.transform.rotation = Quaternion.Euler(new Vector3(0,0,0));
+					CurrentPlayerOrientation = 1;
 				}
 			}
 			
@@ -1195,60 +1179,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		}
 	}
 
-//	public void SetHitboxesForFrame(Bounds attackBounds, Bounds headBounds, Bounds bodyBounds, Bounds legBounds, Bounds colliderBounds)
-//	{
-//		if (attackBounds == null)
-//		{
-//			AttackBox.enabled = false;
-//		}
-//		else
-//		{
-//			AttackBox.enabled = true;
-//			//AttackBox.bounds = attackBounds;
-//		}
-//
-//		if (headBounds == null)
-//		{
-//			HitBoxHead.enabled = false;
-//		}
-//		else
-//		{
-//			HitBoxHead.enabled = true;
-//			//HitBoxHead.bounds = headBounds;
-//		}
-//
-//		if (bodyBounds == null)
-//		{
-//			HitBoxHead.enabled = false;
-//		}
-//		else
-//		{
-//			HitBoxHead.enabled = true;
-//			//HitBoxBody.bounds = bodyBounds;
-//		}
-//
-//		if (legBounds == null)
-//		{
-//			HitBoxHead.enabled = false;
-//		}
-//		else
-//		{
-//			HitBoxHead.enabled = true;
-//			//HitBoxLeg.bounds = legBounds;
-//		}
-//
-//		if (colliderBounds == null)
-//		{
-//			CollisionBox.enabled = false;
-//		}
-//		else
-//		{
-//			CollisionBox.enabled = true;
-//			//CollisionBox.bounds.center = colliderBounds.center;
-//		}
-//
-//	}
-
 	public void Hurt()
 	{
 		SetState(PlayerStates.HURT);
@@ -1261,9 +1191,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			return;
 		}
 
-		Debug.Log (hitEvent.HitVector);
-
-		mRigidbody.AddForce (hitEvent.HitVector, ForceMode.VelocityChange);
+		mRigidbody.AddForce (hitEvent.HitVector * hitEvent.HitForce, ForceMode.VelocityChange);
 						
 		Transform go = (Transform)Instantiate(HitParticle, hitEvent.HitPoint, Quaternion.identity);
 		

@@ -173,7 +173,7 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 
         foreach(GrendelKeyBinding binding in mKeysDown)
         {
-            EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.KEYHELD, binding, Vector3.zero, this));
+            EventManager.Instance.Post(new UserInputKeyEvent(UserInputKeyEvent.TYPE.KEYHELD, binding, 0, Vector3.zero, this));
         }
     }
 
@@ -218,7 +218,7 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
 					inputType = UserInputKeyEvent.TYPE.KEYHELD;
 				}
 
-				EventManager.Instance.Post(new UserInputKeyEvent(inputType, binding, Vector3.zero, this));
+				EventManager.Instance.Post(new UserInputKeyEvent(inputType, binding, 0, Vector3.zero, this)); //TODO: Figure out how to get proper player index
 
                 if (inputType == UserInputKeyEvent.TYPE.KEYDOWN)
                 {
@@ -256,7 +256,7 @@ public class UserInput<T> : Singleton<T> where T  : MonoBehaviour
         {
             if (binding.Enabled)
             {
-                EventManager.Instance.Post(new UserInputKeyEvent(inputType, binding, Vector3.zero, this));
+                EventManager.Instance.Post(new UserInputKeyEvent(inputType, binding, 0, Vector3.zero, this));
 
                 if (inputType == UserInputKeyEvent.TYPE.KEYDOWN)
                 {

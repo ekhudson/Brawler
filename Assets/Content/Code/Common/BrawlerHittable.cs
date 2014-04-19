@@ -12,44 +12,23 @@ public class BrawlerHittable : Entity
 
 	protected override void Start()
 	{
+		base.Start();
 		EventManager.Instance.AddHandler<HitEvent>(HitEventHandler);
 	}
 
 	public void HitEventHandler(object sender, HitEvent hitEvent)
 	{
-		Vector3 hitDirection = Vector3.zero;
-		Vector3 actualHitPoint = Vector3.zero;
+		if (hitEvent.Victim != this)
+		{
+			return;
+		}
 
-		if (mCollider != null)
-		{
-//			if (mCollider.bounds.Intersects(hitEvent.HitBounds))
-//			{
-//				hitDirection = (mCollider.bounds.center - hitEvent.HitBounds.center);
-//				actualHitPoint = hitEvent.HitBounds.center + hitDirection;
-//
-//				actualHitPoint -= mCollider.bounds.extents;
-//				actualHitPoint -= hitEvent.HitBounds.extents;
-//
-//				actualHitPoint += mCollider.bounds.extents;
-//
-//				OnHit(hitEvent);
-//			}
-		}
-		else if (mRenderer != null)
-		{
-//			if (mRenderer.bounds.Intersects(hitEvent.HitBounds))
-//		    {
-//				OnHit(hitEvent);
-//			}
-		}
-		else
-		{
-			Debug.Log(string.Format("Hittable Object {0} has no collider or renderer, and thus can't check hit events properly", mGameObject.name), this);
-		}
+		OnHit(hitEvent);
 	}
 
 	protected virtual void OnHit(HitEvent hitEvent)
 	{
+		Debug.Log (gameObject.name + " hit" + hitEvent.Hitter.name);
 		//override to do stuff on hit
 	}
 

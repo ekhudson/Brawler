@@ -2,11 +2,12 @@ using UnityEngine;
 using System.Collections;
 
 //A rigidbody based character controller for Grendel Entities
-public class CharacterEntity : Entity
+public class CharacterEntity : BaseObject
 {
     public float SkinWidth = 0.01f;
     public float StepOffset = 0.35f;
     public float MinMoveAmount = 0.1f;
+	public LayerMask GroundLayers;
     private Vector3 mCurrentMove = Vector3.zero;
     private bool mIsGrounded = false;
 	private PlayerStates mState = PlayerStates.USING;
@@ -71,7 +72,10 @@ public class CharacterEntity : Entity
         //mTransform.Translate(mCurrentMove, Space.World);
         //mRigidbody.MovePosition(mTransform.position + mCurrentMove);
         //mRigidbody.AddRelativeForce(mCurrentMove);
-        mRigidbody.AddForce(mCurrentMove,ForceMode.VelocityChange);
+		if (mCurrentMove != Vector3.zero)
+		{
+        	mRigidbody.AddForce(mCurrentMove,ForceMode.VelocityChange);
+		}
 		//mRigidbody.velocity = mCurrentMove;
 
 
@@ -91,7 +95,7 @@ public class CharacterEntity : Entity
 
 		mIsGrounded = false;
 
-		if (Physics.Raycast(mCurrentRay, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, ~(1 << mLayer)))
+		if (Physics.Raycast(mCurrentRay, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, GroundLayers))
         {
             mIsGrounded = true;
         }
@@ -100,14 +104,15 @@ public class CharacterEntity : Entity
 
 		//left bounds check
 		mCurrentRay.origin = new Vector3(rayOrigin.x - (mCollider.bounds.size.x * 0.25f), rayOrigin.y, rayOrigin.z);
-		if (Physics.Raycast(mCurrentRay, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, ~(1 << mLayer)))
+
+		if (Physics.Raycast(mCurrentRay, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, GroundLayers))
 		{
 			mIsGrounded = true;
 		}
 
 		//right bounds check
 		mCurrentRay.origin = new Vector3(rayOrigin.x + (mCollider.bounds.size.x * 0.25f), rayOrigin.y, rayOrigin.z);
-		if (Physics.Raycast(mCurrentRay, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, ~(1 << mLayer)))
+		if (Physics.Raycast(mCurrentRay, out hit, (mCollider.bounds.size.y * 0.5f) + SkinWidth, GroundLayers))
 		{
 			mIsGrounded = true;
 		}
