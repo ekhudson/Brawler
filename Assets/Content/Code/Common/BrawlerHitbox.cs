@@ -3,7 +3,7 @@ using System.Collections;
 
 public class BrawlerHitbox : TriggerVolume 
 {
-	public enum HitboxTypes
+	public enum HitboxTypes //TODO: Make Attack Box a derivative type of BrawlerHitbox so it can do OntTriggerEnter
 	{
 		Head,
 		Body,
@@ -28,21 +28,21 @@ public class BrawlerHitbox : TriggerVolume
 
     private void OnTriggerEnter(Collider other)
     {
-        if (HitboxType != HitboxTypes.Attack) //TODO: Somehow make it so attack boxes are the only ones who do collision handling
+        if (HitboxType != HitboxTypes.Attack) //TODO: Somehow make it so attack boxes are the only ones who do collision handling [See above]
         {
             return;
         }        
 
 		int victimID = 0;
 
-		if (other.transform.parent != null)
-		{
-			victimID = other.transform.parent.gameObject.GetInstanceID();
-		}
-		else
-		{
+		//if (other.transform.parent != null)
+		//{
+		//	victimID = other.transform.parent.gameObject.GetInstanceID();
+		//}
+		//else
+		//{
 			victimID = other.gameObject.GetInstanceID();
-		}
+	//	}
 
 		if (!EntityManager.EntityDictionary.ContainsKey(victimID))
 		{
@@ -54,7 +54,7 @@ public class BrawlerHitbox : TriggerVolume
 
 		if (victim != null)
 		{
-        	EventManager.Instance.Post(new HitEvent(this, ParentEntity, victim, transform.position, 1000f, ParentEntity.gameObject.transform.right));
+        	EventManager.Instance.Post(new HitEvent(this, ParentEntity, victim, transform.position, 3000f, transform.right));
 		}
     }
 

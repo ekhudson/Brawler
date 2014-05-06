@@ -34,7 +34,7 @@ public class BrawlerHitboxController : BaseObject
 
 		float scaleFactor = (512f / 100f) / 512f;
 
-		boxCollider.center = new Vector3((hitboxRect.x * scaleFactor) * orientation, (hitboxRect.y * scaleFactor), 0f);
+		boxCollider.center = new Vector3((hitboxRect.x * scaleFactor), (hitboxRect.y * scaleFactor), 0f);
 
         boxCollider.size = new Vector3( (hitboxRect.width * scaleFactor), (hitboxRect.height * scaleFactor), 1f);
 	}

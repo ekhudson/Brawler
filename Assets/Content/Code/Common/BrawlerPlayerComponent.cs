@@ -460,8 +460,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		Vector3 norm = mTarget.normalized;
 		mController.Move( ((new Vector3(norm.x, 0, norm.z) * (MoveSpeed)) + new Vector3(0, mTarget.y, 0)) * Time.deltaTime);
 		mTarget = Vector3.zero; 
-
-		Debug.Log(mRigidbody.velocity);
 		
 		if (ConstantFriction > 0)
 		{
@@ -1191,7 +1189,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			return;
 		}
 
-		mRigidbody.AddForce (hitEvent.HitVector * hitEvent.HitForce, ForceMode.VelocityChange);
+		mTarget += (hitEvent.HitVector * hitEvent.HitForce);
 						
 		Transform go = (Transform)Instantiate(HitParticle, hitEvent.HitPoint, Quaternion.identity);
 		
