@@ -166,6 +166,21 @@ public class BrawlerPlayerComponent : BrawlerHittable
         }
          
     }
+
+	public float CurrentMoveSpeed
+	{
+		get
+		{
+			if (mController.IsGrounded)
+			{
+				return MoveSpeed;
+			}
+			else
+			{
+				return (MoveSpeed * AirControl);
+			}
+		}
+	}
 	
 	protected override void Start()
 	{
@@ -458,7 +473,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		}		
 		
 		Vector3 norm = mTarget.normalized;
-		mController.Move( ((new Vector3(norm.x, 0, norm.z) * (MoveSpeed)) + new Vector3(0, mTarget.y, 0)) * Time.deltaTime);
+		mController.Move( ((new Vector3(norm.x, 0, norm.z) * (CurrentMoveSpeed)) + new Vector3(0, mTarget.y, 0)) * Time.deltaTime);
 		mTarget = Vector3.zero; 
 		
 		if (ConstantFriction > 0)
@@ -1203,6 +1218,11 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 		Hurt ();	
 						
+	}
+
+	public void Hit(HitEvent hitEvent)
+	{
+		OnHit(hitEvent);
 	}
 	
 }

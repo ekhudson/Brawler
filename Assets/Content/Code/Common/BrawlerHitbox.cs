@@ -35,14 +35,7 @@ public class BrawlerHitbox : TriggerVolume
 
 		int victimID = 0;
 
-		//if (other.transform.parent != null)
-		//{
-		//	victimID = other.transform.parent.gameObject.GetInstanceID();
-		//}
-		//else
-		//{
-			victimID = other.gameObject.GetInstanceID();
-	//	}
+		victimID = other.gameObject.GetInstanceID();	
 
 		if (!EntityManager.EntityDictionary.ContainsKey(victimID))
 		{
