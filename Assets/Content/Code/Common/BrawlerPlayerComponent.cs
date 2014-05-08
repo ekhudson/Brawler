@@ -32,14 +32,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 	public Transform HitParticle;
 	#endregion
 
-	#region Hitboxes
-	public Collider AttackBox;
-	public Collider HitBoxHead;
-	public Collider HitBoxBody;
-	public Collider HitBoxLeg;
-	public Collider CollisionBox;
-	#endregion
-
 	#region Sprites
 	public Sprite DefaultSprite;
     public int CurrentPlayerOrientation = 1; //1 == right, -1 == left
@@ -171,14 +163,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 	{
 		get
 		{
-			if (mController.IsGrounded)
-			{
-				return MoveSpeed;
-			}
-			else
-			{
-				return (MoveSpeed * AirControl);
-			}
+			return MoveSpeed;
 		}
 	}
 	
@@ -192,7 +177,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		rigidbody.WakeUp();        
 	}  
 	
-	protected void Update()
+	protected void FixedUpdate()
 	{
 		if (mController == null || mPlayerState == PlayerStates.FROZEN)
 		{
@@ -213,25 +198,13 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				SetState(PlayerStates.FALLING);
 			}
 
-//			if (!mStateController.CharacterStates[0].AnimationClip.IsPlaying)
-//			{
-//				mStateController.CharacterStates[0].AnimationClip.Play();
-//			}
-
-			//mSpriteRenderer.sprite = mStateController.CharacterStates[0].AnimationClip.CurrentSprite;
-//			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.HeadBoxSettings, HitboxController.HeadCollider, mSpriteRenderer.sprite);
-//			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.BodyBoxSettings, HitboxController.BodyCollider, mSpriteRenderer.sprite);
-//			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.LegBoxSettings, HitboxController.LegCollider, mSpriteRenderer.sprite);
-//			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.AttackBoxSettings, HitboxController.AttackCollider, mSpriteRenderer.sprite);
-//			HitboxController.ApplySettings(mStateController.CharacterStates[0].AnimationClip.CurrentFrameEntry.CollisionBoxSettings, HitboxController.CollisionCollider, mSpriteRenderer.sprite);
-
 			break;
 			
 		case PlayerStates.MOVING:
 
 			if (Mathf.Abs(mTarget.x) <= 0f)
 			{
-				SetState(PlayerStates.IDLE);
+				//SetState(PlayerStates.IDLE);
 			}
 
 			if (!mController.IsGrounded)
@@ -472,7 +445,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 		}		
 		
-		Vector3 norm = mTarget.normalized;
+		Vector3 norm = mTarget;//.normalized;
 		mController.Move( ((new Vector3(norm.x, 0, norm.z) * (CurrentMoveSpeed)) + new Vector3(0, mTarget.y, 0)) * Time.deltaTime);
 		mTarget = Vector3.zero; 
 		

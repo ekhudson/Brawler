@@ -45,7 +45,7 @@ public class MainCamera : BaseObject
 			mPlayerViewportPositions[count] = mCamera.WorldToViewportPoint(player.transform.position);
 		}
 
-		if (BrawlerPlayerManager.Instance.CurrentActivePlayers > 1)
+		if (BrawlerPlayerManager.Instance.CurrentActivePlayers > 2)
 		{
 			Bounds boundRect = new Bounds(new Vector3(mCamera.transform.position.x, mCamera.transform.position.y, 0f), Vector3.zero);
 
@@ -54,16 +54,13 @@ public class MainCamera : BaseObject
 				boundRect.Encapsulate(point);
 			}
 
-			Vector2 vec = new Vector3(boundRect.size.x, boundRect.size.y);
+			//mCameraFrameVector.z = (boundRect.max - boundRect.min).magnitude;
 
-			mCameraFrameVector.z = vec.magnitude;
-
-			mCamera.orthographicSize = vec.magnitude;
+			//mCamera.orthographicSize = (boundRect.min - boundRect.max).magnitude;
+			//Debug.Log((boundRect.max - boundRect.min).magnitude);
 		}
 
-
 		newPosition /= BrawlerPlayerManager.Instance.CurrentActivePlayers;
-
 
 		mTransform.position = Vector3.Slerp(mTransform.position, (newPosition + OffsetFromTarget), TrackingSpeed * Time.deltaTime); 	     	   
 	}
