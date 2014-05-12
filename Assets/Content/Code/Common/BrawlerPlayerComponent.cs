@@ -12,8 +12,8 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 	//TODO: Wrap this in a PlayerAttributes class
 	#region PlayerAttributes
-	public float PlayerMinStrength = 10f;
-	public float PlayerMaxStrength = 50f;
+	public float PlayerMinStrength = 1f;
+	public float PlayerMaxStrength = 10f;
 	public float AttackTime = 0.4f;
 	public float AttackChargeTime = 1f;
 	public float MinimumTimeBetweenAttacks = 0.5f;
@@ -205,6 +205,8 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			if (Mathf.Abs(mTarget.x) <= 0f)
 			{
 				//SetState(PlayerStates.IDLE);
+
+				//This is not a good way to figure out if the player is idle. Need to find something else.
 			}
 
 			if (!mController.IsGrounded)
@@ -265,6 +267,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			{
 				SetState(PlayerStates.IDLE);
 				mLastAttackEndTime = Time.realtimeSinceStartup;
+				ResetAttack();
 			}
 			
 			break;
@@ -275,6 +278,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			{
 				SetState(PlayerStates.FALLING);
 				mLastAttackEndTime = Time.realtimeSinceStartup;
+				ResetAttack();
 			}
 
 			if (mController.IsGrounded)
@@ -291,6 +295,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			{
 				SetState(PlayerStates.CROUCH);
 				mLastAttackEndTime = Time.realtimeSinceStartup;
+				ResetAttack();
 			}
 
 			break;
@@ -369,6 +374,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			{
 				SetState(PlayerStates.FALLING);
 				mLastAttackEndTime = Time.realtimeSinceStartup;
+				ResetAttack();
 			}
 			
 			if (mController.IsGrounded)
@@ -405,6 +411,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			{
 				SetState(PlayerStates.CROUCH);
 				mLastAttackEndTime = Time.realtimeSinceStartup;
+				ResetAttack();
 			}
 			
 			break;
@@ -427,6 +434,7 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			{
 				SetState(PlayerStates.IDLE);
 				mLastAttackEndTime = Time.realtimeSinceStartup;
+				ResetAttack();
 			}
 			
 			break;
@@ -480,7 +488,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		case PlayerStates.IDLE:
 			
 			rigidbody.useGravity = true;
-			//mSpriteRenderer.sprite = DefaultSprite;
 			mIsDropping = false;
 			
 			break;
@@ -488,7 +495,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		case PlayerStates.MOVING:
 			
 			rigidbody.useGravity = true;
-			//mSpriteRenderer.sprite = MoveSprite;
 			mIsDropping = false;
 			
 			break;
@@ -501,7 +507,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			}
 			
 			mController.SetGrounded(false);
-			//mSpriteRenderer.sprite = JumpSprite;
 
 			break;
 
@@ -513,140 +518,112 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			}
 			
 			mController.SetGrounded(false);
-			//mSpriteRenderer.sprite = JumpSprite;
 			
 			break;
 			
 		case PlayerStates.FALLING:
 			
 			rigidbody.useGravity = true;
-			//mSpriteRenderer.sprite = FallSprite;
 			
 			break;
 			
 		case PlayerStates.LANDING:
 
-			//mSpriteRenderer.sprite = LandSprite;
-			
 			break;
 
 		case PlayerStates.ATTACKING_GROUND:
 
 			mSpriteRenderer.color = mPlayerColor;
-			//mSpriteRenderer.sprite = AttackSprite[Random.Range(0, AttackSprite.Length)];
-			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
-			
 			break;
 
 		case PlayerStates.ATTACKING_AIR:
 			
-			mSpriteRenderer.color = mPlayerColor;
-			//mSpriteRenderer.sprite = JumpAttackSprite;
-			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
-			
+			mSpriteRenderer.color = mPlayerColor;				
 			break;
 
 		case PlayerStates.HURT:
 
-			//mSpriteRenderer.sprite = HurtSprite;
 			mIsDropping = false;
 			
 			break;
 
 		case PlayerStates.ATTACKING_AIR_CHARGING:
 
-			//mSpriteRenderer.sprite = JumpSprite;
+			ChargeAttack();
 
 			break;
 
 		case PlayerStates.ATTACKING_GROUND_CHARGING:
 
-			//mSpriteRenderer.sprite = DefaultSprite;
+			ChargeAttack();
 
 			break;
 
 		case PlayerStates.CROUCH:
-
-			//mSpriteRenderer.sprite = CrouchSprite;
 
 			break;
 
 		case PlayerStates.ATTACKING_CROUCH:
 
 			mSpriteRenderer.color = mPlayerColor;
-			//mSpriteRenderer.sprite = CrouchPunchSprite;
-			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
 
 			break;
 		
 		case PlayerStates.ATTACKING_CROUCH_CHARGING:
 
-			//mSpriteRenderer.sprite = CrouchSprite;
+			ChargeAttack();
 
 			break;
 
 		case PlayerStates.BLOCK_GROUND:
 
-			//mSpriteRenderer.sprite = BlockSprite;
-
 			break;
 
 		case PlayerStates.BLOCK_CROUCH:
 
-			//mSpriteRenderer.sprite = CrouchBlockSprite;
-
 			break;
 
 		case PlayerStates.BLOCK_AIR:
-
-			//mSpriteRenderer.sprite = BlockAirSprite;
 
 			break;
 
 		case PlayerStates.KICK_AIR:
 
 			mSpriteRenderer.color = mPlayerColor;
-			//mSpriteRenderer.sprite = KickAirSprite;
-			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
 
 			break;
 
 		case PlayerStates.KICK_AIR_CHARGING:
 
-			//mSpriteRenderer.sprite = JumpSprite;
+			ChargeAttack();
 
 			break;
 
 		case PlayerStates.KICK_CROUCH:
 
 			mSpriteRenderer.color = mPlayerColor;
-			//mSpriteRenderer.sprite = CrouchKickSprite;
-			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
 
 			break;
 
 		case PlayerStates.KICK_CROUCH_CHARGING:
 
-			//mSpriteRenderer.sprite = CrouchSprite;
+			ChargeAttack();
 
 			break;
 
 		case PlayerStates.KICK_GROUND:
 
 			mSpriteRenderer.color = mPlayerColor;
-			//mSpriteRenderer.sprite = KickSprite[Random.Range(0, KickSprite.Length)];
-			Attack(Mathf.Lerp(PlayerMinStrength, PlayerMaxStrength, Mathf.Clamp(0, 1, mTimeInState)) , 1, mCurrentAttackDirection);
 
 			break;
 
 		case PlayerStates.KICK_GROUND_CHARGING:
 
-			//mSpriteRenderer.sprite = DefaultSprite;
+			ChargeAttack();
 
 			break;		
 		
 		}	
-
 
 		if (!carryOverTimeInState)
 		{
@@ -655,6 +632,17 @@ public class BrawlerPlayerComponent : BrawlerHittable
 		
 		mPlayerState = state;
         mStateController.SetState(mPlayerState.ToString()); //prepare new animation
+	}
+
+	private void ChargeAttack()
+	{
+		float time = Mathf.Clamp (mTimeInState / AttackChargeTime, 0f, 1f);
+		HitboxController.AttackCollider.AttackStrength = Mathf.Lerp (PlayerMinStrength, PlayerMaxStrength, time);
+	}
+
+	private void ResetAttack()
+	{
+		HitboxController.AttackCollider.AttackStrength = PlayerMinStrength;
 	}
 	
 	public void InputHandler(object sender, UserInputKeyEvent evt)
@@ -731,7 +719,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				if (mPlayerState == PlayerStates.FALLING && !mIsDropping)
 				{
 					mIsDropping = true;
-//					mSpriteRenderer.sprite = DropSprite;
 				}
 			}
 			
@@ -1116,29 +1103,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			else if (mPlayerState == PlayerStates.BLOCK_GROUND && evt.KeyBind == BrawlerUserInput.Instance.Block)
 			{
 				SetState(PlayerStates.IDLE);
-			}
-		}
-	}
-
-	private void Attack(float attackForce, float attackMultiplier, Vector3 attackDirection)
-	{
-		float attackDamage = attackForce * attackMultiplier;
-		Vector3 attackVector = (attackDirection == Vector3.zero ? mSpriteRenderer.transform.right : attackDirection) * attackDamage;
-
-		//EventManager.Instance.Post(new HitEvent(this, PunchBox.collider.bounds, PunchBox.collider.bounds.center, attackDamage, attackVector));
-	}
-
-	public void OnDrawGizmos()
-	{
-		if (mPlayerState == PlayerStates.ATTACKING_AIR_CHARGING || mPlayerState == PlayerStates.ATTACKING_GROUND_CHARGING)
-		{
-			if (mCurrentAttackDirection != Vector3.zero)
-			{
-				Gizmos.DrawLine(PunchBox.transform.position, PunchBox.transform.position + (mCurrentAttackDirection * (1 + mTimeInState)));
-			}
-			else
-			{
-				Gizmos.DrawLine(PunchBox.transform.position, PunchBox.transform.position + (mSpriteRenderer.transform.right * (1 + mTimeInState)));
 			}
 		}
 	}

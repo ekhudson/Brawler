@@ -26,32 +26,7 @@ public class BrawlerHitbox : TriggerVolume
         }
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (HitboxType != HitboxTypes.Attack) //TODO: Somehow make it so attack boxes are the only ones who do collision handling [See above]
-        {
-            return;
-        }        
-
-		int victimID = 0;
-
-		victimID = other.gameObject.GetInstanceID();	
-
-		if (!EntityManager.EntityDictionary.ContainsKey(victimID))
-		{
-			Debug.Log(string.Format("Hit something called {0}, but entity id {1} could not be found in the Entity Manager", other.gameObject.name, other.gameObject.GetInstanceID()));
-			return;
-		}
-		
-		Entity victim = EntityManager.EntityDictionary[victimID];
-
-		if (victim != null)
-		{
-        	EventManager.Instance.Post(new HitEvent(this, ParentEntity, victim, transform.position, 3000f, transform.right));
-		}
-    }
-
-	private void OnDrawGizmos()
+	protected override void OnDrawGizmos()
 	{
 		if (!Application.isPlaying)
 		{

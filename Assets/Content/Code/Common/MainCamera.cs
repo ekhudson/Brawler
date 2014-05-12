@@ -12,8 +12,9 @@ public class MainCamera : BaseObject
 	private Camera mCamera;
 	private Vector3 mCameraFrameVector = Vector3.zero;
 
-	private void Start()
+	protected override void Start()
 	{
+		base.Start();
 		mCamera = camera;
 	}
 

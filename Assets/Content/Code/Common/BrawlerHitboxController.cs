@@ -7,7 +7,7 @@ public class BrawlerHitboxController : BaseObject
 	public BrawlerHitbox BodyCollider;
 	public BrawlerHitbox LegCollider;
 	public BrawlerHitbox CollisionCollider;
-	public BrawlerHitbox AttackCollider;
+	public BrawlerAttackBox AttackCollider;
 
 	protected override void Start()
 	{
@@ -28,7 +28,7 @@ public class BrawlerHitboxController : BaseObject
 			hitbox.gameObject.SetActive(true);
 		}
 
-		Vector3 spritePosition = mGameObject.transform.parent.position;
+		//Vector3 spritePosition = mGameObject.transform.parent.position;
 
         Rect hitboxRect = new Rect(setting.Position);       
 
