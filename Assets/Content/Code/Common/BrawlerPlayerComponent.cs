@@ -319,6 +319,8 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				return;
 			}
 
+			ChargeAttack();
+
 			break;
 
 		case PlayerStates.ATTACKING_AIR_CHARGING:
@@ -337,6 +339,8 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				return;
 			}
 
+			ChargeAttack();
+
 			mTarget += mLastMovingDirection;
 
 			break;
@@ -350,6 +354,8 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				SetState(PlayerStates.ATTACKING_CROUCH);
 				return;
 			}
+
+			ChargeAttack();
 			
 			break;
 			
@@ -400,6 +406,8 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				SetState(PlayerStates.KICK_GROUND_CHARGING, true);
 				return;
 			}
+
+			ChargeAttack();
 			
 			mTarget += mLastMovingDirection;
 			
@@ -425,6 +433,8 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				SetState(PlayerStates.KICK_CROUCH);
 				return;
 			}
+
+			ChargeAttack();
 			
 			break;
 			
@@ -448,6 +458,8 @@ public class BrawlerPlayerComponent : BrawlerHittable
 				SetState(PlayerStates.KICK_GROUND);
 				return;
 			}
+
+			ChargeAttack();
 
 			break;
 
@@ -555,8 +567,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 		case PlayerStates.ATTACKING_GROUND_CHARGING:
 
-			ChargeAttack();
-
 			break;
 
 		case PlayerStates.CROUCH:
@@ -570,8 +580,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			break;
 		
 		case PlayerStates.ATTACKING_CROUCH_CHARGING:
-
-			ChargeAttack();
 
 			break;
 
@@ -595,8 +603,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 		case PlayerStates.KICK_AIR_CHARGING:
 
-			ChargeAttack();
-
 			break;
 
 		case PlayerStates.KICK_CROUCH:
@@ -607,8 +613,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 
 		case PlayerStates.KICK_CROUCH_CHARGING:
 
-			ChargeAttack();
-
 			break;
 
 		case PlayerStates.KICK_GROUND:
@@ -618,8 +622,6 @@ public class BrawlerPlayerComponent : BrawlerHittable
 			break;
 
 		case PlayerStates.KICK_GROUND_CHARGING:
-
-			ChargeAttack();
 
 			break;		
 		
